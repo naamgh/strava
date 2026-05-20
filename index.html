@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Activity Overlay Studio</title>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<style>
+  :root{
+    --bg:#0b0d10;--panel:#151922;--panel2:#10141b;--text:#f5f7fb;--muted:#8f98a8;
+    --accent:#ff5a2f;--line:rgba(255,255,255,.11);--glass:rgba(255,255,255,.08);
+    --good:#8dffca;--blue:#87a8ff;--pink:#ff83d4;--yellow:#ffe182;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;min-height:100%;background:radial-gradient(circle at 15% 0%,#252033 0,#0b0d10 38%,#07080a 100%);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;overflow-x:hidden}
+  button,input,select{font:inherit}
+  .app{max-width:520px;margin:0 auto;min-height:100vh;padding:14px 12px 120px}
+  header{position:sticky;top:0;z-index:30;margin:-14px -12px 12px;padding:14px 12px 10px;background:linear-gradient(to bottom,rgba(11,13,16,.96),rgba(11,13,16,.82),rgba(11,13,16,0));backdrop-filter:blur(16px)}
+  .brand{display:flex;align-items:center;justify-content:space-between;gap:12px}
+  h1{font-size:18px;margin:0;letter-spacing:-.04em}.sub{font-size:12px;color:var(--muted);margin-top:3px}
+  .pill{border:1px solid var(--line);background:rgba(255,255,255,.07);color:var(--text);border-radius:999px;padding:8px 11px;font-size:12px}
+  .stage-wrap{background:linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,.025));border:1px solid var(--line);border-radius:28px;padding:10px;box-shadow:0 24px 70px rgba(0,0,0,.35)}
+  .stage{position:relative;width:100%;aspect-ratio:9/16;border-radius:22px;overflow:hidden;background:#17191f;touch-action:none;isolation:isolate}
+  .bg-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:saturate(1.05) contrast(1.04)}
+  .empty{position:absolute;inset:0;display:grid;place-items:center;text-align:center;padding:32px;background:linear-gradient(145deg,#161b24,#0f1116)}
+  .empty b{font-size:24px;letter-spacing:-.06em}.empty p{color:var(--muted);line-height:1.45}.upload-btn{display:inline-flex;align-items:center;justify-content:center;margin-top:10px;border:0;background:var(--accent);color:white;border-radius:999px;padding:13px 18px;font-weight:800;box-shadow:0 10px 24px rgba(255,90,47,.28)}
+  input[type=file]{display:none}
+  .overlay{position:absolute;left:8%;top:62%;min-width:230px;touch-action:none;user-select:none;transform-origin:center;z-index:5}.overlay.selected{outline:1px dashed rgba(255,255,255,.55);outline-offset:7px;border-radius:22px}
+  .template-minimal{padding:18px 18px 16px;border-radius:24px;background:rgba(8,10,14,.52);backdrop-filter:blur(18px);border:1px solid rgba(255,255,255,.14);box-shadow:0 20px 50px rgba(0,0,0,.35)}
+  .template-minimal .big{font-size:44px;font-weight:900;letter-spacing:-.08em;line-height:.9}.template-minimal .unit{font-size:15px;color:rgba(255,255,255,.72);margin-left:5px}.template-minimal .grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:14px}.label{font-size:9px;text-transform:uppercase;letter-spacing:.14em;color:rgba(255,255,255,.5)}.val{font-size:15px;font-weight:800;margin-top:2px}
+  .template-liquid{padding:26px 22px 20px;border-radius:34px;background:rgba(255,255,255,.055);backdrop-filter:blur(18px);overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,.32)}
+  .template-liquid:before,.template-liquid:after{content:"";position:absolute;inset:auto -20% -35% -20%;height:105%;background:radial-gradient(circle at 20% 45%,rgba(255,90,47,.92),transparent 23%),radial-gradient(circle at 55% 38%,rgba(255,131,212,.72),transparent 26%),radial-gradient(circle at 80% 50%,rgba(135,168,255,.72),transparent 26%),radial-gradient(circle at 42% 72%,rgba(141,255,202,.48),transparent 25%);filter:blur(22px);opacity:.8;z-index:-1;animation:float 8s ease-in-out infinite alternate}.template-liquid:after{inset:-35% -30% auto -30%;opacity:.36;filter:blur(34px);animation-duration:11s}
+  @keyframes float{from{transform:translate3d(-3%,2%,0) scale(1)}to{transform:translate3d(4%,-3%,0) scale(1.08)}}
+  .template-liquid .big{font-size:50px;font-weight:950;letter-spacing:-.09em;line-height:.85;text-shadow:0 4px 20px rgba(0,0,0,.28)}.template-liquid .activity{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.18em;opacity:.76;margin-bottom:12px}.template-liquid .row{display:flex;gap:16px;margin-top:15px}.template-liquid .val{font-size:17px}
+  .template-route{width:245px;aspect-ratio:1;border-radius:50%;padding:24px;background:radial-gradient(circle at 50% 50%,rgba(255,255,255,.13),rgba(255,255,255,.035) 63%,rgba(255,255,255,.015));backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,.16);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;box-shadow:inset 0 0 45px rgba(255,255,255,.07),0 24px 55px rgba(0,0,0,.34)}
+  .route-line{width:150px;height:72px;margin-bottom:8px}.route-line path{fill:none;stroke:white;stroke-width:5;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 0 8px rgba(255,255,255,.8))}.template-route .big{font-size:32px;font-weight:950;letter-spacing:-.07em}.template-route .small{font-size:12px;color:rgba(255,255,255,.68);margin-top:4px}
+  .template-poster{width:270px;padding:20px;border-radius:8px;background:#f3eee6;color:#141414;box-shadow:0 20px 55px rgba(0,0,0,.36)}.template-poster .title{font-size:12px;font-weight:900;letter-spacing:.22em;text-transform:uppercase}.template-poster .big{font-size:55px;font-weight:1000;letter-spacing:-.11em;line-height:.9;margin-top:18px}.template-poster .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:20px;border-top:1px solid rgba(0,0,0,.18);padding-top:14px}.template-poster .label{color:rgba(0,0,0,.48)}.template-poster .badge{display:inline-block;margin-top:16px;background:#141414;color:#f3eee6;border-radius:999px;padding:7px 11px;font-size:11px;font-weight:900}
+  .toolbar{position:fixed;left:0;right:0;bottom:0;z-index:40;padding:10px 12px calc(12px + env(safe-area-inset-bottom));background:rgba(8,9,12,.86);backdrop-filter:blur(22px);border-top:1px solid var(--line)}
+  .bar{max-width:520px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}.bar button,.panel button{border:1px solid var(--line);background:rgba(255,255,255,.07);color:var(--text);border-radius:15px;padding:12px 10px;font-weight:800;font-size:13px}.bar button.primary,.panel button.primary{background:var(--accent);border-color:transparent;color:white}.panel{margin-top:12px;background:rgba(15,18,25,.82);border:1px solid var(--line);border-radius:24px;padding:14px;backdrop-filter:blur(18px)}
+  .tabs{display:flex;gap:8px;margin-bottom:12px;overflow:auto}.tabs button{white-space:nowrap;border:1px solid var(--line);background:rgba(255,255,255,.06);color:var(--muted);border-radius:999px;padding:9px 12px;font-weight:800;font-size:12px}.tabs button.active{background:white;color:#111}
+  .fields{display:grid;grid-template-columns:1fr 1fr;gap:10px}.field label{display:block;color:var(--muted);font-size:11px;margin:0 0 5px 4px}.field input,.field select{width:100%;background:#0d1118;color:var(--text);border:1px solid var(--line);border-radius:13px;padding:12px 11px;outline:none}.wide{grid-column:1/-1}.hint{font-size:12px;color:var(--muted);line-height:1.45;margin:10px 2px 0}.range{width:100%}.chips{display:grid;grid-template-columns:1fr 1fr;gap:8px}.chip{padding:12px;border-radius:16px;border:1px solid var(--line);background:rgba(255,255,255,.06);font-weight:850;text-align:center}.chip.active{background:rgba(255,90,47,.18);border-color:rgba(255,90,47,.55)}
+  .toast{position:fixed;left:50%;bottom:92px;transform:translateX(-50%);background:#fff;color:#111;border-radius:999px;padding:10px 14px;font-size:13px;font-weight:800;z-index:100;opacity:0;pointer-events:none;transition:.25s}.toast.show{opacity:1;bottom:108px}
+</style>
+</head>
+<body>
+<div class="app">
+  <header><div class="brand"><div><h1>Activity Overlay Studio</h1><div class="sub">Upload Strava card. Restyle. Export for socials.</div></div><button class="pill" id="resetBtn">Reset</button></div></header>
+  <div class="stage-wrap"><div class="stage" id="stage">
+    <img class="bg-img" id="bgImg" alt="uploaded activity card" style="display:none" />
+    <div class="empty" id="empty"><div><b>Drop in a Strava card</b><p>Use a screenshot/share card, then create a modern overlay for stories, reels, carousels or TikTok.</p><label class="upload-btn" for="fileInput">Upload image</label></div></div>
+    <div class="overlay selected" id="overlay"></div>
+  </div></div>
+  <input id="fileInput" type="file" accept="image/*" />
+
+  <section class="panel">
+    <div class="tabs"><button class="active" data-tab="design">Design</button><button data-tab="data">Stats</button><button data-tab="layout">Layout</button></div>
+    <div id="designTab">
+      <div class="chips" id="templates">
+        <div class="chip active" data-template="minimal">Minimal Pro</div><div class="chip" data-template="liquid">Liquid Pace</div><div class="chip" data-template="route">Route Glow</div><div class="chip" data-template="poster">Race Poster</div>
+      </div>
+      <p class="hint">Tip: drag the overlay on the card. Use export for a story-sized PNG.</p>
+    </div>
+    <div id="dataTab" style="display:none">
+      <div class="fields">
+        <div class="field"><label>Activity</label><select id="activity"><option>Run</option><option>Ride</option><option>Walk</option><option>Hike</option></select></div>
+        <div class="field"><label>Badge</label><input id="badge" value="MORNING SESSION" /></div>
+        <div class="field"><label>Distance</label><input id="distance" value="12.4" /></div>
+        <div class="field"><label>Unit</label><input id="unit" value="KM" /></div>
+        <div class="field"><label>Time</label><input id="time" value="58:02" /></div>
+        <div class="field"><label>Pace / Speed</label><input id="pace" value="4:38 /KM" /></div>
+        <div class="field"><label>Elevation</label><input id="elevation" value="+214M" /></div>
+        <div class="field"><label>Heart / Power</label><input id="power" value="156 BPM" /></div>
+        <div class="field wide"><label>Title</label><input id="title" value="SUNDAY LONG RUN" /></div>
+      </div>
+      <p class="hint">OCR can be added later. For the prototype, edit the captured stats manually.</p>
+    </div>
+    <div id="layoutTab" style="display:none">
+      <div class="field"><label>Overlay size</label><input type="range" min="60" max="150" value="100" id="scale" class="range" /></div>
+      <div class="field" style="margin-top:12px"><label>Background blur</label><input type="range" min="0" max="16" value="0" id="blur" class="range" /></div>
+      <div class="field" style="margin-top:12px"><label>Background dim</label><input type="range" min="0" max="70" value="0" id="dim" class="range" /></div>
+    </div>
+  </section>
+</div>
+<div class="toolbar"><div class="bar"><label class="pill" for="fileInput" style="display:grid;place-items:center;font-weight:850">Upload</label><button id="randomBtn">Shuffle</button><button class="primary" id="exportBtn">Export PNG</button></div></div>
+<div class="toast" id="toast">Saved PNG</div>
+<script>
+const $=s=>document.querySelector(s);const $$=s=>[...document.querySelectorAll(s)];
+const state={template:'minimal',x:8,y:62,scale:1,blur:0,dim:0};
+const fields=['activity','badge','distance','unit','time','pace','elevation','power','title'];
+function data(){return Object.fromEntries(fields.map(id=>[id,$('#'+id).value]));}
+function render(){const d=data(),o=$('#overlay');o.className='overlay selected';o.style.left=state.x+'%';o.style.top=state.y+'%';o.style.transform=`scale(${state.scale})`;o.innerHTML='';
+ if(state.template==='minimal'){o.innerHTML=`<div class="template-minimal"><div class="label">${d.badge}</div><div><span class="big">${d.distance}</span><span class="unit">${d.unit}</span></div><div class="grid"><div><div class="label">Time</div><div class="val">${d.time}</div></div><div><div class="label">Pace</div><div class="val">${d.pace}</div></div><div><div class="label">Elev</div><div class="val">${d.elevation}</div></div></div></div>`}
+ if(state.template==='liquid'){o.innerHTML=`<div class="template-liquid"><div class="activity">${d.activity} · ${d.badge}</div><div><span class="big">${d.distance}</span><span class="unit">${d.unit}</span></div><div class="row"><div><div class="label">Time</div><div class="val">${d.time}</div></div><div><div class="label">Pace</div><div class="val">${d.pace}</div></div><div><div class="label">Load</div><div class="val">${d.power}</div></div></div></div>`}
+ if(state.template==='route'){o.innerHTML=`<div class="template-route"><svg class="route-line" viewBox="0 0 200 100"><path d="M12 70 C 42 8, 58 96, 91 48 S 136 23, 157 57 S 179 92, 192 28"/></svg><div class="label">${d.title}</div><div class="big">${d.distance} ${d.unit}</div><div class="small">${d.time} · ${d.elevation}</div></div>`}
+ if(state.template==='poster'){o.innerHTML=`<div class="template-poster"><div class="title">${d.title}</div><div class="big">${d.distance}<span style="font-size:18px;letter-spacing:0"> ${d.unit}</span></div><div class="grid"><div><div class="label">Time</div><div class="val">${d.time}</div></div><div><div class="label">Pace</div><div class="val">${d.pace}</div></div><div><div class="label">Elev</div><div class="val">${d.elevation}</div></div><div><div class="label">Effort</div><div class="val">${d.power}</div></div></div><div class="badge">${d.badge}</div></div>`}
+ $('#bgImg').style.filter=`saturate(1.05) contrast(1.04) blur(${state.blur}px) brightness(${1-state.dim/100})`;
+}
+fields.forEach(id=>$('#'+id).addEventListener('input',render));
+$$('.tabs button').forEach(b=>b.onclick=()=>{$$('.tabs button').forEach(x=>x.classList.remove('active'));b.classList.add('active');['design','data','layout'].forEach(t=>$('#'+t+'Tab').style.display=t===b.dataset.tab?'block':'none')});
+$$('.chip').forEach(c=>c.onclick=()=>{state.template=c.dataset.template;$$('.chip').forEach(x=>x.classList.remove('active'));c.classList.add('active');render()});
+$('#fileInput').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{$('#bgImg').src=r.result;$('#bgImg').style.display='block';$('#empty').style.display='none'};r.readAsDataURL(f)};
+let drag=null;$('#overlay').addEventListener('pointerdown',e=>{drag={sx:e.clientX,sy:e.clientY,ox:state.x,oy:state.y};$('#overlay').setPointerCapture(e.pointerId)});
+window.addEventListener('pointermove',e=>{if(!drag)return;const rect=$('#stage').getBoundingClientRect();state.x=Math.max(-20,Math.min(95,drag.ox+(e.clientX-drag.sx)/rect.width*100));state.y=Math.max(-10,Math.min(95,drag.oy+(e.clientY-drag.sy)/rect.height*100));render()});
+window.addEventListener('pointerup',()=>drag=null);
+$('#scale').oninput=e=>{state.scale=e.target.value/100;render()};$('#blur').oninput=e=>{state.blur=+e.target.value;render()};$('#dim').oninput=e=>{state.dim=+e.target.value;render()};
+$('#randomBtn').onclick=()=>{const names=['minimal','liquid','route','poster'];state.template=names[Math.floor(Math.random()*names.length)];state.x=6+Math.random()*28;state.y=54+Math.random()*24;state.scale=.85+Math.random()*.25;$$('.chip').forEach(x=>x.classList.toggle('active',x.dataset.template===state.template));$('#scale').value=Math.round(state.scale*100);render()};
+$('#resetBtn').onclick=()=>{Object.assign(state,{template:'minimal',x:8,y:62,scale:1,blur:0,dim:0});$('#scale').value=100;$('#blur').value=0;$('#dim').value=0;$$('.chip').forEach(x=>x.classList.toggle('active',x.dataset.template==='minimal'));render()};
+$('#exportBtn').onclick=async()=>{const el=$('#stage');$('#overlay').classList.remove('selected');const canvas=await html2canvas(el,{backgroundColor:null,scale:3,useCORS:true});$('#overlay').classList.add('selected');const a=document.createElement('a');a.download='activity-overlay.png';a.href=canvas.toDataURL('image/png');a.click();toast('Saved PNG')};
+function toast(t){const el=$('#toast');el.textContent=t;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),1400)}
+render();
+</script>
+</body>
+</html>
