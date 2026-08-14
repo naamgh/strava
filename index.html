@@ -241,7 +241,7 @@
 
     .route-path {
       stroke-width: 4;
-      filter: drop-shadow(7px 7px 8px #000000);
+      filter: drop-shadow(0 0 8px currentColor)
     }
 
     .elev-path {
@@ -287,11 +287,11 @@
     .split-summary {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
-      gap: 12px
+      gap: 8px
     }
 
     .summary-card {
-      border: 0px solid rgba(255, 255, 255, .18);
+      border: 1px solid rgba(255, 255, 255, .18);
       border-radius: 14px;
       padding: 9px;
       background: rgba(255, 255, 255, .035)
@@ -320,6 +320,137 @@
       backdrop-filter: none !important
     }
 
+    .performance {
+      font-family: "SF Mono", "Roboto Mono", "Cascadia Mono", "Courier New", monospace;
+      color: rgba(255, 255, 255, .96);
+      letter-spacing: .01em;
+    }
+
+    .performance .title {
+      font-family: Inter, system-ui, sans-serif;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: .24em;
+      text-transform: uppercase;
+      opacity: .72;
+    }
+
+    .performance .hero {
+      font-family: Inter, system-ui, sans-serif;
+      font-size: 70px;
+      font-weight: 900;
+      letter-spacing: -.075em;
+      line-height: .88;
+    }
+
+    .performance .unit {
+      font-family: "SF Mono", "Roboto Mono", monospace;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .14em;
+      margin-left: 8px;
+      vertical-align: .18em;
+    }
+
+    .performance .stats {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0;
+      margin-top: 18px;
+      border-top: 1px solid rgba(255, 255, 255, .28);
+      border-bottom: 1px solid rgba(255, 255, 255, .18);
+    }
+
+    .performance .stats > div {
+      padding: 11px 10px 12px 0;
+      border: 0;
+      border-right: 1px solid rgba(255, 255, 255, .16);
+      border-radius: 0;
+      background: transparent;
+    }
+
+    .performance .stats > div:nth-child(2n) {
+      padding-left: 12px;
+      border-right: 0;
+    }
+
+    .performance .label {
+      font-size: 8px;
+      letter-spacing: .2em;
+      opacity: .55;
+    }
+
+    .performance .val {
+      margin-top: 3px;
+      font-size: 15px;
+      font-weight: 800;
+      letter-spacing: -.02em;
+    }
+
+    .brutalist {
+      font-family: Impact, "Arial Black", system-ui, sans-serif;
+      color: rgba(255, 255, 255, .98);
+      text-transform: uppercase;
+    }
+
+    .brutalist .title {
+      font-family: Inter, system-ui, sans-serif;
+      font-size: 9px;
+      font-weight: 900;
+      letter-spacing: .16em;
+      opacity: .7;
+    }
+
+    .brutalist .hero {
+      font-size: 82px;
+      line-height: .76;
+      letter-spacing: -.045em;
+      font-weight: 900;
+    }
+
+    .brutalist .unit {
+      font-family: Inter, system-ui, sans-serif;
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: .08em;
+      margin-left: 8px;
+    }
+
+    .brutalist .stats {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0;
+      margin-top: 20px;
+      border-top: 5px solid currentColor;
+      border-bottom: 2px solid currentColor;
+    }
+
+    .brutalist .stats > div {
+      padding: 10px 9px 11px 0;
+      border: 0;
+      border-right: 2px solid currentColor;
+      border-radius: 0;
+      background: transparent;
+    }
+
+    .brutalist .stats > div:nth-child(2n) {
+      padding-left: 10px;
+      border-right: 0;
+    }
+
+    .brutalist .label {
+      font-family: Inter, system-ui, sans-serif;
+      font-size: 8px;
+      font-weight: 900;
+      letter-spacing: .14em;
+    }
+
+    .brutalist .val {
+      margin-top: 2px;
+      font-size: 19px;
+      line-height: 1;
+    }
+
     .airmono {
       font-family: "SF Mono", "Roboto Mono", "Cascadia Mono", "Courier New", monospace;
       color: rgba(255, 255, 255, .9);
@@ -340,7 +471,7 @@
       font-family: Impact, "Arial Black", system-ui, sans-serif;
       color: rgba(255, 255, 255, .78);
       text-transform: uppercase;
-      text-shadow: 0 10px 10px rgba(0, 0, 0, .35)
+      text-shadow: 0 10px 30px rgba(0, 0, 0, .35)
     }
 
     .blockfade .hero {
@@ -356,7 +487,7 @@
     .editorial {
       font-family: Georgia, "Times New Roman", serif;
       color: rgba(255, 255, 255, .9);
-      text-shadow: 0 4px 10px rgba(0, 0, 0, .26)
+      text-shadow: 0 4px 20px rgba(0, 0, 0, .26)
     }
 
     .editorial .hero {
@@ -372,7 +503,7 @@
     .techgrid {
       font-family: "SF Mono", "Roboto Mono", "Courier New", monospace;
       color: #d7f5ff;
-      text-shadow: 0 0 11px rgba(90, 210, 255, .45)
+      text-shadow: 0 0 16px rgba(90, 210, 255, .45)
     }
 
     .techgrid .stats {
@@ -435,7 +566,7 @@
     }
 
     .runline .stats>div {
-      border: 0px solid rgba(255, 255, 255, .34);
+      border: 1px solid rgba(255, 255, 255, .34);
       border-radius: 999px;
       padding: 8px 11px;
       background: rgba(255, 255, 255, .04)
@@ -444,7 +575,7 @@
     .deepdata {
       font-family: "SF Mono", "Roboto Mono", "Courier New", monospace;
       background: rgba(0, 0, 0, .18);
-      border: 0px solid rgba(255, 255, 255, .18);
+      border: 1px solid rgba(255, 255, 255, .18);
       color: rgba(255, 255, 255, .92);
       border-radius: 14px
     }
@@ -700,7 +831,7 @@
     .overlay.tone-black .summary-card,
     .overlay.tone-black .fast-chip,
     .overlay.tone-black .runline .stats>div {
-      border-color: rgba(0, 0, 0, 0) !important;
+      border-color: rgba(0, 0, 0, .18) !important;
       background: rgba(0, 0, 0, .03) !important;
     }
 
@@ -712,21 +843,17 @@
     .with-bg .template {
       padding: 22px;
       border-radius: 24px !important;
-      border: none !important;
-      background: radial-gradient(circle at 20% 30%, #3f87a6, transparent 90%);
+      backdrop-filter: blur(3px) !important;
+      -webkit-backdrop-filter: blur(3px) !important
     }
 
     .with-bg.tone-white .template {
-      color: white !important;
-      border: none !important;
-      box-shadow: 0 10px 28px rgba(0,0,0,.18);
+      color: white !important
     }
 
     .with-bg.tone-black .template {
       color: #07080a !important;
-      text-shadow: #ffffff !important;
-      border: none !important;
-      box-shadow: 0 10px 28px rgba(0,0,0,.18);
+      text-shadow: none !important
     }
 
     .opacity-slider-wrap {
@@ -811,6 +938,245 @@
       border-radius: 18px
     }
 
+
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px
+    }
+
+    .layout-btn {
+      width: 42px;
+      height: 42px;
+      display: grid;
+      place-items: center;
+      padding: 0;
+      font-size: 21px;
+      line-height: 1;
+      border-radius: 999px
+    }
+
+    .layout-btn.active {
+      background: white;
+      color: #111
+    }
+
+    .overlay.layout-portrait {
+      max-width: 280px
+    }
+
+    .overlay.layout-portrait .template {
+      padding: 22px 18px
+    }
+
+    .overlay.layout-portrait .hero {
+      font-size: 44px;
+      line-height: .95;
+      letter-spacing: -.075em;
+      margin-top: 12px
+    }
+
+    .overlay.layout-portrait .unit {
+      font-size: 13px;
+      margin-left: 7px;
+      letter-spacing: .08em
+    }
+
+    .overlay.layout-portrait .stats {
+      display: grid !important;
+      grid-template-columns: 1fr !important;
+      gap: 8px;
+      margin-top: 18px
+    }
+
+    .overlay.layout-portrait .stats>div {
+      display: grid;
+      grid-template-columns: 86px 1fr;
+      align-items: baseline;
+      gap: 10px;
+      border: 0;
+      padding: 0;
+      background: transparent
+    }
+
+    .overlay.layout-portrait .val {
+      text-align: right;
+      font-size: 14px
+    }
+
+    .overlay.layout-portrait .routebox,
+    .overlay.layout-portrait .elevbox,
+    .overlay.layout-portrait .splits,
+    .overlay.layout-portrait .split-summary {
+      margin-top: 18px
+    }
+
+    .overlay.layout-portrait .routebox svg {
+      max-height: 190px
+    }
+
+    .overlay.layout-portrait .split-summary {
+      grid-template-columns: 1fr !important
+    }
+
+    .overlay.layout-portrait .split {
+      grid-template-columns: 42px 1fr 48px;
+      gap: 8px
+    }
+
+    .overlay.layout-portrait .summary-row {
+      grid-template-columns: 82px 1fr 52px;
+      gap: 8px
+    }
+
+    .overlay.layout-portrait .blockfade .hero {
+      font-size: 50px
+    }
+
+    .overlay.layout-portrait .editorial .hero {
+      font-size: 50px
+    }
+
+    .overlay.layout-portrait .deepdata .hero {
+      font-size: 38px
+    }
+
+    .overlay.layout-portrait .runline .hero {
+      font-size: 40px
+    }
+
+    .overlay.layout-portrait .performance .hero {
+      font-size: 58px;
+    }
+
+    .overlay.layout-portrait .performance .stats,
+    .overlay.layout-portrait .brutalist .stats {
+      grid-template-columns: 1fr;
+    }
+
+    .overlay.layout-portrait .performance .stats > div,
+    .overlay.layout-portrait .performance .stats > div:nth-child(2n),
+    .overlay.layout-portrait .brutalist .stats > div,
+    .overlay.layout-portrait .brutalist .stats > div:nth-child(2n) {
+      padding-left: 0;
+      padding-right: 0;
+      border-right: 0;
+      border-bottom: 1px solid rgba(255, 255, 255, .14);
+    }
+
+    .overlay.layout-portrait .performance .stats > div:last-child,
+    .overlay.layout-portrait .brutalist .stats > div:last-child {
+      border-bottom: 0;
+    }
+
+    .overlay.layout-portrait .brutalist .hero {
+      font-size: 62px;
+    }
+
+
+    /* Interval Stack — pace controls block length using a 2.0x inverse-power scale */
+    .interval-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      margin-top: 22px;
+      width: 100%;
+    }
+
+    .interval-row {
+      display: grid;
+      grid-template-columns: 72px 1fr;
+      align-items: center;
+      min-height: 58px;
+      gap: 12px;
+      position: relative;
+    }
+
+    .interval-label {
+      text-align: right;
+      line-height: 1;
+      white-space: nowrap;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .interval-label strong {
+      display: block;
+      font-size: 17px;
+      font-weight: 700;
+      letter-spacing: -.03em;
+    }
+
+    .interval-label span {
+      display: block;
+      margin-top: 5px;
+      font-size: 10px;
+      opacity: .55;
+      letter-spacing: .06em;
+    }
+
+    .interval-block-wrap {
+      display: flex;
+      align-items: center;
+      min-width: 0;
+    }
+
+    .interval-block {
+      width: var(--interval-width);
+      min-width: 26px;
+      height: 52px;
+      border-radius: 13px;
+      background: currentColor;
+      opacity: .92;
+      box-sizing: border-box;
+    }
+
+    .interval-connector {
+      width: 34px;
+      height: 5px;
+      border-radius: 999px;
+      background: currentColor;
+      opacity: .9;
+      margin: 0 auto;
+    }
+
+    .interval-row:last-child .interval-connector {
+      display: none;
+    }
+
+    .overlay.tone-white .interval-block,
+    .overlay.tone-white .interval-connector {
+      color: white;
+    }
+
+    .overlay.tone-black .interval-block,
+    .overlay.tone-black .interval-connector {
+      color: #07080a;
+    }
+
+    .interval-stack .interval-row:nth-child(2n) .interval-block {
+      opacity: .86;
+    }
+
+    .overlay.layout-portrait .interval-stack {
+      margin-top: 18px;
+    }
+
+    .overlay.layout-portrait .interval-row {
+      grid-template-columns: 62px 1fr;
+      min-height: 54px;
+      gap: 10px;
+    }
+
+    .overlay.layout-portrait .interval-label strong {
+      font-size: 15px;
+    }
+
+    .overlay.layout-portrait .interval-block {
+      height: 48px;
+      border-radius: 12px;
+    }
+
     @media(max-width:390px) {
       .hero {
         font-size: 46px
@@ -838,7 +1204,7 @@
         <div>
           <h1>Overlay Studio by Veera.cc</h1>
           <div class="sub">Hint: individually export map/elevation profile for extra creativity!</div>
-        </div><button id="resetBtn">Reset</button>
+        </div><div class="header-actions"><button id="layoutBtn" class="layout-btn" type="button" aria-label="Switch to portrait layout">▭</button><button id="resetBtn" type="button">Reset</button></div>
       </div>
     </header>
     <div class="preview-wrap">
@@ -895,28 +1261,63 @@
     </div>
   </div>
   <div class="toolbar">
-    <div class="bar"><button id="activitiesBtn">Import <span id="stravaConnectedDot"
+    <div class="bar"><button id="activitiesBtn">Activities <span id="stravaConnectedDot"
           style="display:none;width:7px;height:7px;border-radius:50%;background:#fc4c02;display:inline-block;margin-left:4px;vertical-align:middle;box-shadow:0 0 6px #fc4c02aa"></span></button><button
-        id="modulesBtn">Data Points</button><button class="primary" id="exportBtn">Export</button></div>
+        id="modulesBtn">Modules</button><button class="primary" id="exportBtn">Export PNG</button></div>
   </div>
   <div class="save-modal" id="saveModal">
     <div class="save-card"><img id="saveImg">
-      <p class="hint">Long-press the image and choose Save Image / Save to Photos.
+      <p class="hint">Transparent PNG ready. In Chrome iOS, long-press the image and choose Save Image / Save to Photos.
       </p>
-      <div class="save-actions"><button class="primary" id="closeSave">Close</button></div>
+      <div class="save-actions"><button class="primary" id="openBtn">Open Image</button><button
+          id="closeSave">Close</button></div>
     </div>
   </div>
   <div class="toast" id="toast"></div>
   <script>
-    const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)]; const profiles = { run: { title: 1, distance: 1, time: 1, pace: 1, elevation: 0, heart: 1, power: 0, route: 0, elevProfile: 0, splits: 1, date: 0 }, ride: { title: 0, distance: 1, time: 1, pace: 1, elevation: 0, heart: 1, power: 1, route: 1, elevProfile: 0, splits: 0, date: 0 }, minimal: { title: 0, distance: 1, time: 1, pace: 1, elevation: 0, heart: 0, power: 1, route: 0, elevProfile: 0, splits: 0, date: 0 }, all: { title: 1, distance: 1, time: 1, pace: 1, elevation: 1, heart: 1, power: 1, route: 1, elevProfile: 1, splits: 0, date: 1 } }; const styleDefs = [{ key: 'airmono', name: 'Air Mono', className: 'airmono nobg' }, { key: 'blockfade', name: 'Block Fade', className: 'blockfade nobg' }, { key: 'editorial', name: 'Editorial', className: 'editorial nobg' }, { key: 'techgrid', name: 'Tech Grid', className: 'techgrid nobg' }, { key: 'ghost', name: 'Ghost', className: 'ghost nobg' }, { key: 'labelmaker', name: 'Label Maker', className: 'labelmaker nobg' }, { key: 'runline', name: 'Run Line', className: 'runline nobg' }, { key: 'deepdata', name: 'Deep Data', className: 'deepdata' }]; const profileLabels = { run: 'Running Default', ride: 'Cycling Default', minimal: 'Minimal Core', all: 'All Data' }; const moduleLabels = { title: 'Title', distance: 'Distance', time: 'Time', pace: 'Pace / Speed', elevation: 'Elevation', heart: 'Heart Rate', power: 'Power', route: 'Route Map', elevProfile: 'Elevation Profile', splits: 'Splits', date: 'Date' }; const state = { token: localStorage.getItem('strava_access_token') || '', style: 'airmono', styleIndex: 0, tone: 'white', bg: false, bgOpacity: 0.75, profile: 'run', activity: null, detail: null, mods: { ...profiles.run } }; function toast(t) { let e = $('#toast'); e.textContent = t; e.classList.add('show'); setTimeout(() => e.classList.remove('show'), 2200) } function openSheet(id) { let sheet = $(id), isOpen = sheet.classList.contains('show'); closeSheets(); if (!isOpen) { $('#sheetBackdrop').classList.add('show'); sheet.classList.add('show') } } function closeSheets() { $('#sheetBackdrop').classList.remove('show'); $$('.sheet').forEach(s => s.classList.remove('show')) } function fmtTime(sec) { sec = Math.round(sec || 0); let h = Math.floor(sec / 3600), m = Math.floor(sec % 3600 / 60), s = sec % 60; return h ? `${h}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}` : `${m}:${String(s).padStart(2, '0')}` } function kind(t) { t = (t || 'Run').toLowerCase(); return t.includes('ride') || t.includes('bike') || t.includes('cycle') ? 'Ride' : t.includes('walk') ? 'Walk' : t.includes('hike') ? 'Hike' : 'Run' } function distKm(a) { return +(a.distance_km || ((a.distance || 0) / 1000).toFixed(1)) } function paceText(a) { let k = kind(a.type || a.sport_type), km = distKm(a), sec = a.moving_time || 0; if (k === 'Ride') return `${(a.average_speed_kmh || ((a.average_speed || 0) * 3.6).toFixed(1))} KM/H`; let p = sec / km, m = Math.floor(p / 60), s = Math.round(p % 60); return km ? `${m}:${String(s).padStart(2, '0')} /KM` : '--' } function data() { let a = state.detail?.activity || state.activity || {}; return { title: (a.name || 'SELECT ACTIVITY').toUpperCase(), type: kind(a.sport_type || a.type), distance: (distKm(a) || 12.4).toFixed(1), time: fmtTime(a.moving_time || 3482), pace: paceText(a), elevation: '+' + Math.round(a.total_elevation_gain ?? a.elevation_m ?? 214) + 'M', heart: a.average_heartrate ? Math.round(a.average_heartrate) + ' BPM' : '--', power: a.average_watts ? Math.round(a.average_watts) + ' W' : '--', date: a.start_date ? new Date(a.start_date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) : '' } } function pointsToPath(points, w = 300, h = 160, pad = 1) { if (!points || points.length < 2) return 'M20 120 C 70 30, 120 145, 160 78 S 230 40, 280 110'; let xs = points.map(p => p[1]), ys = points.map(p => p[0]), minX = Math.min(...xs), maxX = Math.max(...xs), minY = Math.min(...ys), maxY = Math.max(...ys), sx = (w - pad * 2) / (maxX - minX || 1), sy = (h - pad * 2) / (maxY - minY || 1), sample = points.filter((_, i) => i % Math.ceil(points.length / 90) === 0); return sample.map((p, i) => `${i ? 'L' : 'M'}${((p[1] - minX) * sx + pad).toFixed(1)} ${((maxY - p[0]) * sy + pad).toFixed(1)}`).join(' ') } function elevPath(vals, w = 320, h = 80) { if (!vals || vals.length < 2) vals = [20, 40, 32, 70, 44, 90, 76, 110, 80, 120]; let min = Math.min(...vals), max = Math.max(...vals), sample = vals.filter((_, i) => i % Math.ceil(vals.length / 90) === 0), path = sample.map((v, i) => { let x = i / (sample.length - 1) * w, y = h - ((v - min) / (max - min || 1)) * h; return `${i ? 'L' : 'M'}${x.toFixed(1)} ${y.toFixed(1)}` }).join(' '); return { line: path, fill: `${path} L${w} ${h} L0 ${h} Z` } } function routeSvg() { let path = pointsToPath(state.detail?.streams?.latlng?.data); return `<div class='routebox'><svg viewBox='0 0 300 160'><path class='route-path' d='${path}'/></svg></div>` } function elevationSvg() { let ep = elevPath(state.detail?.streams?.altitude?.data); return `<div class='elevbox'><svg viewBox='0 0 320 80'><path class='elev-fill' d='${ep.fill}'/><path class='elev-path' d='${ep.line}'/></svg></div>` } function getLaps() { let laps = (state.detail?.laps || []).filter(l => l.pace_sec_per_km); if (!laps.length && data().type === 'Run') laps = [292, 287, 279, 281, 275, 286, 283, 279, 288, 281, 276, 289, 284, 280, 277, 282, 285, 291].map((p, i) => ({ index: i + 1, pace_sec_per_km: p })); return laps } function paceStr(p) { let m = Math.floor(p / 60), s = Math.round(p % 60); return `${m}:${String(s).padStart(2, '0')}` } function splitsHtml() { let laps = getLaps(); if (!laps.length) return ''; let km = distKm(state.detail?.activity || state.activity || {}), fastest = Math.min(...laps.map(l => l.pace_sec_per_km)), slowest = Math.max(...laps.map(l => l.pace_sec_per_km)); if (km <= 8) { return `<div class='splits'>${laps.map(l => { let p = l.pace_sec_per_km, pct = 100 - ((p - fastest) / (slowest - fastest || 1)) * 55; return `<div class='split ${p === fastest ? 'fast' : ''}'><span>KM ${l.index}</span><div class='bar-bg'><div class='bar-fill' style='width:${pct}%'></div></div><span>${paceStr(p)}</span></div>` }).join('')}</div>` } let first = laps.slice(0, Math.floor(laps.length / 2)), second = laps.slice(Math.floor(laps.length / 2)); let avg = arr => arr.reduce((s, l) => s + l.pace_sec_per_km, 0) / arr.length; let fastestLap = laps.reduce((a, b) => a.pace_sec_per_km < b.pace_sec_per_km ? a : b), slowestLap = laps.reduce((a, b) => a.pace_sec_per_km > b.pace_sec_per_km ? a : b); let rows = [{ label: 'First half', value: avg(first) }, { label: 'Second half', value: avg(second) }, { label: `Fastest KM ${fastestLap.index}`, value: fastestLap.pace_sec_per_km }, { label: `Slowest KM ${slowestLap.index}`, value: slowestLap.pace_sec_per_km }]; return `<div class='split-summary'>${rows.map(r => { let pct = 100 - ((r.value - fastest) / (slowest - fastest || 1)) * 55; return `<div class='summary-row'><div class='label'>${r.label}</div><div class='bar-bg'><div class='bar-fill' style='width:${pct}%'></div></div><div class='val'>${paceStr(r.value)}</div></div>` }).join('')}</div>` }
-    function statBlock(label, val) { return `<div><div class='label'>${label}</div><div class='val'>${val}</div></div>` } function applyProfile(name, quiet = false) { state.profile = name; state.mods = { ...profiles[name] }; renderProfiles(); renderToggles(); render(); if (!quiet) toast(profileLabels[name] + ' applied') } function renderProfiles() { let box = $('#profiles'); box.innerHTML = Object.keys(profiles).map(k => `<div class='profile ${state.profile === k ? 'active' : ''}' data-profile='${k}'>${profileLabels[k]}</div>`).join(''); $$('.profile').forEach(p => p.onclick = () => applyProfile(p.dataset.profile)) } function renderToggles() { let box = $('#toggles'); box.innerHTML = Object.keys(state.mods).map(k => `<div class='toggle ${state.mods[k] ? 'active' : ''}' data-mod='${k}'>${moduleLabels[k]}</div>`).join(''); $$('.toggle').forEach(t => t.onclick = () => { let k = t.dataset.mod; state.mods[k] = state.mods[k] ? 0 : 1; state.profile = 'custom'; renderProfiles(); renderToggles(); render() }) } function renderStyles() { let box = $('#styleStrip'); box.innerHTML = styleDefs.map((s, i) => `<div class='style-pill ${state.style === s.key ? 'active' : ''}' data-i='${i}'>${s.name}</div>`).join(''); $$('.style-pill').forEach(p => p.onclick = () => setStyleByIndex(p.dataset.i)) } function setStyleByIndex(i) { i = Math.max(0, Math.min(styleDefs.length - 1, +i || 0)); state.styleIndex = i; state.style = styleDefs[i].key; renderStyles(); render(); let active = document.querySelector('.style-pill.active'); if (active) active.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' }) } function render() { let d = data(), m = state.mods, def = styleDefs.find(s => s.key === state.style) || styleDefs[0], stats = []; if (m.time) stats.push(statBlock('Time', d.time)); if (m.pace) stats.push(statBlock(d.type === 'Ride' ? 'Speed' : 'Pace', d.pace)); if (m.elevation) stats.push(statBlock('Elev', d.elevation)); if (m.heart) stats.push(statBlock('Heart', d.heart)); if (m.power && d.power !== '--') stats.push(statBlock('Power', d.power)); if (m.date && d.date) stats.push(statBlock('Date', d.date)); $('#overlay').className = `overlay tone-${state.tone} ${state.bg ? 'with-bg' : ''}`; const templateClass = state.bg ? def.className.replace('nobg', '').trim() : def.className; $('#overlay').innerHTML = `<div class='template ${templateClass}'>${m.route ? routeSvg() : ''}${m.title ? `<div class='title'>${d.title}</div>` : ''}${m.distance ? `<div class='hero'>${d.distance}<span class='unit'>KM</span></div>` : ''}<div class='stats'>${stats.join('')}</div>${m.elevProfile ? elevationSvg() : ''}${m.splits ? splitsHtml() : ''}</div>`; if (state.bg) applyGlassBg($('#overlay .template')); } async function connect() { try { let r = await fetch('/api/strava/config'), c = await r.json(); if (!r.ok) throw Error(c.error || 'Missing config'); let u = new URL('https://www.strava.com/oauth/authorize'); u.searchParams.set('client_id', c.client_id); u.searchParams.set('redirect_uri', window.location.origin + window.location.pathname); u.searchParams.set('response_type', 'code'); u.searchParams.set('approval_prompt', 'auto'); u.searchParams.set('scope', 'read,activity:read_all'); location.href = u } catch (e) { toast(e.message) } } async function oauth() { let p = new URLSearchParams(location.search), code = p.get('code'); if (p.get('error')) { toast('Strava cancelled'); history.replaceState({}, '', location.pathname) } if (!code) return; $('#status').textContent = 'Connecting to Strava…'; try { let r = await fetch('/api/strava/exchange', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ code }) }), j = await r.json(); if (!r.ok) throw Error(j.message || j.error || 'Token exchange failed'); state.token = j.access_token; localStorage.setItem('strava_access_token', state.token); renderConnectionStatus(); history.replaceState({}, '', location.pathname); toast('Strava connected'); load() } catch (e) { $('#status').textContent = e.message } } function renderConnectionStatus() { const dot = $('#stravaConnectedDot'); if (dot) dot.style.display = state.token ? 'inline-block' : 'none' } async function load() { if (!state.token) { $('#status').textContent = 'Connect Strava, then tap an activity to build your overlay.'; return } $('#status').textContent = 'Loading recent activities…'; try { let r = await fetch('/api/strava/activities', { headers: { Authorization: 'Bearer ' + state.token } }), a = await r.json(); if (!r.ok) throw Error(a.message || a.error || 'Could not load activities'); window.acts = a; $('#status').textContent = `Loaded ${a.length} activities. Tap one to import.`; $('#activityList').innerHTML = a.map((x, i) => `<button class='activity-card' data-i='${i}'><b>${x.name || x.type}</b><span>${kind(x.type)} · ${x.distance_km} km · ${fmtTime(x.moving_time)} · +${x.elevation_m} m</span></button>`).join(''); $$('.activity-card').forEach(b => b.onclick = () => importActivity(window.acts[b.dataset.i])) } catch (e) { $('#status').textContent = e.message + ' — try connecting again.' } } async function importActivity(a) { state.activity = a; state.detail = null; applyProfile(kind(a.type) === 'Ride' ? 'ride' : 'run', true); render(); toast((kind(a.type) === 'Ride' ? 'Cycling' : 'Running') + ' profile applied'); try { let r = await fetch('/api/strava/activity?id=' + a.id, { headers: { Authorization: 'Bearer ' + state.token } }), j = await r.json(); if (!r.ok) throw Error(j.message || j.error || 'Detail failed'); state.detail = j; toast('Activity imported'); closeSheets(); render() } catch (e) { toast('Basic import only: ' + e.message) } } async function exportImage() { try { toast('Preparing transparent PNG…'); let canvas = await html2canvas($('#exportStage'), { backgroundColor: null, scale: 3, useCORS: true }), dataUrl = canvas.toDataURL('image/png'); $('#saveImg').src = dataUrl; $('#saveImg').classList.add('clean-preview'); let card = $('.save-card'); card.classList.remove('white-mode', 'black-mode'); card.classList.add(state.tone === 'white' ? 'black-mode' : 'white-mode'); $('#saveModal').classList.add('show'); toast('Image ready: long-press to save') } catch (e) { toast('Export failed: ' + e.message) } } function openImage() { let src = $('#saveImg').src; if (src) window.open(src, '_blank') }
+    const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)]; const profiles = { run: { title: 1, distance: 1, time: 1, pace: 1, elevation: 0, heart: 1, power: 0, route: 0, elevProfile: 0, splits: 1, date: 0 }, ride: { title: 1, distance: 1, time: 1, pace: 1, elevation: 1, heart: 1, power: 1, route: 1, elevProfile: 0, splits: 0, date: 0 }, minimal: { title: 1, distance: 1, time: 1, pace: 1, elevation: 0, heart: 0, power: 0, route: 0, elevProfile: 0, splits: 0, date: 0 }, all: { title: 1, distance: 1, time: 1, pace: 1, elevation: 1, heart: 1, power: 1, route: 1, elevProfile: 1, splits: 1, date: 1 } }; const styleDefs = [{ key: 'editorial', name: 'Editorial', className: 'editorial nobg' }, { key: 'performance', name: 'Performance', className: 'performance nobg' }, { key: 'brutalist', name: 'Brutalist', className: 'brutalist nobg' }, { key: 'airmono', name: 'Air Mono', className: 'airmono nobg' }, { key: 'techgrid', name: 'Tech Grid', className: 'techgrid nobg' }, { key: 'ghost', name: 'Ghost', className: 'ghost nobg' }, { key: 'labelmaker', name: 'Label Maker', className: 'labelmaker nobg' }, { key: 'runline', name: 'Run Line', className: 'runline nobg' }, { key: 'deepdata', name: 'Deep Data', className: 'deepdata' }]; const profileLabels = { run: 'Running Default', ride: 'Cycling Default', minimal: 'Minimal Core', all: 'All Data' }; const moduleLabels = { title: 'Title', distance: 'Distance', time: 'Time', pace: 'Pace / Speed', elevation: 'Elevation', heart: 'Heart Rate', power: 'Power', route: 'Route Map', elevProfile: 'Elevation Profile', splits: 'Splits', date: 'Date' }; const state = { token: localStorage.getItem('strava_access_token') || '', style: 'editorial', styleIndex: 0, tone: 'white', bg: false, bgOpacity: 0.75, layout: 'landscape', profile: 'run', activity: null, detail: null, mods: { ...profiles.run } }; function toast(t) { let e = $('#toast'); e.textContent = t; e.classList.add('show'); setTimeout(() => e.classList.remove('show'), 2200) } function openSheet(id) { let sheet = $(id), isOpen = sheet.classList.contains('show'); closeSheets(); if (!isOpen) { $('#sheetBackdrop').classList.add('show'); sheet.classList.add('show') } } function closeSheets() { $('#sheetBackdrop').classList.remove('show'); $$('.sheet').forEach(s => s.classList.remove('show')) } function fmtTime(sec) { sec = Math.round(sec || 0); let h = Math.floor(sec / 3600), m = Math.floor(sec % 3600 / 60), s = sec % 60; return h ? `${h}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}` : `${m}:${String(s).padStart(2, '0')}` } function kind(t) { t = (t || 'Run').toLowerCase(); return t.includes('ride') || t.includes('bike') || t.includes('cycle') ? 'Ride' : t.includes('walk') ? 'Walk' : t.includes('hike') ? 'Hike' : 'Run' } function distKm(a) { return +(a.distance_km || ((a.distance || 0) / 1000).toFixed(1)) } function paceText(a) { let k = kind(a.type || a.sport_type), km = distKm(a), sec = a.moving_time || 0; if (k === 'Ride') return `${(a.average_speed_kmh || ((a.average_speed || 0) * 3.6).toFixed(1))} KM/H`; let p = sec / km, m = Math.floor(p / 60), s = Math.round(p % 60); return km ? `${m}:${String(s).padStart(2, '0')} /KM` : '--' } function data() { let a = state.detail?.activity || state.activity || {}; return { title: (a.name || 'SELECT ACTIVITY').toUpperCase(), type: kind(a.sport_type || a.type), distance: (distKm(a) || 12.4).toFixed(1), time: fmtTime(a.moving_time || 3482), pace: paceText(a), elevation: '+' + Math.round(a.total_elevation_gain ?? a.elevation_m ?? 214) + 'M', heart: a.average_heartrate ? Math.round(a.average_heartrate) + ' BPM' : '--', power: a.average_watts ? Math.round(a.average_watts) + ' W' : '--', date: a.start_date ? new Date(a.start_date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) : '' } } function pointsToPath(points, w = 300, h = 160, pad = 10) { if (!points || points.length < 2) return 'M20 120 C 70 30, 120 145, 160 78 S 230 40, 280 110'; let xs = points.map(p => p[1]), ys = points.map(p => p[0]), minX = Math.min(...xs), maxX = Math.max(...xs), minY = Math.min(...ys), maxY = Math.max(...ys), sx = (w - pad * 2) / (maxX - minX || 1), sy = (h - pad * 2) / (maxY - minY || 1), sample = points.filter((_, i) => i % Math.ceil(points.length / 90) === 0); return sample.map((p, i) => `${i ? 'L' : 'M'}${((p[1] - minX) * sx + pad).toFixed(1)} ${((maxY - p[0]) * sy + pad).toFixed(1)}`).join(' ') } function elevPath(vals, w = 320, h = 80) { if (!vals || vals.length < 2) vals = [20, 40, 32, 70, 44, 90, 76, 110, 80, 120]; let min = Math.min(...vals), max = Math.max(...vals), sample = vals.filter((_, i) => i % Math.ceil(vals.length / 90) === 0), path = sample.map((v, i) => { let x = i / (sample.length - 1) * w, y = h - ((v - min) / (max - min || 1)) * h; return `${i ? 'L' : 'M'}${x.toFixed(1)} ${y.toFixed(1)}` }).join(' '); return { line: path, fill: `${path} L${w} ${h} L0 ${h} Z` } } function routeSvg() { let path = pointsToPath(state.detail?.streams?.latlng?.data); return `<div class='routebox'><svg viewBox='0 0 300 160'><path class='route-path' d='${path}'/></svg></div>` } function elevationSvg() { let ep = elevPath(state.detail?.streams?.altitude?.data); return `<div class='elevbox'><svg viewBox='0 0 320 80'><path class='elev-fill' d='${ep.fill}'/><path class='elev-path' d='${ep.line}'/></svg></div>` } function getLaps() { let laps = (state.detail?.laps || []).filter(l => l.pace_sec_per_km); if (!laps.length && data().type === 'Run') laps = [292, 287, 279, 281, 275, 286, 283, 279, 288, 281, 276, 289, 284, 280, 277, 282, 285, 291].map((p, i) => ({ index: i + 1, pace_sec_per_km: p })); return laps } function paceStr(p) { let m = Math.floor(p / 60), s = Math.round(p % 60); return `${m}:${String(s).padStart(2, '0')}` } function splitsHtml() {
+      let laps = getLaps();
+      if (!laps.length) return '';
+
+      // Pace is represented visually: faster pace = longer block.
+      // 2.0x scale means width is proportional to (fastest pace / lap pace)^2.
+      let fastest = Math.min(...laps.map(l => Number(l.pace_sec_per_km)).filter(Number.isFinite));
+
+      if (!Number.isFinite(fastest) || fastest <= 0) return '';
+
+      let rows = laps.map((l, i) => {
+        let p = Number(l.pace_sec_per_km);
+        if (!Number.isFinite(p) || p <= 0) return '';
+
+        let width = Math.pow(fastest / p, 2) * 100;
+        width = Math.max(8, Math.min(100, width));
+
+        return `
+          <div class="interval-row">
+            <div class="interval-label">
+              <strong>${paceStr(p)}</strong>
+              <span>/KM</span>
+            </div>
+            <div class="interval-block-wrap">
+              <div class="interval-block" style="--interval-width:${width.toFixed(1)}%"></div>
+            </div>
+          </div>
+          ${i < laps.length - 1 ? `<div class="interval-connector"></div>` : ''}
+        `;
+      }).join('');
+
+      return `<div class="interval-stack">${rows}</div>`;
+    }
+
+    function statBlock(label, val) { return `<div><div class='label'>${label}</div><div class='val'>${val}</div></div>` } function applyProfile(name, quiet = false) { state.profile = name; state.mods = { ...profiles[name] }; renderProfiles(); renderToggles(); render(); if (!quiet) toast(profileLabels[name] + ' applied') } function renderProfiles() { let box = $('#profiles'); box.innerHTML = Object.keys(profiles).map(k => `<div class='profile ${state.profile === k ? 'active' : ''}' data-profile='${k}'>${profileLabels[k]}</div>`).join(''); $$('.profile').forEach(p => p.onclick = () => applyProfile(p.dataset.profile)) } function renderToggles() { let box = $('#toggles'); box.innerHTML = Object.keys(state.mods).map(k => `<div class='toggle ${state.mods[k] ? 'active' : ''}' data-mod='${k}'>${moduleLabels[k]}</div>`).join(''); $$('.toggle').forEach(t => t.onclick = () => { let k = t.dataset.mod; state.mods[k] = state.mods[k] ? 0 : 1; state.profile = 'custom'; renderProfiles(); renderToggles(); render() }) } function renderStyles() { let box = $('#styleStrip'); box.innerHTML = styleDefs.map((s, i) => `<div class='style-pill ${state.style === s.key ? 'active' : ''}' data-i='${i}'>${s.name}</div>`).join(''); $$('.style-pill').forEach(p => p.onclick = () => setStyleByIndex(p.dataset.i)) } function setStyleByIndex(i) { i = Math.max(0, Math.min(styleDefs.length - 1, +i || 0)); state.styleIndex = i; state.style = styleDefs[i].key; renderStyles(); render(); let active = document.querySelector('.style-pill.active'); if (active) active.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' }) } function render() { let d = data(), m = state.mods, def = styleDefs.find(s => s.key === state.style) || styleDefs[0], stats = []; if (m.time) stats.push(statBlock('Time', d.time)); if (m.pace) stats.push(statBlock(d.type === 'Ride' ? 'Speed' : 'Pace', d.pace)); if (m.elevation) stats.push(statBlock('Elev', d.elevation)); if (m.heart) stats.push(statBlock('Heart', d.heart)); if (m.power && d.power !== '--') stats.push(statBlock('Power', d.power)); if (m.date && d.date) stats.push(statBlock('Date', d.date)); $('#overlay').className = `overlay tone-${state.tone} layout-${state.layout} ${state.bg ? 'with-bg' : ''}`; const templateClass = state.bg ? def.className.replace('nobg', '').trim() : def.className; $('#overlay').innerHTML = `<div class='template ${templateClass}'>${m.title ? `<div class='title'>${d.title}</div>` : ''}${m.distance ? `<div class='hero'>${d.distance}<span class='unit'>KM</span></div>` : ''}<div class='stats'>${stats.join('')}</div>${m.route ? routeSvg() : ''}${m.elevProfile ? elevationSvg() : ''}${m.splits ? splitsHtml() : ''}</div>`; if (state.bg) applyGlassBg($('#overlay .template')); } async function connect() { try { let r = await fetch('/api/strava/config'), c = await r.json(); if (!r.ok) throw Error(c.error || 'Missing config'); let u = new URL('https://www.strava.com/oauth/authorize'); u.searchParams.set('client_id', c.client_id); u.searchParams.set('redirect_uri', location.origin + location.pathname); u.searchParams.set('response_type', 'code'); u.searchParams.set('approval_prompt', 'auto'); u.searchParams.set('scope', 'read,activity:read_all'); location.href = u } catch (e) { toast(e.message) } } async function oauth() { let p = new URLSearchParams(location.search), code = p.get('code'); if (p.get('error')) { toast('Strava cancelled'); history.replaceState({}, '', location.pathname) } if (!code) return; $('#status').textContent = 'Connecting to Strava…'; try { let r = await fetch('/api/strava/exchange', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ code }) }), j = await r.json(); if (!r.ok) throw Error(j.message || j.error || 'Token exchange failed'); state.token = j.access_token; localStorage.setItem('strava_access_token', state.token); renderConnectionStatus(); history.replaceState({}, '', location.pathname); toast('Strava connected'); load() } catch (e) { $('#status').textContent = e.message } } function renderConnectionStatus() { const dot = $('#stravaConnectedDot'); if (dot) dot.style.display = state.token ? 'inline-block' : 'none' } async function load() { if (!state.token) { $('#status').textContent = 'Connect Strava, then tap an activity to build your overlay.'; return } $('#status').textContent = 'Loading recent activities…'; try { let r = await fetch('/api/strava/activities', { headers: { Authorization: 'Bearer ' + state.token } }), a = await r.json(); if (!r.ok) throw Error(a.message || a.error || 'Could not load activities'); window.acts = a; $('#status').textContent = `Loaded ${a.length} activities. Tap one to import.`; $('#activityList').innerHTML = a.map((x, i) => `<button class='activity-card' data-i='${i}'><b>${x.name || x.type}</b><span>${kind(x.type)} · ${x.distance_km} km · ${fmtTime(x.moving_time)} · +${x.elevation_m} m</span></button>`).join(''); $$('.activity-card').forEach(b => b.onclick = () => importActivity(window.acts[b.dataset.i])) } catch (e) { $('#status').textContent = e.message + ' — try connecting again.' } } async function importActivity(a) { state.activity = a; state.detail = null; applyProfile(kind(a.type) === 'Ride' ? 'ride' : 'run', true); render(); toast((kind(a.type) === 'Ride' ? 'Cycling' : 'Running') + ' profile applied'); try { let r = await fetch('/api/strava/activity?id=' + a.id, { headers: { Authorization: 'Bearer ' + state.token } }), j = await r.json(); if (!r.ok) throw Error(j.message || j.error || 'Detail failed'); state.detail = j; toast('Activity imported'); closeSheets(); render() } catch (e) { toast('Basic import only: ' + e.message) } } async function exportImage() { try { toast('Preparing transparent PNG…'); let canvas = await html2canvas($('#exportStage'), { backgroundColor: null, scale: 3, useCORS: true }), dataUrl = canvas.toDataURL('image/png'); $('#saveImg').src = dataUrl; $('#saveImg').classList.add('clean-preview'); let card = $('.save-card'); card.classList.remove('white-mode', 'black-mode'); card.classList.add(state.tone === 'white' ? 'black-mode' : 'white-mode'); $('#saveModal').classList.add('show'); toast('Image ready: long-press to save') } catch (e) { toast('Export failed: ' + e.message) } } function openImage() { let src = $('#saveImg').src; if (src) window.open(src, '_blank') }
+    function toggleLayout() { state.layout = state.layout === 'landscape' ? 'portrait' : 'landscape'; const btn = $('#layoutBtn'); btn.textContent = state.layout === 'portrait' ? '▯' : '▭'; btn.classList.toggle('active', state.layout === 'portrait'); btn.setAttribute('aria-label', state.layout === 'portrait' ? 'Switch to landscape layout' : 'Switch to portrait layout'); render() }
     function setTone(t) { state.tone = t; $$('#toneControl button').forEach(b => b.classList.toggle('active', b.dataset.tone === t)); render() }
     function setBg(v) { state.bg = v === 'on'; $$('#bgControl button').forEach(b => b.classList.toggle('active', b.dataset.bg === v)); $('#opacitySliderWrap').classList.toggle('show', state.bg); render() }
     function applyGlassBg(el) { if (!state.bg) { el.style.background = ''; el.style.boxShadow = ''; el.style.border = ''; return } const o = state.bgOpacity; if (state.tone === 'white') { el.style.background = `rgba(0,0,0,${o})`; el.style.boxShadow = `0 18px 55px rgba(0,0,0,${Math.min(o + 0.1, 1)})`; el.style.border = `1px solid rgba(255,255,255,${Math.max(0.08, 0.25 - o * 0.2)})` } else { el.style.background = `rgba(255,255,255,${o})`; el.style.boxShadow = `0 18px 55px rgba(0,0,0,${o * 0.4})`; el.style.border = `1px solid rgba(0,0,0,${Math.max(0.06, 0.15 - o * 0.1)})` } }
     $$('#toneControl button').forEach(b => b.onclick = () => setTone(b.dataset.tone));
     $$('#bgControl button').forEach(b => b.onclick = () => setBg(b.dataset.bg));
     $('#opacitySlider').addEventListener('input', function () { state.bgOpacity = this.value / 100; $('#opacityVal').textContent = this.value + '%'; render() });
-    $('#activitiesBtn').onclick = () => openSheet('#activitiesSheet'); $('#modulesBtn').onclick = () => openSheet('#modulesSheet'); $('#stylePrev').onclick = () => setStyleByIndex(state.styleIndex - 1); $('#styleNext').onclick = () => setStyleByIndex(state.styleIndex + 1); $('#sheetBackdrop').onclick = closeSheets; $$('.closeSheet').forEach(b => b.onclick = closeSheets); $('#connectBtn').onclick = connect; $('#refreshBtn').onclick = load; $('#exportBtn').onclick = exportImage; $('#closeSave').onclick = () => $('#saveModal').classList.remove('show'); $('#resetBtn').onclick = () => { state.detail = null; state.activity = null; applyProfile('run', true); toast('Reset overlay') }; renderStyles(); renderProfiles(); renderToggles(); render(); renderConnectionStatus(); oauth(); if (state.token) load();
+    $('#layoutBtn').onclick = toggleLayout; $('#activitiesBtn').onclick = () => openSheet('#activitiesSheet'); $('#modulesBtn').onclick = () => openSheet('#modulesSheet'); $('#stylePrev').onclick = () => setStyleByIndex(state.styleIndex - 1); $('#styleNext').onclick = () => setStyleByIndex(state.styleIndex + 1); $('#sheetBackdrop').onclick = closeSheets; $$('.closeSheet').forEach(b => b.onclick = closeSheets); $('#connectBtn').onclick = connect; $('#refreshBtn').onclick = load; $('#exportBtn').onclick = exportImage; $('#openBtn').onclick = openImage; $('#closeSave').onclick = () => $('#saveModal').classList.remove('show'); $('#resetBtn').onclick = () => { state.detail = null; state.activity = null; applyProfile('run', true); toast('Reset overlay') }; renderStyles(); renderProfiles(); renderToggles(); render(); renderConnectionStatus(); oauth(); if (state.token) load();
   </script>
 </body>
 
