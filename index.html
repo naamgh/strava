@@ -1115,26 +1115,21 @@
       letter-spacing: .06em;
     }
 
-.interval-block-wrap {
-  position: relative;
-  width: 100%;
-  min-width: 0;
-  height: 52px;
-}
+    .interval-block-wrap {
+      display: flex;
+      align-items: center;
+      min-width: 0;
+    }
 
-.interval-block {
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: var(--interval-width);
-  min-width: 26px;
-  height: 52px;
-  margin: 0;
-  border-radius: 13px;
-  background: currentColor;
-  opacity: .92;
-  box-sizing: border-box;
-}
+    .interval-block {
+      width: var(--interval-width);
+      min-width: 26px;
+      height: 52px;
+      border-radius: 13px;
+      background: currentColor;
+      opacity: .92;
+      box-sizing: border-box;
+    }
 
     .interval-connector {
       width: 34px;
@@ -1177,15 +1172,84 @@
       font-size: 15px;
     }
 
-.overlay.layout-portrait .interval-block-wrap {
-  height: 48px;
-}
+    .overlay.layout-portrait .interval-block {
+      height: 48px;
+      border-radius: 12px;
+    }
 
-.overlay.layout-portrait .interval-block {
-  height: 48px;
-  border-radius: 12px;
-}
 
+    .interval-distance {
+      text-align: right;
+      white-space: nowrap;
+      font-size: 12px;
+      font-weight: 800;
+      opacity: .68;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .interval-row {
+      grid-template-columns: 58px 72px 1fr;
+    }
+
+    .interval-block-wrap {
+      position: relative;
+      width: 100%;
+      min-width: 0;
+      height: 52px;
+    }
+
+    .interval-block {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: var(--interval-width);
+      min-width: 26px;
+      height: 52px;
+      margin: 0;
+      border-radius: 13px;
+      background: currentColor;
+      opacity: .92;
+      box-sizing: border-box;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 12px;
+      color: inherit;
+      overflow: hidden;
+    }
+
+    .interval-pace {
+      font-size: 14px;
+      font-weight: 900;
+      white-space: nowrap;
+      font-variant-numeric: tabular-nums;
+      color: #07080a;
+    }
+
+    .overlay.tone-black .interval-pace {
+      color: white;
+    }
+
+    .interval-connector {
+      display: none !important;
+    }
+
+    .overlay.layout-portrait .interval-row {
+      grid-template-columns: 50px 62px 1fr;
+    }
+
+    .overlay.layout-portrait .interval-block-wrap {
+      height: 48px;
+    }
+
+    .overlay.layout-portrait .interval-block {
+      height: 48px;
+      border-radius: 12px;
+    }
+
+    .overlay.layout-portrait .interval-pace {
+      font-size: 13px;
+    }
     @media(max-width:390px) {
       .hero {
         font-size: 46px
@@ -1288,30 +1352,30 @@
       let laps = getLaps();
       if (!laps.length) return '';
 
-      // Pace is represented visually: faster pace = longer block.
-      // 2.0x scale means width is proportional to (fastest pace / lap pace)^2.
+      // Pace controls block length using the locked 2.0x inverse-pace scale.
       let fastest = Math.min(...laps.map(l => Number(l.pace_sec_per_km)).filter(Number.isFinite));
 
       if (!Number.isFinite(fastest) || fastest <= 0) return '';
 
-      let rows = laps.map((l, i) => {
+      let rows = laps.map((l) => {
         let p = Number(l.pace_sec_per_km);
         if (!Number.isFinite(p) || p <= 0) return '';
 
         let width = Math.pow(fastest / p, 2) * 100;
         width = Math.max(8, Math.min(100, width));
 
+        let distance = Number(l.distance);
+        if (!Number.isFinite(distance)) distance = 1;
+
         return `
           <div class="interval-row">
-            <div class="interval-label">
-              <strong>${paceStr(p)}</strong>
-              <span>/KM</span>
-            </div>
+            <div class="interval-distance">${distance.toFixed(1)} km</div>
             <div class="interval-block-wrap">
-              <div class="interval-block" style="--interval-width:${width.toFixed(1)}%"></div>
+              <div class="interval-block" style="--interval-width:${width.toFixed(1)}%">
+                <span class="interval-pace">${paceStr(p)}/km</span>
+              </div>
             </div>
           </div>
-          ${i < laps.length - 1 ? `<div class="interval-connector"></div>` : ''}
         `;
       }).join('');
 
