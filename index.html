@@ -1116,15 +1116,20 @@
     }
 
     .interval-block-wrap {
-      display: flex;
-      align-items: center;
+      position: relative;
+      width: 100%;
       min-width: 0;
+      height: 52px;
     }
 
     .interval-block {
+      position: absolute;
+      left: 0;
+      top: 0;
       width: var(--interval-width);
       min-width: 26px;
       height: 52px;
+      margin: 0;
       border-radius: 13px;
       background: currentColor;
       opacity: .92;
@@ -1137,8 +1142,13 @@
       border-radius: 999px;
       background: currentColor;
       opacity: .9;
-      margin: 0 auto;
+      margin: 0 0 0 84px;
     }
+
+    .overlay.layout-portrait .interval-connector {
+      margin-left: 72px;
+    }
+
 
     .interval-row:last-child .interval-connector {
       display: none;
@@ -1177,79 +1187,6 @@
       border-radius: 12px;
     }
 
-
-    .interval-distance {
-      text-align: right;
-      white-space: nowrap;
-      font-size: 12px;
-      font-weight: 800;
-      opacity: .68;
-      font-variant-numeric: tabular-nums;
-    }
-
-    .interval-row {
-      grid-template-columns: 58px 72px 1fr;
-    }
-
-    .interval-block-wrap {
-      position: relative;
-      width: 100%;
-      min-width: 0;
-      height: 52px;
-    }
-
-    .interval-block {
-      position: absolute;
-      left: 0;
-      top: 0;
-      width: var(--interval-width);
-      min-width: 26px;
-      height: 52px;
-      margin: 0;
-      border-radius: 13px;
-      background: currentColor;
-      opacity: .92;
-      box-sizing: border-box;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 0 12px;
-      color: inherit;
-      overflow: hidden;
-    }
-
-    .interval-pace {
-      font-size: 14px;
-      font-weight: 900;
-      white-space: nowrap;
-      font-variant-numeric: tabular-nums;
-      color: #07080a;
-    }
-
-    .overlay.tone-black .interval-pace {
-      color: white;
-    }
-
-    .interval-connector {
-      display: none !important;
-    }
-
-    .overlay.layout-portrait .interval-row {
-      grid-template-columns: 50px 62px 1fr;
-    }
-
-    .overlay.layout-portrait .interval-block-wrap {
-      height: 48px;
-    }
-
-    .overlay.layout-portrait .interval-block {
-      height: 48px;
-      border-radius: 12px;
-    }
-
-    .overlay.layout-portrait .interval-pace {
-      font-size: 13px;
-    }
     @media(max-width:390px) {
       .hero {
         font-size: 46px
@@ -1348,34 +1285,34 @@
   </div>
   <div class="toast" id="toast"></div>
   <script>
-    const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)]; const profiles = { run: { title: 1, distance: 1, time: 1, pace: 1, elevation: 0, heart: 1, power: 0, route: 0, elevProfile: 0, splits: 1, date: 0 }, ride: { title: 1, distance: 1, time: 1, pace: 1, elevation: 1, heart: 1, power: 1, route: 1, elevProfile: 0, splits: 0, date: 0 }, minimal: { title: 1, distance: 1, time: 1, pace: 1, elevation: 0, heart: 0, power: 0, route: 0, elevProfile: 0, splits: 0, date: 0 }, all: { title: 1, distance: 1, time: 1, pace: 1, elevation: 1, heart: 1, power: 1, route: 1, elevProfile: 1, splits: 1, date: 1 } }; const styleDefs = [{ key: 'editorial', name: 'Editorial', className: 'editorial nobg' }, { key: 'performance', name: 'Performance', className: 'performance nobg' }, { key: 'brutalist', name: 'Brutalist', className: 'brutalist nobg' }, { key: 'airmono', name: 'Air Mono', className: 'airmono nobg' }, { key: 'techgrid', name: 'Tech Grid', className: 'techgrid nobg' }, { key: 'ghost', name: 'Ghost', className: 'ghost nobg' }, { key: 'labelmaker', name: 'Label Maker', className: 'labelmaker nobg' }, { key: 'runline', name: 'Run Line', className: 'runline nobg' }, { key: 'deepdata', name: 'Deep Data', className: 'deepdata' }]; const profileLabels = { run: 'Running Default', ride: 'Cycling Default', minimal: 'Minimal Core', all: 'All Data' }; const moduleLabels = { title: 'Title', distance: 'Distance', time: 'Time', pace: 'Pace / Speed', elevation: 'Elevation', heart: 'Heart Rate', power: 'Power', route: 'Route Map', elevProfile: 'Elevation Profile', splits: 'Splits', date: 'Date' }; const state = { token: localStorage.getItem('strava_access_token') || '', style: 'editorial', styleIndex: 0, tone: 'white', bg: false, bgOpacity: 0.75, layout: 'landscape', profile: 'run', activity: null, detail: null, mods: { ...profiles.run } }; function toast(t) { let e = $('#toast'); e.textContent = t; e.classList.add('show'); setTimeout(() => e.classList.remove('show'), 2200) } function openSheet(id) { let sheet = $(id), isOpen = sheet.classList.contains('show'); closeSheets(); if (!isOpen) { $('#sheetBackdrop').classList.add('show'); sheet.classList.add('show') } } function closeSheets() { $('#sheetBackdrop').classList.remove('show'); $$('.sheet').forEach(s => s.classList.remove('show')) } function fmtTime(sec) { sec = Math.round(sec || 0); let h = Math.floor(sec / 3600), m = Math.floor(sec % 3600 / 60), s = sec % 60; return h ? `${h}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}` : `${m}:${String(s).padStart(2, '0')}` } function kind(t) { t = (t || 'Run').toLowerCase(); return t.includes('ride') || t.includes('bike') || t.includes('cycle') ? 'Ride' : t.includes('walk') ? 'Walk' : t.includes('hike') ? 'Hike' : 'Run' } function distKm(a) { return +(a.distance_km || ((a.distance || 0) / 1000).toFixed(1)) } function paceText(a) { let k = kind(a.type || a.sport_type), km = distKm(a), sec = a.moving_time || 0; if (k === 'Ride') return `${(a.average_speed_kmh || ((a.average_speed || 0) * 3.6).toFixed(1))} KM/H`; let p = sec / km, m = Math.floor(p / 60), s = Math.round(p % 60); return km ? `${m}:${String(s).padStart(2, '0')} /KM` : '--' } function data() { let a = state.detail?.activity || state.activity || {}; return { title: (a.name || 'SELECT ACTIVITY').toUpperCase(), type: kind(a.sport_type || a.type), distance: (distKm(a) || 12.4).toFixed(1), time: fmtTime(a.moving_time || 3482), pace: paceText(a), elevation: '+' + Math.round(a.total_elevation_gain ?? a.elevation_m ?? 214) + 'M', heart: a.average_heartrate ? Math.round(a.average_heartrate) + ' BPM' : '--', power: a.average_watts ? Math.round(a.average_watts) + ' W' : '--', date: a.start_date ? new Date(a.start_date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) : '' } } function pointsToPath(points, w = 300, h = 160, pad = 10) { if (!points || points.length < 2) return 'M20 120 C 70 30, 120 145, 160 78 S 230 40, 280 110'; let xs = points.map(p => p[1]), ys = points.map(p => p[0]), minX = Math.min(...xs), maxX = Math.max(...xs), minY = Math.min(...ys), maxY = Math.max(...ys), sx = (w - pad * 2) / (maxX - minX || 1), sy = (h - pad * 2) / (maxY - minY || 1), sample = points.filter((_, i) => i % Math.ceil(points.length / 90) === 0); return sample.map((p, i) => `${i ? 'L' : 'M'}${((p[1] - minX) * sx + pad).toFixed(1)} ${((maxY - p[0]) * sy + pad).toFixed(1)}`).join(' ') } function elevPath(vals, w = 320, h = 80) { if (!vals || vals.length < 2) vals = [20, 40, 32, 70, 44, 90, 76, 110, 80, 120]; let min = Math.min(...vals), max = Math.max(...vals), sample = vals.filter((_, i) => i % Math.ceil(vals.length / 90) === 0), path = sample.map((v, i) => { let x = i / (sample.length - 1) * w, y = h - ((v - min) / (max - min || 1)) * h; return `${i ? 'L' : 'M'}${x.toFixed(1)} ${y.toFixed(1)}` }).join(' '); return { line: path, fill: `${path} L${w} ${h} L0 ${h} Z` } } function routeSvg() { let path = pointsToPath(state.detail?.streams?.latlng?.data); return `<div class='routebox'><svg viewBox='0 0 300 160'><path class='route-path' d='${path}'/></svg></div>` } function elevationSvg() { let ep = elevPath(state.detail?.streams?.altitude?.data); return `<div class='elevbox'><svg viewBox='0 0 320 80'><path class='elev-fill' d='${ep.fill}'/><path class='elev-path' d='${ep.line}'/></svg></div>` } function getLaps() { let laps = (state.detail?.laps || []).filter(l => l.pace_sec_per_km); if (!laps.length && data().type === 'Run') laps = [292, 287, 279, 281, 275, 286, 283, 279, 288, 281, 276, 289, 284, 280, 277, 282, 285, 291].map((p, i) => ({ index: i + 1, pace_sec_per_km: p })); return laps } function paceStr(p) { let m = Math.floor(p / 60), s = Math.round(p % 60); return `${m}:${String(s).padStart(2, '0')}` } function splitsHtml() {
+    const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)]; const profiles = { run: { title: 1, distance: 1, time: 1, pace: 1, elevation: 0, heart: 1, power: 0, route: 0, elevProfile: 0, splits: 1, date: 0 }, ride: { title: 1, distance: 1, time: 1, pace: 1, elevation: 1, heart: 1, power: 1, route: 1, elevProfile: 0, splits: 0, date: 0 }, minimal: { title: 1, distance: 1, time: 1, pace: 1, elevation: 0, heart: 0, power: 0, route: 0, elevProfile: 0, splits: 0, date: 0 }, all: { title: 1, distance: 1, time: 1, pace: 1, elevation: 1, heart: 1, power: 1, route: 1, elevProfile: 1, splits: 1, date: 1 } }; const styleDefs = [{ key: 'editorial', name: 'Editorial', className: 'editorial nobg' }, { key: 'performance', name: 'Performance', className: 'performance nobg' }, { key: 'brutalist', name: 'Brutalist', className: 'brutalist nobg' }, { key: 'airmono', name: 'Air Mono', className: 'airmono nobg' }, { key: 'techgrid', name: 'Tech Grid', className: 'techgrid nobg' }, { key: 'ghost', name: 'Ghost', className: 'ghost nobg' }, { key: 'labelmaker', name: 'Label Maker', className: 'labelmaker nobg' }, { key: 'runline', name: 'Run Line', className: 'runline nobg' }, { key: 'deepdata', name: 'Deep Data', className: 'deepdata' }]; const profileLabels = { run: 'Running Default', ride: 'Cycling Default', minimal: 'Minimal Core', all: 'All Data' }; const moduleLabels = { title: 'Title', distance: 'Distance', time: 'Time', pace: 'Pace / Speed', elevation: 'Elevation', heart: 'Heart Rate', power: 'Power', route: 'Route Map', elevProfile: 'Elevation Profile', splits: 'Splits', date: 'Date' }; const state = { token: localStorage.getItem('strava_access_token') || '', style: 'editorial', styleIndex: 0, tone: 'white', bg: false, bgOpacity: 0.75, layout: 'landscape', profile: 'run', activity: null, detail: null, mods: { ...profiles.run } }; function toast(t) { let e = $('#toast'); e.textContent = t; e.classList.add('show'); setTimeout(() => e.classList.remove('show'), 2200) } function openSheet(id) { let sheet = $(id), isOpen = sheet.classList.contains('show'); closeSheets(); if (!isOpen) { $('#sheetBackdrop').classList.add('show'); sheet.classList.add('show') } } function closeSheets() { $('#sheetBackdrop').classList.remove('show'); $$('.sheet').forEach(s => s.classList.remove('show')) } function fmtTime(sec) { sec = Math.round(sec || 0); let h = Math.floor(sec / 3600), m = Math.floor(sec % 3600 / 60), s = sec % 60; return h ? `${h}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}` : `${m}:${String(s).padStart(2, '0')}` } function kind(t) { t = (t || 'Run').toLowerCase(); return t.includes('ride') || t.includes('bike') || t.includes('cycle') ? 'Ride' : t.includes('walk') ? 'Walk' : t.includes('hike') ? 'Hike' : 'Run' } function distKm(a) { return +(a.distance_km || ((a.distance || 0) / 1000).toFixed(1)) } function paceText(a) { let k = kind(a.type || a.sport_type), km = distKm(a), sec = a.moving_time || 0; if (k === 'Ride') return `${(a.average_speed_kmh || ((a.average_speed || 0) * 3.6).toFixed(1))} KM/H`; let p = sec / km, m = Math.floor(p / 60), s = Math.round(p % 60); return km ? `${m}:${String(s).padStart(2, '0')} /KM` : '--' } function data() { let a = state.detail?.activity || state.activity || {}; return { title: (a.name || 'SELECT ACTIVITY').toUpperCase(), type: kind(a.sport_type || a.type), distance: (distKm(a) || 12.4).toFixed(1), time: fmtTime(a.moving_time || 3482), pace: paceText(a), elevation: '+' + Math.round(a.total_elevation_gain ?? a.elevation_m ?? 214) + 'M', heart: a.average_heartrate ? Math.round(a.average_heartrate) + ' BPM' : '--', power: a.average_watts ? Math.round(a.average_watts) + ' W' : '--', date: a.start_date ? new Date(a.start_date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) : '' } } function pointsToPath(points, w = 300, h = 160, pad = 10) { if (!points || points.length < 2) return 'M20 120 C 70 30, 120 145, 160 78 S 230 40, 280 110'; let xs = points.map(p => p[1]), ys = points.map(p => p[0]), minX = Math.min(...xs), maxX = Math.max(...xs), minY = Math.min(...ys), maxY = Math.max(...ys), sx = (w - pad * 2) / (maxX - minX || 1), sy = (h - pad * 2) / (maxY - minY || 1), sample = points.filter((_, i) => i % Math.ceil(points.length / 90) === 0); return sample.map((p, i) => `${i ? 'L' : 'M'}${((p[1] - minX) * sx + pad).toFixed(1)} ${((maxY - p[0]) * sy + pad).toFixed(1)}`).join(' ') } function elevPath(vals, w = 320, h = 80) { if (!vals || vals.length < 2) vals = [20, 40, 32, 70, 44, 90, 76, 110, 80, 120]; let min = Math.min(...vals), max = Math.max(...vals), sample = vals.filter((_, i) => i % Math.ceil(vals.length / 90) === 0), path = sample.map((v, i) => { let x = i / (sample.length - 1) * w, y = h - ((v - min) / (max - min || 1)) * h; return `${i ? 'L' : 'M'}${x.toFixed(1)} ${y.toFixed(1)}` }).join(' '); return { line: path, fill: `${path} L${w} ${h} L0 ${h} Z` } } function routeSvg() { let path = pointsToPath(state.detail?.streams?.latlng?.data); return `<div class='routebox'><svg viewBox='0 0 300 160'><path class='route-path' d='${path}'/></svg></div>` } function elevationSvg() { let ep = elevPath(state.detail?.streams?.altitude?.data); return `<div class='elevbox'><svg viewBox='0 0 320 80'><path class='elev-fill' d='${ep.fill}'/><path class='elev-path' d='${ep.line}'/></svg></div>` } function getLaps() { let laps = (state.detail?.laps || []).filter(l => l.pace_sec_per_km); if (!laps.length && data().type === 'Run') laps = [292, 287].map((p, i) => ({ index: i + 1, pace_sec_per_km: p })); return laps } function paceStr(p) { let m = Math.floor(p / 60), s = Math.round(p % 60); return `${m}:${String(s).padStart(2, '0')}` } function splitsHtml() {
       let laps = getLaps();
       if (!laps.length) return '';
 
-      // Pace controls block length using the locked 2.0x inverse-pace scale.
+      // Pace is represented visually: faster pace = longer block.
+      // 2.0x scale means width is proportional to (fastest pace / lap pace)^2.
       let fastest = Math.min(...laps.map(l => Number(l.pace_sec_per_km)).filter(Number.isFinite));
 
       if (!Number.isFinite(fastest) || fastest <= 0) return '';
 
-      let rows = laps.map((l) => {
+      let rows = laps.map((l, i) => {
         let p = Number(l.pace_sec_per_km);
         if (!Number.isFinite(p) || p <= 0) return '';
 
         let width = Math.pow(fastest / p, 2) * 100;
         width = Math.max(8, Math.min(100, width));
 
-        let distance = Number(l.distance);
-        if (!Number.isFinite(distance)) distance = 1;
-
         return `
           <div class="interval-row">
-            <div class="interval-distance">${distance.toFixed(1)} km</div>
+            <div class="interval-label">
+              <strong>${paceStr(p)}</strong>
+              <span>/KM</span>
+            </div>
             <div class="interval-block-wrap">
-              <div class="interval-block" style="--interval-width:${width.toFixed(1)}%">
-                <span class="interval-pace">${paceStr(p)}/km</span>
-              </div>
+              <div class="interval-block" style="--interval-width:${width.toFixed(1)}%"></div>
             </div>
           </div>
+          ${i < laps.length - 1 ? `<div class="interval-connector"></div>` : ''}
         `;
       }).join('');
 
