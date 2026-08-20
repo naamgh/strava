@@ -1075,136 +1075,110 @@
     }
 
 
-    /* Interval Stack — pace controls block length using a 2.0x inverse-power scale */
-    .interval-stack {
-      display: flex;
-      flex-direction: column;
-      gap: 0;
-      margin-top: 22px;
-      width: 100%;
-    }
+    
+    
+    
+    /* =========================================
+   PERFORMANCE / BRUTALIST INTERVAL GRAPH
+   ========================================= */
 
-    .interval-row {
-      display: grid;
-      grid-template-columns: 72px 1fr;
-      align-items: center;
-      min-height: 58px;
-      gap: 12px;
-      position: relative;
-    }
+.interval-graph {
+  width: 100%;
+  margin-top: 22px;
+  position: relative;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
 
-    .interval-label {
-      text-align: right;
-      line-height: 1;
-      white-space: nowrap;
-      font-variant-numeric: tabular-nums;
-    }
+.interval-graph svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
 
-    .interval-label strong {
-      display: block;
-      font-size: 17px;
-      font-weight: 700;
-      letter-spacing: -.03em;
-    }
+/* Pace scale */
 
-    .interval-label span {
-      display: block;
-      margin-top: 5px;
-      font-size: 10px;
-      opacity: .55;
-      letter-spacing: .06em;
-    }
+.interval-graph .pace-label {
+  fill: currentColor;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  font-variant-numeric: tabular-nums;
+}
 
-    .interval-block-wrap {
-      position: relative;
-      width: 100%;
-      min-width: 0;
-      height: 52px;
-    }
+.interval-graph .axis-label {
+  fill: currentColor;
+  opacity: .45;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: .08em;
+}
 
-    .interval-block {
-      position: absolute;
-      left: 0;
-      top: 0;
-      width: var(--interval-width);
-      min-width: 26px;
-      height: 52px;
-      margin: 0;
-      border-radius: 13px;
-      background: currentColor;
-      opacity: .92;
-      box-sizing: border-box;
-    }
+/* Distance scale */
 
-    .interval-connector {
-      width: 20px;
-      height: 3px;
-      border-radius: 999px;
-      background: currentColor;
-      opacity: .7;
-      margin: 0 0 0 84px;
-    }
+.interval-graph .distance-label {
+  fill: currentColor;
+  opacity: .55;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
 
-    .overlay.layout-portrait .interval-connector {
-      margin-left: 72px;
-      transform: translateY(-2px);
-    }
+/* Very subtle horizontal pace guides */
 
+.interval-graph .pace-guide {
+  stroke: currentColor;
+  stroke-width: 1;
+  stroke-dasharray: 4 8;
+  opacity: .10;
+}
 
-    .interval-row:last-child .interval-connector {
-      display: none;
-    }
+/* The actual interval blocks */
 
-    .overlay.tone-white .interval-block,
-    .overlay.tone-white .interval-connector {
-      color: white;
-    }
+.interval-graph .interval-bar {
+  fill: #ffffff;
+  opacity: 1;
+}
 
-    .overlay.tone-black .interval-block,
-    .overlay.tone-black .interval-connector {
-      color: #07080a;
-    }
+/* Heart-rate trace */
 
-    .interval-stack .interval-row:nth-child(2n) .interval-block {
-      opacity: .86;
-    }
+.interval-graph .hr-line {
+  fill: none;
+  stroke: #ff3b30;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
 
-    .overlay.layout-portrait .interval-stack {
-      margin-top: 18px;
-    }
+/* Dark theme */
 
-    .overlay.layout-portrait .interval-row {
-      grid-template-columns: 62px 1fr;
-      min-height: 54px;
-      gap: 10px;
-    }
+.overlay.tone-white .interval-graph {
+  color: #ffffff;
+}
 
-    .overlay.layout-portrait .interval-label strong {
-      font-size: 15px;
-    }
+.overlay.tone-black .interval-graph {
+  color: #07080a;
+}
 
-    .overlay.layout-portrait .interval-block {
-      height: 48px;
-      border-radius: 12px;
-    }
+/* Portrait */
 
-    @media(max-width:390px) {
-      .hero {
-        font-size: 46px
-      }
+.overlay.layout-portrait .interval-graph {
+  margin-top: 18px;
+}
 
-      .stats {
-        grid-template-columns: repeat(2, 1fr)
-      }
+.overlay.layout-portrait .interval-graph .pace-label {
+  font-size: 11px;
+}
 
-      .checker {
-        aspect-ratio: 9/10.6
-      }
+.overlay.layout-portrait .interval-graph .distance-label {
+  font-size: 8px;
+}
 
-      .split-summary {
-        grid-template-columns: 1fr
-      }
-    }
+.overlay.layout-portrait .interval-graph .hr-line {
+  stroke-width: 1.6;
+}
   </style>
 </head>
 
