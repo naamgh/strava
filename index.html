@@ -1075,110 +1075,103 @@
     }
 
 
-    
-    
-    
     /* =========================================
-   PERFORMANCE / BRUTALIST INTERVAL GRAPH
-   ========================================= */
+       PERFORMANCE / BRUTALIST PACE GRAPH
+       ========================================= */
 
-.interval-graph {
-  width: 100%;
-  margin-top: 22px;
-  position: relative;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-}
+    .interval-graph {
+      width: 100%;
+      margin-top: 22px;
+      position: relative;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    }
 
-.interval-graph svg {
-  display: block;
-  width: 100%;
-  height: auto;
-  overflow: visible;
-}
+    .interval-graph svg {
+      display: block;
+      width: 100%;
+      height: auto;
+      overflow: visible;
+    }
 
-/* Pace scale */
+    .interval-graph .pace-label {
+      fill: currentColor;
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: -.04em;
+      font-variant-numeric: tabular-nums;
+    }
 
-.interval-graph .pace-label {
-  fill: currentColor;
-  font-size: 12px;
-  font-weight: 900;
-  letter-spacing: -0.04em;
-  font-variant-numeric: tabular-nums;
-}
+    .interval-graph .distance-label {
+      fill: currentColor;
+      opacity: .55;
+      font-size: 9px;
+      font-weight: 800;
+      letter-spacing: -.02em;
+      font-variant-numeric: tabular-nums;
+    }
 
-.interval-graph .axis-label {
-  fill: currentColor;
-  opacity: .45;
-  font-size: 9px;
-  font-weight: 800;
-  letter-spacing: .08em;
-}
+    .interval-graph .pace-guide {
+      stroke: currentColor;
+      stroke-width: 1;
+      stroke-dasharray: 4 8;
+      opacity: .10;
+    }
 
-/* Distance scale */
+    .interval-graph .interval-bar {
+      fill: #ffffff;
+      opacity: 1;
+    }
 
-.interval-graph .distance-label {
-  fill: currentColor;
-  opacity: .55;
-  font-size: 9px;
-  font-weight: 800;
-  letter-spacing: -0.02em;
-  font-variant-numeric: tabular-nums;
-}
+    .interval-graph .hr-line {
+      fill: none;
+      stroke: #ff3b30;
+      stroke-width: 1.7;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      vector-effect: non-scaling-stroke;
+    }
 
-/* Very subtle horizontal pace guides */
+    .overlay.tone-white .interval-graph {
+      color: #ffffff;
+    }
 
-.interval-graph .pace-guide {
-  stroke: currentColor;
-  stroke-width: 1;
-  stroke-dasharray: 4 8;
-  opacity: .10;
-}
+    .overlay.tone-black .interval-graph {
+      color: #07080a;
+    }
 
-/* The actual interval blocks */
+    .overlay.layout-portrait .interval-graph {
+      margin-top: 18px;
+    }
 
-.interval-graph .interval-bar {
-  fill: #ffffff;
-  opacity: 1;
-}
+    .overlay.layout-portrait .interval-graph .pace-label {
+      font-size: 11px;
+    }
 
-/* Heart-rate trace */
+    .overlay.layout-portrait .interval-graph .distance-label {
+      font-size: 8px;
+    }
 
-.interval-graph .hr-line {
-  fill: none;
-  stroke: #ff3b30;
-  stroke-width: 1.7;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  vector-effect: non-scaling-stroke;
-}
+    .overlay.layout-portrait .interval-graph .hr-line {
+      stroke-width: 1.6;
+    }
 
-/* Dark theme */
+    @media(max-width:390px) {
+      .hero {
+        font-size: 46px
+      }
 
-.overlay.tone-white .interval-graph {
-  color: #ffffff;
-}
+      .stats {
+        grid-template-columns: repeat(2, 1fr)
+      }
 
-.overlay.tone-black .interval-graph {
-  color: #07080a;
-}
+      .checker {
+        aspect-ratio: 9/10.6
+      }
 
-/* Portrait */
-
-.overlay.layout-portrait .interval-graph {
-  margin-top: 18px;
-}
-
-.overlay.layout-portrait .interval-graph .pace-label {
-  font-size: 11px;
-}
-
-.overlay.layout-portrait .interval-graph .distance-label {
-  font-size: 8px;
-}
-
-.overlay.layout-portrait .interval-graph .hr-line {
-  stroke-width: 1.6;
-}
+      .split-summary {
+        grid-template-columns: 1fr
+      }
+    }
   </style>
 </head>
 
@@ -1264,34 +1257,460 @@
       let laps = getLaps();
       if (!laps.length) return '';
 
-      // Pace is represented visually: faster pace = longer block.
-      // 2.0x scale means width is proportional to (fastest pace / lap pace)^2.
-      let fastest = Math.min(...laps.map(l => Number(l.pace_sec_per_km)).filter(Number.isFinite));
+      const streams = state.detail?.streams || {};
 
-      if (!Number.isFinite(fastest) || fastest <= 0) return '';
+      /*
+       * X axis  = actual distance
+       * Y axis  = pace
+       * Red line = heart rate
+       *
+       * No API calls or API logic are changed here.
+       */
 
-      let rows = laps.map((l, i) => {
-        let p = Number(l.pace_sec_per_km);
-        if (!Number.isFinite(p) || p <= 0) return '';
+      const validLaps = laps
+        .map(l => ({
+          distanceKm: Number(l.distance) / 1000,
+          pace: Number(l.pace_sec_per_km)
+        }))
+        .filter(l =>
+          Number.isFinite(l.pace) &&
+          l.pace > 0
+        );
 
-        let width = Math.pow(fastest / p, 2) * 100;
-        width = Math.max(8, Math.min(100, width));
+      if (!validLaps.length) return '';
 
-        return `
-          <div class="interval-row">
-            <div class="interval-label">
-              <strong>${paceStr(p)}</strong>
-              <span>/KM</span>
-            </div>
-            <div class="interval-block-wrap">
-              <div class="interval-block" style="--interval-width:${width.toFixed(1)}%"></div>
-            </div>
-          </div>
-          ${i < laps.length - 1 ? `<div class="interval-connector"></div>` : ''}
+      /*
+       * Placeholder laps don't contain real distance.
+       * Keep the no-activity preview visually useful.
+       */
+      if (
+        !validLaps.some(l =>
+          Number.isFinite(l.distanceKm) &&
+          l.distanceKm > 0
+        )
+      ) {
+        validLaps.forEach(l => {
+          l.distanceKm = 1;
+        });
+      } else {
+        validLaps.forEach(l => {
+          if (!Number.isFinite(l.distanceKm) || l.distanceKm <= 0) {
+            l.distanceKm = 1;
+          }
+        });
+      }
+
+      /*
+       * GRAPH
+       */
+      const W = 600;
+      const H = 250;
+
+      const left = 48;
+      const right = 10;
+      const top = 16;
+      const bottom = 32;
+
+      const graphW = W - left - right;
+      const graphH = H - top - bottom;
+      const graphBottom = top + graphH;
+
+      /*
+       * DISTANCE SCALE
+       */
+      const totalDistance =
+        validLaps.reduce(
+          (sum, lap) => sum + lap.distanceKm,
+          0
+        ) || validLaps.length;
+
+      function distanceX(distanceKm) {
+        return left +
+          (distanceKm / totalDistance) * graphW;
+      }
+
+      /*
+       * PACE SCALE
+       */
+      const paces =
+        validLaps.map(l => l.pace);
+
+      const fastest =
+        Math.min(...paces);
+
+      const slowest =
+        Math.max(...paces);
+
+      const paceRange =
+        Math.max(slowest - fastest, 30);
+
+      const pacePadding =
+        paceRange * 0.12;
+
+      const paceMin =
+        Math.max(
+          1,
+          fastest - pacePadding
+        );
+
+      const paceMax =
+        slowest + pacePadding;
+
+      function paceY(pace) {
+        const ratio =
+          (pace - paceMin) /
+          (paceMax - paceMin || 1);
+
+        return top + ratio * graphH;
+      }
+
+      /*
+       * INTERVAL BLOCKS
+       *
+       * Width  = actual interval distance
+       * Height = pace position to baseline
+       * Colour = always solid white
+       */
+      let currentDistance = 0;
+
+      const blocks =
+        validLaps.map(lap => {
+
+          const startDistance =
+            currentDistance;
+
+          const endDistance =
+            currentDistance +
+            lap.distanceKm;
+
+          currentDistance =
+            endDistance;
+
+          const x =
+            distanceX(startDistance);
+
+          const x2 =
+            distanceX(endDistance);
+
+          const width =
+            Math.max(
+              3,
+              x2 - x - 2
+            );
+
+          const y =
+            paceY(lap.pace);
+
+          const height =
+            Math.max(
+              4,
+              graphBottom - y
+            );
+
+          return {
+            x,
+            y,
+            width,
+            height
+          };
+        });
+
+      /*
+       * PACE LABELS + SUBTLE GUIDES
+       */
+      const paceTicks = 4;
+      let paceLabels = '';
+
+      for (
+        let i = 0;
+        i <= paceTicks;
+        i++
+      ) {
+        const pace =
+          paceMin +
+          ((paceMax - paceMin) /
+            paceTicks) * i;
+
+        const y =
+          paceY(pace);
+
+        paceLabels += `
+          <text
+            class="pace-label"
+            x="${left - 8}"
+            y="${y + 4}"
+            text-anchor="end"
+          >${paceStr(pace)}</text>
+
+          <line
+            class="pace-guide"
+            x1="${left}"
+            y1="${y}"
+            x2="${W - right}"
+            y2="${y}"
+          />
         `;
-      }).join('');
+      }
 
-      return `<div class="interval-stack">${rows}</div>`;
+      /*
+       * DISTANCE LABELS
+       */
+      let distanceLabels = '';
+
+      const distanceStep =
+        totalDistance <= 5
+          ? 1
+          : totalDistance <= 15
+            ? 2
+            : 5;
+
+      for (
+        let d = 0;
+        d <= totalDistance + 0.001;
+        d += distanceStep
+      ) {
+        const x =
+          distanceX(d);
+
+        distanceLabels += `
+          <text
+            class="distance-label"
+            x="${x}"
+            y="${H - 8}"
+            text-anchor="middle"
+          >${d.toFixed(0)} km</text>
+        `;
+      }
+
+      /*
+       * HEART RATE
+       *
+       * Five-sample moving average + quadratic SVG
+       * curves gives the line a small amount of smoothing.
+       */
+      const hrData =
+        streams.heartrate?.data || [];
+
+      const distanceData =
+        streams.distance?.data || [];
+
+      let hrPath = '';
+
+      if (
+        hrData.length >= 2 &&
+        distanceData.length === hrData.length
+      ) {
+        const windowSize = 5;
+
+        const smoothed =
+          hrData.map((_, i) => {
+
+            const startIndex =
+              Math.max(
+                0,
+                i -
+                Math.floor(
+                  windowSize / 2
+                )
+              );
+
+            const endIndex =
+              Math.min(
+                hrData.length,
+                i +
+                Math.ceil(
+                  windowSize / 2
+                )
+              );
+
+            let sum = 0;
+            let count = 0;
+
+            for (
+              let j = startIndex;
+              j < endIndex;
+              j++
+            ) {
+              const value =
+                Number(hrData[j]);
+
+              if (
+                Number.isFinite(value)
+              ) {
+                sum += value;
+                count++;
+              }
+            }
+
+            return count
+              ? sum / count
+              : null;
+          });
+
+        const validHr =
+          smoothed.filter(
+            value =>
+              Number.isFinite(value)
+          );
+
+        if (validHr.length >= 2) {
+
+          let hrMin =
+            Math.min(...validHr);
+
+          let hrMax =
+            Math.max(...validHr);
+
+          if (
+            hrMax - hrMin < 10
+          ) {
+            const midpoint =
+              (hrMax + hrMin) / 2;
+
+            hrMin =
+              midpoint - 5;
+
+            hrMax =
+              midpoint + 5;
+          }
+
+          /*
+           * HR is deliberately plotted in a
+           * secondary visual band. It does not
+           * share the pace scale.
+           */
+          const hrTop =
+            top + graphH * 0.12;
+
+          const hrBottom =
+            top + graphH * 0.82;
+
+          const points = [];
+
+          for (
+            let i = 0;
+            i < smoothed.length;
+            i++
+          ) {
+            const hr =
+              smoothed[i];
+
+            const distanceMeters =
+              Number(distanceData[i]);
+
+            if (
+              !Number.isFinite(hr) ||
+              !Number.isFinite(
+                distanceMeters
+              )
+            ) {
+              continue;
+            }
+
+            const distanceKm =
+              distanceMeters / 1000;
+
+            const x =
+              distanceX(distanceKm);
+
+            const ratio =
+              (hr - hrMin) /
+              (hrMax - hrMin || 1);
+
+            const y =
+              hrBottom -
+              ratio *
+              (hrBottom - hrTop);
+
+            points.push([x, y]);
+          }
+
+          /*
+           * Smooth SVG path using quadratic curves.
+           */
+          if (points.length >= 2) {
+
+            hrPath =
+              `M ${points[0][0].toFixed(1)} ` +
+              `${points[0][1].toFixed(1)}`;
+
+            for (
+              let i = 1;
+              i < points.length - 1;
+              i++
+            ) {
+              const current =
+                points[i];
+
+              const next =
+                points[i + 1];
+
+              const midX =
+                (current[0] +
+                  next[0]) / 2;
+
+              const midY =
+                (current[1] +
+                  next[1]) / 2;
+
+              hrPath +=
+                ` Q ${current[0].toFixed(1)} ` +
+                `${current[1].toFixed(1)} ` +
+                `${midX.toFixed(1)} ` +
+                `${midY.toFixed(1)}`;
+            }
+
+            const last =
+              points[
+                points.length - 1
+              ];
+
+            hrPath +=
+              ` T ${last[0].toFixed(1)} ` +
+              `${last[1].toFixed(1)}`;
+          }
+        }
+      }
+
+      /*
+       * SVG BLOCKS
+       */
+      const blockHtml =
+        blocks.map(block => `
+          <rect
+            class="interval-bar"
+            x="${block.x.toFixed(1)}"
+            y="${block.y.toFixed(1)}"
+            width="${block.width.toFixed(1)}"
+            height="${block.height.toFixed(1)}"
+            rx="4"
+            ry="4"
+          />
+        `).join('');
+
+      return `
+        <div class="interval-graph">
+          <svg
+            viewBox="0 0 ${W} ${H}"
+            preserveAspectRatio="none"
+            aria-label="Pace and heart rate graph"
+          >
+
+            ${paceLabels}
+
+            ${blockHtml}
+
+            ${
+              hrPath
+                ? `<path class="hr-line" d="${hrPath}" />`
+                : ''
+            }
+
+            ${distanceLabels}
+
+          </svg>
+        </div>
+      `;
     }
 
     function statBlock(label, val) { return `<div><div class='label'>${label}</div><div class='val'>${val}</div></div>` } function applyProfile(name, quiet = false) { state.profile = name; state.mods = { ...profiles[name] }; renderProfiles(); renderToggles(); render(); if (!quiet) toast(profileLabels[name] + ' applied') } function renderProfiles() { let box = $('#profiles'); box.innerHTML = Object.keys(profiles).map(k => `<div class='profile ${state.profile === k ? 'active' : ''}' data-profile='${k}'>${profileLabels[k]}</div>`).join(''); $$('.profile').forEach(p => p.onclick = () => applyProfile(p.dataset.profile)) } function renderToggles() { let box = $('#toggles'); box.innerHTML = Object.keys(state.mods).map(k => `<div class='toggle ${state.mods[k] ? 'active' : ''}' data-mod='${k}'>${moduleLabels[k]}</div>`).join(''); $$('.toggle').forEach(t => t.onclick = () => { let k = t.dataset.mod; state.mods[k] = state.mods[k] ? 0 : 1; state.profile = 'custom'; renderProfiles(); renderToggles(); render() }) } function renderStyles() { let box = $('#styleStrip'); box.innerHTML = styleDefs.map((s, i) => `<div class='style-pill ${state.style === s.key ? 'active' : ''}' data-i='${i}'>${s.name}</div>`).join(''); $$('.style-pill').forEach(p => p.onclick = () => setStyleByIndex(p.dataset.i)) } function setStyleByIndex(i) { i = Math.max(0, Math.min(styleDefs.length - 1, +i || 0)); state.styleIndex = i; state.style = styleDefs[i].key; renderStyles(); render(); let active = document.querySelector('.style-pill.active'); if (active) active.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' }) } function render() { let d = data(), m = state.mods, def = styleDefs.find(s => s.key === state.style) || styleDefs[0], stats = []; if (m.time) stats.push(statBlock('Time', d.time)); if (m.pace) stats.push(statBlock(d.type === 'Ride' ? 'Speed' : 'Pace', d.pace)); if (m.elevation) stats.push(statBlock('Elev', d.elevation)); if (m.heart) stats.push(statBlock('Heart', d.heart)); if (m.power && d.power !== '--') stats.push(statBlock('Power', d.power)); if (m.date && d.date) stats.push(statBlock('Date', d.date)); $('#overlay').className = `overlay tone-${state.tone} layout-${state.layout} ${state.bg ? 'with-bg' : ''}`; const templateClass = state.bg ? def.className.replace('nobg', '').trim() : def.className; $('#overlay').innerHTML = `<div class='template ${templateClass}'>${m.title ? `<div class='title'>${d.title}</div>` : ''}${m.distance ? `<div class='hero'>${d.distance}<span class='unit'>KM</span></div>` : ''}<div class='stats'>${stats.join('')}</div>${m.route ? routeSvg() : ''}${m.elevProfile ? elevationSvg() : ''}${m.splits ? splitsHtml() : ''}</div>`; if (state.bg) applyGlassBg($('#overlay .template')); } async function connect() { try { let r = await fetch('/api/strava/config'), c = await r.json(); if (!r.ok) throw Error(c.error || 'Missing config'); let u = new URL('https://www.strava.com/oauth/authorize'); u.searchParams.set('client_id', c.client_id); u.searchParams.set('redirect_uri', location.origin + location.pathname); u.searchParams.set('response_type', 'code'); u.searchParams.set('approval_prompt', 'auto'); u.searchParams.set('scope', 'read,activity:read_all'); location.href = u } catch (e) { toast(e.message) } } async function oauth() { let p = new URLSearchParams(location.search), code = p.get('code'); if (p.get('error')) { toast('Strava cancelled'); history.replaceState({}, '', location.pathname) } if (!code) return; $('#status').textContent = 'Connecting to Strava…'; try { let r = await fetch('/api/strava/exchange', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ code }) }), j = await r.json(); if (!r.ok) throw Error(j.message || j.error || 'Token exchange failed'); state.token = j.access_token; localStorage.setItem('strava_access_token', state.token); renderConnectionStatus(); history.replaceState({}, '', location.pathname); toast('Strava connected'); load() } catch (e) { $('#status').textContent = e.message } } function renderConnectionStatus() { const dot = $('#stravaConnectedDot'); if (dot) dot.style.display = state.token ? 'inline-block' : 'none' } async function load() { if (!state.token) { $('#status').textContent = 'Connect Strava, then tap an activity to build your overlay.'; return } $('#status').textContent = 'Loading recent activities…'; try { let r = await fetch('/api/strava/activities', { headers: { Authorization: 'Bearer ' + state.token } }), a = await r.json(); if (!r.ok) throw Error(a.message || a.error || 'Could not load activities'); window.acts = a; $('#status').textContent = `Loaded ${a.length} activities. Tap one to import.`; $('#activityList').innerHTML = a.map((x, i) => `<button class='activity-card' data-i='${i}'><b>${x.name || x.type}</b><span>${kind(x.type)} · ${x.distance_km} km · ${fmtTime(x.moving_time)} · +${x.elevation_m} m</span></button>`).join(''); $$('.activity-card').forEach(b => b.onclick = () => importActivity(window.acts[b.dataset.i])) } catch (e) { $('#status').textContent = e.message + ' — try connecting again.' } } async function importActivity(a) { state.activity = a; state.detail = null; applyProfile(kind(a.type) === 'Ride' ? 'ride' : 'run', true); render(); toast((kind(a.type) === 'Ride' ? 'Cycling' : 'Running') + ' profile applied'); try { let r = await fetch('/api/strava/activity?id=' + a.id, { headers: { Authorization: 'Bearer ' + state.token } }), j = await r.json(); if (!r.ok) throw Error(j.message || j.error || 'Detail failed'); state.detail = j; toast('Activity imported'); closeSheets(); render() } catch (e) { toast('Basic import only: ' + e.message) } } async function exportImage() { try { toast('Preparing transparent PNG…'); let canvas = await html2canvas($('#exportStage'), { backgroundColor: null, scale: 3, useCORS: true }), dataUrl = canvas.toDataURL('image/png'); $('#saveImg').src = dataUrl; $('#saveImg').classList.add('clean-preview'); let card = $('.save-card'); card.classList.remove('white-mode', 'black-mode'); card.classList.add(state.tone === 'white' ? 'black-mode' : 'white-mode'); $('#saveModal').classList.add('show'); toast('Image ready: long-press to save') } catch (e) { toast('Export failed: ' + e.message) } } function openImage() { let src = $('#saveImg').src; if (src) window.open(src, '_blank') }
