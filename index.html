@@ -1261,7 +1261,10 @@
 
       const validLaps = laps
         .map(l => ({
-          distance: Number(l.distance || 0),
+          // Strava ActivityLap.distance is metres.
+          // Convert to kilometres once, then use km consistently throughout
+          // the graph's X-axis calculations.
+          distance: Math.max(0, Number(l.distance || 0) / 1000),
           pace: Number(l.pace_sec_per_km)
         }))
         .filter(l =>
@@ -1307,32 +1310,11 @@
       let workoutDistance = cumulativeDistance;
 
       /*
-       * For real streams, if the final stream distance is available and is
-       * slightly beyond the sum of lap distances, use the final lap boundary
-       * as the block end but don't let the HR line extend beyond it.
+       * The interval/lap distances define the X-axis domain.
+       * Strava stream distance is also in metres and is converted to km
+       * only when plotting the HR line below.
        */
       const distanceData = streams.distance?.data || [];
-
-      const streamDistance = distanceData
-        .map(Number)
-        .filter(Number.isFinite);
-
-      if (streamDistance.length) {
-        const streamEnd = streamDistance[streamDistance.length - 1] / 1000;
-
-        /*
-         * Strava distance streams are metres. Keep the interval graph tied
-         * to the lap total, but use the same final distance as the HR domain
-         * only when the difference is negligible.
-         */
-        if (
-          Number.isFinite(streamEnd) &&
-          streamEnd > 0 &&
-          Math.abs(streamEnd - workoutDistance) < 0.15
-        ) {
-          workoutDistance = streamEnd;
-        }
-      }
 
       /*
        * Placeholder data fallback.
@@ -1620,6 +1602,8 @@
             /*
              * Strava stream distance is metres.
              */
+            // Strava stream distance is metres -> kilometres.
+            // This must match the lap-distance unit used by the X axis.
             const distanceKm =
               rawDistance / 1000;
 
