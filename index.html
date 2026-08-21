@@ -481,72 +481,6 @@
       font-size: 18px
     }
 
-    .editorial {
-      font-family: Georgia, "Times New Roman", serif;
-      color: rgba(255, 255, 255, .9);
-      text-shadow: 0 4px 20px rgba(0, 0, 0, .26)
-    }
-
-    .editorial .hero {
-      font-size: 62px;
-      font-weight: 400;
-      letter-spacing: -.08em
-    }
-
-    .editorial .title {
-      font-family: Inter, system-ui, sans-serif
-    }
-
-    .techgrid {
-      font-family: "SF Mono", "Roboto Mono", "Courier New", monospace;
-      color: rgba(255, 255, 255);
-      text-shadow: none
-    }
-
-    .techgrid .stats {
-      border-top: 1px solid rgba(215, 245, 255, .4);
-      border-bottom: 1px solid rgba(215, 245, 255, .24);
-      padding: 12px 0
-    }
-
-    .techgrid .route-path,
-    .techgrid .elev-path {
-      stroke-dasharray: none
-    }
-
-    .ghost {
-      font-family: Inter, system-ui, sans-serif;
-      color: rgba(255, 255, 255, .52)
-    }
-
-    .ghost .hero {
-      font-weight: 1000;
-      letter-spacing: -.12em
-    }
-
-    .ghost .route-path,
-    .ghost .elev-path {
-      opacity: .55
-    }
-
-    .labelmaker {
-      font-family: "Arial Narrow", Arial, sans-serif;
-      color: white
-    }
-
-    .labelmaker .title {
-      background: rgba(255, 255, 255, .92);
-      color: #111;
-      padding: 6px 8px;
-      border-radius: 2px;
-      display: inline-block
-    }
-
-    .labelmaker .hero {
-      font-family: Impact, "Arial Black", sans-serif;
-      letter-spacing: -0.0em
-    }
-
     .runline {
       font-family: Inter, system-ui, sans-serif;
       color: white
@@ -567,22 +501,6 @@
       border-radius: 999px;
       padding: 8px 11px;
       background: rgba(255, 255, 255, .04)
-    }
-
-    .deepdata {
-      font-family: "SF Mono", "Roboto Mono", "Courier New", monospace;
-      background: rgba(0, 0, 0, .18);
-      border: 1px solid rgba(255, 255, 255, .18);
-      color: rgba(255, 255, 255, .92);
-      border-radius: 14px
-    }
-
-    .deepdata .hero {
-      font-size: 42px
-    }
-
-    .deepdata .stats {
-      grid-template-columns: repeat(2, 1fr)
     }
 
     .sheet-backdrop {
@@ -1058,14 +976,6 @@
       font-size: 50px
     }
 
-    .overlay.layout-portrait .editorial .hero {
-      font-size: 50px
-    }
-
-    .overlay.layout-portrait .deepdata .hero {
-      font-size: 38px
-    }
-
     .overlay.layout-portrait .runline .hero {
       font-size: 40px
     }
@@ -1326,9 +1236,7 @@ const styleDefs = [ {
   key: 'labelmaker', name: 'Label Maker', className: 'labelmaker nobg'
 },  {
   key: 'runline', name: 'Run Line', className: 'runline nobg'
-},  {
-  key: 'deepdata', name: 'Deep Data', className: 'deepdata'
-}];
+},  ];
 const profileLabels =  {
   run: 'Running Default', ride: 'Cycling Default', minimal: 'Minimal Core', all: 'All Data'
 };
@@ -1747,7 +1655,7 @@ function data()  {
 const width =
   Math.max(
     4,
-    intervalWidth * 0.90
+    intervalWidth * 0.95
   );
 
 const x =
