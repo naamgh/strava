@@ -1086,7 +1086,42 @@
         grid-template-columns: 1fr
       }
     }
-  </style>
+      .style-strip-wrap {
+      margin-top: 10px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 8px;
+      background: rgba(255,255,255,.045);
+    }
+    .style-strip {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      padding-bottom: 2px;
+      -webkit-overflow-scrolling: touch;
+    }
+    .style-strip::-webkit-scrollbar { display: none; }
+    .style-pill {
+      scroll-snap-align: center;
+      flex: 0 0 auto;
+      padding: 9px 13px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: transparent;
+      color: var(--muted);
+      font: inherit;
+      font-size: 11px;
+      white-space: nowrap;
+      cursor: pointer;
+    }
+    .style-pill.active {
+      color: var(--fg);
+      border-color: var(--fg);
+      background: rgba(255,255,255,.08);
+    }
+
+</style>
 </head>
 
 <body>
@@ -1106,6 +1141,14 @@
         </div>
       </div>
 
+
+      <div class="style-strip-wrap">
+        <div style="display:grid;grid-template-columns:44px 1fr 44px;gap:8px;align-items:center">
+          <button id="stylePrev">‹</button>
+          <div id="styleStrip" class="style-strip"></div>
+          <button id="styleNext">›</button>
+        </div>
+      </div>
 
       <div class="appearance-controls">
         <div class="segmented" id="toneControl">
@@ -1947,11 +1990,39 @@ const x =
     state.mods[k] ? 'active' : ''
   }' data-mod='${
     k
-  }'>${moduleLabels[k]}</div>`).join(''); $$('.toggle').forEach(t => t.onclick = () => { let k = t.dataset.mod; state.mods[k] = state.mods[k] ? 0 : 1; state.profile = 'custom'; renderToggles(); render() }) } function renderStyles() { let box = $('#styleStrip'); box.innerHTML = styleDefs.map((s, i) => `<div class='style-pill ${
-    state.style === s.key ? 'active' : ''
-  }' data-i='${
-    i
-  }'>${s.name}</div>`).join(''); $$('.style-pill').forEach(p => p.onclick = () => setStyleByIndex(p.dataset.i)) } function setStyleByIndex(i) { i = Math.max(0, Math.min(styleDefs.length - 1, +i || 0)); state.styleIndex = i; state.style = styleDefs[i].key; renderStyles(); render(); let active = document.querySelector('.style-pill.active'); if (active) active.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' }) } function render() { let d = data(), m = state.mods, def = styleDefs.find(s => s.key === state.style) || styleDefs[0], stats = []; if (m.time) stats.push(statBlock('Time', d.time)); if (m.pace) stats.push(statBlock(d.type === 'Ride' ? 'Speed' : 'Pace', d.pace)); if (m.elevation) stats.push(statBlock('Elev', d.elevation)); if (m.heart) stats.push(statBlock('Heart', d.heart)); if (m.power && d.power !== '--') stats.push(statBlock('Power', d.power)); if (m.date && d.date) stats.push(statBlock('Date', d.date)); $('#overlay').className = `overlay tone-${state.tone} layout-${state.layout} ${state.bg ? 'with-bg' : ''}`; const templateClass = state.bg ? def.className.replace('nobg', '').trim() : def.className; $('#overlay').innerHTML = `<div class='template ${
+  }'>${moduleLabels[k]}</div>`).join(''); $$('.toggle').forEach(t => t.onclick = () => { let k = t.dataset.mod; state.mods[k] = state.mods[k] ? 0 : 1; state.profile = 'custom'; renderToggles(); render() }) }
+    function renderStyles() {
+      const box = $('#styleStrip');
+      box.innerHTML = styleDefs.map((s, i) => `
+        <div class="style-pill ${state.style === s.key ? 'active' : ''}" data-i="${i}">
+          ${s.name}
+        </div>
+      `).join('');
+
+      $$('.style-pill').forEach(p => {
+        p.onclick = () => setStyleByIndex(p.dataset.i);
+      });
+    }
+
+    function setStyleByIndex(i) {
+      i = Math.max(0, Math.min(styleDefs.length - 1, +i || 0));
+      state.styleIndex = i;
+      state.style = styleDefs[i].key;
+      renderStyles();
+      render();
+
+      const active = document.querySelector('.style-pill.active');
+      if (active) {
+        active.scrollIntoView({
+          behavior: 'smooth',
+          inline: 'center',
+          block: 'nearest'
+        });
+      }
+    }
+
+
+function render() { let d = data(), m = state.mods, def = styleDefs.find(s => s.key === state.style) || styleDefs[0], stats = []; if (m.time) stats.push(statBlock('Time', d.time)); if (m.pace) stats.push(statBlock(d.type === 'Ride' ? 'Speed' : 'Pace', d.pace)); if (m.elevation) stats.push(statBlock('Elev', d.elevation)); if (m.heart) stats.push(statBlock('Heart', d.heart)); if (m.power && d.power !== '--') stats.push(statBlock('Power', d.power)); if (m.date && d.date) stats.push(statBlock('Date', d.date)); $('#overlay').className = `overlay tone-${state.tone} layout-${state.layout} ${state.bg ? 'with-bg' : ''}`; const templateClass = state.bg ? def.className.replace('nobg', '').trim() : def.className; $('#overlay').innerHTML = `<div class='template ${
     templateClass
   }'>${m.route ? routeSvg() : ''}${m.title ? `<div class='title'>${d.title}</div>` : ''}${m.distance ? `<div class='hero'>${d.distance}<span class='unit'>KM</span></div>` : ''}<div class='stats'>${stats.join('')}</div>${m.elevProfile ? elevationSvg() : ''}${m.splits ? splitsHtml() : ''}</div>`; if (state.bg) applyGlassBg($('#overlay .template')); } async function connect() { try { let r = await fetch('/api/strava/config'), c = await r.json(); if (!r.ok) throw Error(c.error || 'Missing config'); let u = new URL('https://www.strava.com/oauth/authorize'); u.searchParams.set('client_id', c.client_id); u.searchParams.set('redirect_uri', location.origin + location.pathname); u.searchParams.set('response_type', 'code'); u.searchParams.set('approval_prompt', 'auto'); u.searchParams.set('scope', 'read,activity:read_all'); location.href = u } catch (e) { toast(e.message) } } async function oauth() { let p = new URLSearchParams(location.search), code = p.get('code'); if (p.get('error')) { toast('Strava cancelled'); history.replaceState({}, '', location.pathname) } if (!code) return; $('#status').textContent = 'Connecting to Strava…'; try { let r = await fetch('/api/strava/exchange', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ code }) }), j = await r.json(); if (!r.ok) throw Error(j.message || j.error || 'Token exchange failed'); state.token = j.access_token; localStorage.setItem('strava_access_token', state.token); renderConnectionStatus(); history.replaceState({}, '', location.pathname); toast('Strava connected'); load() } catch (e) { $('#status').textContent = e.message } } function renderConnectionStatus() { const dot = $('#stravaConnectedDot'); if (dot) dot.style.display = state.token ? 'inline-block' : 'none' } async function load() { if (!state.token) { $('#status').textContent = 'Connect Strava, then tap an activity to build your overlay.'; return } $('#status').textContent = 'Loading recent activities…'; try { let r = await fetch('/api/strava/activities', { headers: { Authorization: 'Bearer ' + state.token } }), a = await r.json(); if (!r.ok) throw Error(a.message || a.error || 'Could not load activities'); window.acts = a; $('#status').textContent = `Loaded ${a.length} activities. Tap one to import.`; $('#activityList').innerHTML = a.map((x, i) => `<button class='activity-card' data-i='${
     i
@@ -1963,6 +2034,11 @@ const x =
     $$('#toneControl button').forEach(b => b.onclick = () => setTone(b.dataset.tone));
     $$('#bgControl button').forEach(b => b.onclick = () => setBg(b.dataset.bg));
     $('#opacitySlider').addEventListener('input', function () { state.bgOpacity = this.value / 100; $('#opacityVal').textContent = this.value + '%'; render() });
+    $('#stylePrev').onclick = () =>
+      setStyleByIndex(state.styleIndex - 1);
+    $('#styleNext').onclick = () =>
+      setStyleByIndex(state.styleIndex + 1);
+
     $('#layoutBtn').onclick = toggleLayout; $('#activitiesBtn').onclick = () => openSheet('#activitiesSheet'); $('#modulesBtn').onclick = () => openSheet('#modulesSheet'); $('#sheetBackdrop').onclick = closeSheets; $$('.closeSheet').forEach(b => b.onclick = closeSheets); $('#connectBtn').onclick = connect; $('#refreshBtn').onclick = load; $('#exportBtn').onclick = exportImage; $('#openBtn').onclick = openImage; $('#closeSave').onclick = () => $('#saveModal').classList.remove('show'); $('#resetBtn').onclick = () => { state.detail = null; state.activity = null; applyProfile('run', true); toast('Reset overlay') }; 
     $('#allOnBtn').onclick = () => setAllModules(true);
     $('#allOffBtn').onclick = () => setAllModules(false);
