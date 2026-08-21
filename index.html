@@ -1254,18 +1254,20 @@
   <div class="toast" id="toast"></div>
   <script>
     const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)]; const profiles = { run: { title: 1, distance: 1, time: 1, pace: 1, elevation: 0, heart: 1, power: 0, route: 0, elevProfile: 0, splits: 1, date: 0 }, ride: { title: 1, distance: 1, time: 1, pace: 1, elevation: 1, heart: 1, power: 1, route: 1, elevProfile: 0, splits: 0, date: 0 }, minimal: { title: 1, distance: 1, time: 1, pace: 1, elevation: 0, heart: 0, power: 0, route: 0, elevProfile: 0, splits: 0, date: 0 }, all: { title: 1, distance: 1, time: 1, pace: 1, elevation: 1, heart: 1, power: 1, route: 1, elevProfile: 1, splits: 1, date: 1 } }; const styleDefs = [{ key: 'editorial', name: 'Editorial', className: 'editorial nobg' }, { key: 'performance', name: 'Performance', className: 'performance nobg' }, { key: 'brutalist', name: 'Brutalist', className: 'brutalist nobg' }, { key: 'airmono', name: 'Air Mono', className: 'airmono nobg' }, { key: 'techgrid', name: 'Tech Grid', className: 'techgrid nobg' }, { key: 'ghost', name: 'Ghost', className: 'ghost nobg' }, { key: 'labelmaker', name: 'Label Maker', className: 'labelmaker nobg' }, { key: 'runline', name: 'Run Line', className: 'runline nobg' }, { key: 'deepdata', name: 'Deep Data', className: 'deepdata' }]; const profileLabels = { run: 'Running Default', ride: 'Cycling Default', minimal: 'Minimal Core', all: 'All Data' }; const moduleLabels = { title: 'Title', distance: 'Distance', time: 'Time', pace: 'Pace / Speed', elevation: 'Elevation', heart: 'Heart Rate', power: 'Power', route: 'Route Map', elevProfile: 'Elevation Profile', splits: 'Splits', date: 'Date' }; const state = { token: localStorage.getItem('strava_access_token') || '', style: 'editorial', styleIndex: 0, tone: 'white', bg: false, bgOpacity: 0.75, layout: 'landscape', profile: 'run', activity: null, detail: null, mods: { ...profiles.run } }; function toast(t) { let e = $('#toast'); e.textContent = t; e.classList.add('show'); setTimeout(() => e.classList.remove('show'), 2200) } function openSheet(id) { let sheet = $(id), isOpen = sheet.classList.contains('show'); closeSheets(); if (!isOpen) { $('#sheetBackdrop').classList.add('show'); sheet.classList.add('show') } } function closeSheets() { $('#sheetBackdrop').classList.remove('show'); $$('.sheet').forEach(s => s.classList.remove('show')) } function fmtTime(sec) { sec = Math.round(sec || 0); let h = Math.floor(sec / 3600), m = Math.floor(sec % 3600 / 60), s = sec % 60; return h ? `${h}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}` : `${m}:${String(s).padStart(2, '0')}` } function kind(t) { t = (t || 'Run').toLowerCase(); return t.includes('ride') || t.includes('bike') || t.includes('cycle') ? 'Ride' : t.includes('walk') ? 'Walk' : t.includes('hike') ? 'Hike' : 'Run' } function distKm(a) { return +(a.distance_km || ((a.distance || 0) / 1000).toFixed(1)) } function paceText(a) { let k = kind(a.type || a.sport_type), km = distKm(a), sec = a.moving_time || 0; if (k === 'Ride') return `${(a.average_speed_kmh || ((a.average_speed || 0) * 3.6).toFixed(1))} KM/H`; let p = sec / km, m = Math.floor(p / 60), s = Math.round(p % 60); return km ? `${m}:${String(s).padStart(2, '0')} /KM` : '--' } function data() { let a = state.detail?.activity || state.activity || {}; return { title: (a.name || 'SELECT ACTIVITY').toUpperCase(), type: kind(a.sport_type || a.type), distance: (distKm(a) || 12.4).toFixed(1), time: fmtTime(a.moving_time || 3482), pace: paceText(a), elevation: '+' + Math.round(a.total_elevation_gain ?? a.elevation_m ?? 214) + 'M', heart: a.average_heartrate ? Math.round(a.average_heartrate) + ' BPM' : '--', power: a.average_watts ? Math.round(a.average_watts) + ' W' : '--', date: a.start_date ? new Date(a.start_date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) : '' } } function pointsToPath(points, w = 300, h = 160, pad = 10) { if (!points || points.length < 2) return 'M20 120 C 70 30, 120 145, 160 78 S 230 40, 280 110'; let xs = points.map(p => p[1]), ys = points.map(p => p[0]), minX = Math.min(...xs), maxX = Math.max(...xs), minY = Math.min(...ys), maxY = Math.max(...ys), sx = (w - pad * 2) / (maxX - minX || 1), sy = (h - pad * 2) / (maxY - minY || 1), sample = points.filter((_, i) => i % Math.ceil(points.length / 90) === 0); return sample.map((p, i) => `${i ? 'L' : 'M'}${((p[1] - minX) * sx + pad).toFixed(1)} ${((maxY - p[0]) * sy + pad).toFixed(1)}`).join(' ') } function elevPath(vals, w = 320, h = 80) { if (!vals || vals.length < 2) vals = [20, 40, 32, 70, 44, 90, 76, 110, 80, 120]; let min = Math.min(...vals), max = Math.max(...vals), sample = vals.filter((_, i) => i % Math.ceil(vals.length / 90) === 0), path = sample.map((v, i) => { let x = i / (sample.length - 1) * w, y = h - ((v - min) / (max - min || 1)) * h; return `${i ? 'L' : 'M'}${x.toFixed(1)} ${y.toFixed(1)}` }).join(' '); return { line: path, fill: `${path} L${w} ${h} L0 ${h} Z` } } function routeSvg() { let path = pointsToPath(state.detail?.streams?.latlng?.data); return `<div class='routebox'><svg viewBox='0 0 300 160'><path class='route-path' d='${path}'/></svg></div>` } function elevationSvg() { let ep = elevPath(state.detail?.streams?.altitude?.data); return `<div class='elevbox'><svg viewBox='0 0 320 80'><path class='elev-fill' d='${ep.fill}'/><path class='elev-path' d='${ep.line}'/></svg></div>` } function getLaps() { let laps = (state.detail?.laps || []).filter(l => l.pace_sec_per_km); if (!laps.length && data().type === 'Run') laps = [292, 287].map((p, i) => ({ index: i + 1, pace_sec_per_km: p })); return laps } function paceStr(p) { let m = Math.floor(p / 60), s = Math.round(p % 60); return `${m}:${String(s).padStart(2, '0')}` } function splitsHtml() {
-      let laps = getLaps();
+      const laps = getLaps();
       if (!laps.length) return '';
 
       const streams = state.detail?.streams || {};
+      const distanceData = streams.distance?.data || [];
 
       const validLaps = laps
-        .map(l => ({
-          // Strava ActivityLap.distance is metres.
-          // Convert to kilometres once, then use km consistently throughout
-          // the graph's X-axis calculations.
-          distance: Math.max(0, Number(l.distance || 0) / 1000),
-          pace: Number(l.pace_sec_per_km)
+        .map((l, index) => ({
+          ...l,
+          lapNumber: Number(l.lap_index ?? l.index ?? index + 1),
+          pace: Number(l.pace_sec_per_km),
+          distance: Number(l.distance || 0),
+          startIndex: Number(l.start_index),
+          endIndex: Number(l.end_index)
         }))
         .filter(l =>
           Number.isFinite(l.pace) &&
@@ -1287,46 +1289,78 @@
       const graphBottom = top + graphH;
 
       /*
-       * Build cumulative lap distance.
-       * The X axis is now based on the actual interval/lap distances,
-       * rather than treating each lap as an equal-width category.
+       * =========================================================
+       * X AXIS
+       * =========================================================
+       *
+       * The graph uses the activity's real distance as its domain.
+       *
+       * Manual/recorded laps are positioned using their actual
+       * stream boundaries (start_index/end_index), not by simply
+       * adding lap distances together.
+       *
+       * Strava stream distance is metres, so everything below is
+       * converted to kilometres.
        */
-      let cumulativeDistance = 0;
 
-      const intervalData = validLaps.map(lap => {
-        const start = cumulativeDistance;
-        cumulativeDistance += lap.distance;
-        return {
-          ...lap,
-          startDistance: start,
-          endDistance: cumulativeDistance
-        };
-      });
+      const streamDistancesKm =
+        distanceData
+          .map(Number)
+          .filter(Number.isFinite)
+          .map(m => m / 1000);
+
+      const activityDistanceKm =
+        Number(data().distance) ||
+        (
+          state.detail?.activity?.distance
+            ? Number(state.detail.activity.distance) / 1000
+            : 0
+        );
+
+      let workoutDistance =
+        activityDistanceKm > 0
+          ? activityDistanceKm
+          : (
+              streamDistancesKm.length
+                ? streamDistancesKm[streamDistancesKm.length - 1]
+                : 0
+            );
 
       /*
-       * The final workout block defines the visual end of the interval graph.
-       * This is also the distance to which the HR line is mapped.
-       */
-      let workoutDistance = cumulativeDistance;
-
-      /*
-       * The interval/lap distances define the X-axis domain.
-       * Strava stream distance is also in metres and is converted to km
-       * only when plotting the HR line below.
-       */
-      const distanceData = streams.distance?.data || [];
-
-      /*
-       * Placeholder data fallback.
+       * If activity distance is unavailable, derive the domain from
+       * the final recorded lap boundary or lap distances.
        */
       if (!workoutDistance) {
-        workoutDistance = validLaps.length;
+        const boundaryDistances = validLaps
+          .map(lap => {
+            if (
+              Number.isFinite(lap.endIndex) &&
+              streamDistancesKm[lap.endIndex] != null
+            ) {
+              return streamDistancesKm[lap.endIndex];
+            }
+            return null;
+          })
+          .filter(Number.isFinite);
 
-        intervalData.forEach((lap, i) => {
-          lap.startDistance = i;
-          lap.endDistance = i + 1;
-        });
+        if (boundaryDistances.length) {
+          workoutDistance =
+            Math.max(...boundaryDistances);
+        } else {
+          workoutDistance =
+            validLaps.reduce(
+              (sum, lap) =>
+                sum + Math.max(0, lap.distance / 1000),
+              0
+            );
+        }
       }
+
+      /*
+       * Placeholder data has no real distance/index data.
+       */
+      const hasRealStream =
+        streamDistancesKm.length >= 2;
 
       function distanceX(distance) {
         const clamped =
@@ -1343,19 +1377,28 @@
       }
 
       /*
-       * Pace scale.
+       * =========================================================
+       * PACE SCALE
+       * =========================================================
        */
-      const paces = intervalData.map(l => l.pace);
 
-      const fastest = Math.min(...paces);
-      const slowest = Math.max(...paces);
+      const paces =
+        validLaps.map(l => l.pace);
 
-      const paceRange = Math.max(
-        slowest - fastest,
-        30
-      );
+      const fastest =
+        Math.min(...paces);
 
-      const pacePadding = paceRange * 0.12;
+      const slowest =
+        Math.max(...paces);
+
+      const paceRange =
+        Math.max(
+          slowest - fastest,
+          30
+        );
+
+      const pacePadding =
+        paceRange * 0.12;
 
       const paceMin =
         Math.max(
@@ -1375,44 +1418,160 @@
       }
 
       /*
-       * Interval blocks.
+       * =========================================================
+       * INTERVAL BLOCKS
+       * =========================================================
        *
-       * Width now represents the actual distance of each lap.
+       * Prefer actual start/end stream indices.
+       *
+       * This is the critical difference from the previous version:
+       *
+       *   WRONG:
+       *     lap 1 = 1 km
+       *     lap 2 = 1 km
+       *     lap 3 = 1 km
+       *
+       *   RIGHT:
+       *     lap start = distance[start_index]
+       *     lap end   = distance[end_index]
+       *
+       * This preserves the actual position of a manual lap inside
+       * the complete activity.
        */
-      const blocks = intervalData.map(lap => {
 
-        const x =
-          distanceX(lap.startDistance);
+      let runningFallbackDistance = 0;
 
-        const x2 =
-          distanceX(lap.endDistance);
+      const intervalData =
+        validLaps.map(lap => {
 
-        const width =
-          Math.max(
-            3,
-            x2 - x - 2
-          );
+          let startDistance;
+          let endDistance;
 
-        const y =
-          paceY(lap.pace);
+          if (
+            hasRealStream &&
+            Number.isFinite(lap.startIndex) &&
+            Number.isFinite(lap.endIndex) &&
+            streamDistancesKm[lap.startIndex] != null &&
+            streamDistancesKm[lap.endIndex] != null
+          ) {
+            startDistance =
+              streamDistancesKm[
+                Math.max(
+                  0,
+                  Math.min(
+                    streamDistancesKm.length - 1,
+                    Math.round(lap.startIndex)
+                  )
+                )
+              ];
 
-        const height =
-          Math.max(
-            4,
-            graphBottom - y
-          );
+            endDistance =
+              streamDistancesKm[
+                Math.max(
+                  0,
+                  Math.min(
+                    streamDistancesKm.length - 1,
+                    Math.round(lap.endIndex)
+                  )
+                )
+              ];
 
-        return {
-          x,
-          y,
-          width,
-          height
-        };
-      });
+            /*
+             * Some data sources can return the indexes reversed.
+             */
+            if (endDistance < startDistance) {
+              [startDistance, endDistance] =
+                [endDistance, startDistance];
+            }
+
+          } else {
+
+            /*
+             * Placeholder/fallback only.
+             */
+            startDistance =
+              runningFallbackDistance;
+
+            endDistance =
+              startDistance +
+              Math.max(
+                0.01,
+                lap.distance / 1000
+              );
+
+            runningFallbackDistance =
+              endDistance;
+          }
+
+          return {
+            ...lap,
+            startDistance,
+            endDistance
+          };
+        });
 
       /*
-       * Pace labels and guides.
+       * Don't allow malformed lap boundaries to make a block
+       * extend outside the activity.
        */
+      intervalData.forEach(lap => {
+        lap.startDistance =
+          Math.max(
+            0,
+            Math.min(
+              workoutDistance,
+              lap.startDistance
+            )
+          );
+
+        lap.endDistance =
+          Math.max(
+            lap.startDistance,
+            Math.min(
+              workoutDistance,
+              lap.endDistance
+            )
+          );
+      });
+
+      const blocks =
+        intervalData.map(lap => {
+
+          const x =
+            distanceX(lap.startDistance);
+
+          const x2 =
+            distanceX(lap.endDistance);
+
+          const width =
+            Math.max(
+              3,
+              x2 - x - 2
+            );
+
+          const y =
+            paceY(lap.pace);
+
+          const height =
+            Math.max(
+              4,
+              graphBottom - y
+            );
+
+          return {
+            x,
+            y,
+            width,
+            height
+          };
+        });
+
+      /*
+       * =========================================================
+       * PACE LABELS
+       * =========================================================
+       */
+
       const paceTicks = 4;
 
       let paceLabels = '';
@@ -1453,8 +1612,11 @@
       }
 
       /*
-       * Distance labels.
+       * =========================================================
+       * DISTANCE LABELS
+       * =========================================================
        */
+
       let distanceLabels = '';
 
       const distanceStep =
@@ -1483,13 +1645,15 @@
       }
 
       /*
-       * Heart rate.
+       * =========================================================
+       * HEART RATE
+       * =========================================================
        *
-       * IMPORTANT:
-       * The HR stream is plotted against the exact same distance domain
-       * as the interval blocks. The final HR point is explicitly anchored
-       * to the end of the final workout block.
+       * HR uses the exact same distance domain as the graph.
+       * It is NOT forced to the end of the activity unless the
+       * recorded final lap actually reaches that point.
        */
+
       const hrData =
         streams.heartrate?.data || [];
 
@@ -1499,10 +1663,12 @@
         hrData.length >= 2 &&
         distanceData.length === hrData.length
       ) {
+
         const windowSize = 5;
 
         const smoothed =
           hrData.map((_, i) => {
+
             const start =
               Math.max(
                 0,
@@ -1547,11 +1713,11 @@
 
         const validHr =
           smoothed.filter(
-            value =>
-              Number.isFinite(value)
+            Number.isFinite
           );
 
         if (validHr.length >= 2) {
+
           let hrMin =
             Math.min(...validHr);
 
@@ -1586,6 +1752,7 @@
             i < smoothed.length;
             i++
           ) {
+
             const hr =
               smoothed[i];
 
@@ -1599,29 +1766,21 @@
               continue;
             }
 
-            /*
-             * Strava stream distance is metres.
-             */
-            // Strava stream distance is metres -> kilometres.
-            // This must match the lap-distance unit used by the X axis.
             const distanceKm =
               rawDistance / 1000;
 
             /*
-             * Never allow the HR plot to extend beyond
-             * the final interval block.
+             * Plot HR across the complete activity distance.
              */
-            const plottedDistance =
-              Math.min(
-                workoutDistance,
-                Math.max(
-                  0,
-                  distanceKm
-                )
-              );
+            if (
+              distanceKm < 0 ||
+              distanceKm > workoutDistance
+            ) {
+              continue;
+            }
 
             const x =
-              distanceX(plottedDistance);
+              distanceX(distanceKm);
 
             const ratio =
               (
@@ -1639,22 +1798,11 @@
                 hrTop
               );
 
-            points.push([
-              x,
-              y
-            ]);
-          }
-
-          /*
-           * Force the final HR point to exactly the right edge of
-           * the final workout block.
-           */
-          if (points.length >= 2) {
-            points[points.length - 1][0] =
-              distanceX(workoutDistance);
+            points.push([x, y]);
           }
 
           if (points.length >= 2) {
+
             hrPath =
               `M ${points[0][0].toFixed(1)} ` +
               `${points[0][1].toFixed(1)}`;
@@ -1664,6 +1812,7 @@
               i < points.length - 1;
               i++
             ) {
+
               const current =
                 points[i];
 
@@ -1703,6 +1852,12 @@
         }
       }
 
+      /*
+       * =========================================================
+       * RENDER
+       * =========================================================
+       */
+
       const blockHtml =
         blocks.map(block => `
           <rect
@@ -1718,6 +1873,7 @@
 
       return `
         <div class="interval-graph">
+
           <svg
             viewBox="0 0 ${W} ${H}"
             preserveAspectRatio="none"
@@ -1742,6 +1898,7 @@
             ${distanceLabels}
 
           </svg>
+
         </div>
       `;
     }
