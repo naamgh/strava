@@ -1730,28 +1730,24 @@
        * =========================================================
        */
 
-      const blocks =
-        intervalData.map(lap => {
+const x1 =
+  distanceX(lap.startDistance);
 
-          const x1 =
-            distanceX(lap.startDistance);
+const x2 =
+  distanceX(lap.endDistance);
 
-          const x2 =
-            distanceX(lap.endDistance);
+const intervalWidth =
+  Math.abs(x2 - x1);
 
-          const x =
-            Math.min(x1, x2);
+const width =
+  Math.max(
+    4,
+    intervalWidth * 0.85
+  );
 
-          /*
-           * Do NOT use a tiny fixed width.
-           * The width is always proportional to the real
-           * interval distance on the full activity axis.
-           */
-          const width =
-            Math.max(
-              4,
-              Math.abs(x2 - x1) - 2
-            );
+const x =
+  Math.min(x1, x2) +
+  (intervalWidth - width) / 2;
 
           const y =
             Math.max(
