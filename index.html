@@ -1118,7 +1118,16 @@
     }
 
     .interval-graph .interval-bar {
-      fill: #ffffff;
+      fill: #ffffff !important;
+      fill-opacity: 1 !important;
+      stroke: none !important;
+      opacity: 1 !important;
+      vector-effect: non-scaling-stroke;
+      display: block;
+    }
+
+    .interval-graph .interval-bars {
+      display: block;
       opacity: 1;
     }
 
@@ -1258,23 +1267,31 @@
       if (!laps.length) return '';
 
       const streams = state.detail?.streams || {};
-      const distanceData = streams.distance?.data || [];
+      const distanceData = (streams.distance?.data || []).map(Number);
+      const timeData = (streams.time?.data || []).map(Number);
 
-      const validLaps = laps
-        .map((l, index) => ({
-          ...l,
-          lapNumber: Number(l.lap_index ?? l.index ?? index + 1),
-          pace: Number(l.pace_sec_per_km),
-          distance: Number(l.distance || 0),
-          startIndex: Number(l.start_index),
-          endIndex: Number(l.end_index)
-        }))
-        .filter(l =>
-          Number.isFinite(l.pace) &&
-          l.pace > 0
-        );
+      const streamDistancesKm = distanceData
+        .filter(Number.isFinite)
+        .map(v => v / 1000);
 
-      if (!validLaps.length) return '';
+      const activityDistanceKm = Number(data().distance) || 0;
+
+      const workoutDistance =
+        activityDistanceKm > 0
+          ? activityDistanceKm
+          : (
+              streamDistancesKm.length
+                ? streamDistancesKm[streamDistancesKm.length - 1]
+                : 0
+            );
+
+      if (!workoutDistance) return '';
+
+      /*
+       * =========================================================
+       * GRAPH
+       * =========================================================
+       */
 
       const W = 600;
       const H = 250;
@@ -1288,93 +1305,250 @@
       const graphH = H - top - bottom;
       const graphBottom = top + graphH;
 
-      /*
-       * =========================================================
-       * X AXIS
-       * =========================================================
-       *
-       * The graph uses the activity's real distance as its domain.
-       *
-       * Manual/recorded laps are positioned using their actual
-       * stream boundaries (start_index/end_index), not by simply
-       * adding lap distances together.
-       *
-       * Strava stream distance is metres, so everything below is
-       * converted to kilometres.
-       */
-
-      const streamDistancesKm =
-        distanceData
-          .map(Number)
-          .filter(Number.isFinite)
-          .map(m => m / 1000);
-
-      const activityDistanceKm =
-        Number(data().distance) ||
-        (
-          state.detail?.activity?.distance
-            ? Number(state.detail.activity.distance) / 1000
-            : 0
-        );
-
-      let workoutDistance =
-        activityDistanceKm > 0
-          ? activityDistanceKm
-          : (
-              streamDistancesKm.length
-                ? streamDistancesKm[streamDistancesKm.length - 1]
-                : 0
-            );
-
-      /*
-       * If activity distance is unavailable, derive the domain from
-       * the final recorded lap boundary or lap distances.
-       */
-      if (!workoutDistance) {
-        const boundaryDistances = validLaps
-          .map(lap => {
-            if (
-              Number.isFinite(lap.endIndex) &&
-              streamDistancesKm[lap.endIndex] != null
-            ) {
-              return streamDistancesKm[lap.endIndex];
-            }
-            return null;
-          })
-          .filter(Number.isFinite);
-
-        if (boundaryDistances.length) {
-          workoutDistance =
-            Math.max(...boundaryDistances);
-        } else {
-          workoutDistance =
-            validLaps.reduce(
-              (sum, lap) =>
-                sum + Math.max(0, lap.distance / 1000),
-              0
-            );
-        }
+      function distanceX(distance) {
+        return left +
+          (
+            Math.max(0, Math.min(workoutDistance, distance))
+            / workoutDistance
+          ) * graphW;
       }
 
       /*
-       * Placeholder data has no real distance/index data.
+       * =========================================================
+       * NORMALISE LAPS
+       * =========================================================
+       *
+       * We support all three forms of Strava lap data:
+       *
+       * 1. start_index/end_index
+       * 2. elapsed-time boundaries mapped onto the stream
+       * 3. lap distance as a final fallback
+       *
+       * The graph itself ALWAYS remains 0 -> full activity distance.
        */
-      const hasRealStream =
-        streamDistancesKm.length >= 2;
 
-      function distanceX(distance) {
-        const clamped =
+      const validLaps = laps
+        .map((lap, index) => ({
+          raw: lap,
+          index,
+          pace: Number(lap.pace_sec_per_km),
+          distanceKm: Math.max(
+            0,
+            Number(lap.distance || 0) / 1000
+          ),
+          startIndex: Number(lap.start_index),
+          endIndex: Number(lap.end_index),
+          elapsedTime: Number(lap.elapsed_time),
+          movingTime: Number(lap.moving_time)
+        }))
+        .filter(lap =>
+          Number.isFinite(lap.pace) &&
+          lap.pace > 0
+        );
+
+      if (!validLaps.length) return '';
+
+      /*
+       * Find the distance corresponding to a time value.
+       * Strava stream time is elapsed seconds from the activity start.
+       */
+      function distanceAtTime(seconds) {
+        if (
+          !Number.isFinite(seconds) ||
+          !timeData.length ||
+          timeData.length !== distanceData.length
+        ) {
+          return null;
+        }
+
+        let lo = 0;
+        let hi = timeData.length - 1;
+
+        while (lo <= hi) {
+          const mid = Math.floor((lo + hi) / 2);
+          const t = timeData[mid];
+
+          if (!Number.isFinite(t)) break;
+
+          if (t < seconds) {
+            lo = mid + 1;
+          } else {
+            hi = mid - 1;
+          }
+        }
+
+        const i1 = Math.max(0, Math.min(timeData.length - 1, hi));
+        const i2 = Math.max(0, Math.min(timeData.length - 1, lo));
+
+        const t1 = timeData[i1];
+        const t2 = timeData[i2];
+
+        const d1 = Number.isFinite(distanceData[i1])
+          ? distanceData[i1] / 1000
+          : null;
+
+        const d2 = Number.isFinite(distanceData[i2])
+          ? distanceData[i2] / 1000
+          : null;
+
+        if (d1 == null && d2 == null) return null;
+        if (d1 == null) return d2;
+        if (d2 == null) return d1;
+        if (i1 === i2 || t2 === t1) return d1;
+
+        const ratio =
+          Math.max(
+            0,
+            Math.min(
+              1,
+              (seconds - t1) / (t2 - t1)
+            )
+          );
+
+        return d1 + (d2 - d1) * ratio;
+      }
+
+      /*
+       * Prefer actual stream indexes.
+       */
+      function boundaryFromIndex(index) {
+        if (
+          !Number.isFinite(index) ||
+          !distanceData.length
+        ) return null;
+
+        const i =
+          Math.max(
+            0,
+            Math.min(
+              distanceData.length - 1,
+              Math.round(index)
+            )
+          );
+
+        const metres =
+          Number(distanceData[i]);
+
+        return Number.isFinite(metres)
+          ? metres / 1000
+          : null;
+      }
+
+      /*
+       * Build the interval boundaries.
+       */
+      let cursorDistance = 0;
+      let cursorTime = 0;
+
+      const intervalData = validLaps.map((lap, i) => {
+
+        let startDistance = null;
+        let endDistance = null;
+
+        /*
+         * METHOD 1:
+         * Actual Strava start/end stream indexes.
+         */
+        const indexedStart =
+          boundaryFromIndex(lap.startIndex);
+
+        const indexedEnd =
+          boundaryFromIndex(lap.endIndex);
+
+        if (
+          indexedStart != null &&
+          indexedEnd != null &&
+          indexedEnd > indexedStart
+        ) {
+          startDistance = indexedStart;
+          endDistance = indexedEnd;
+        }
+
+        /*
+         * METHOD 2:
+         * If indexes aren't present, use elapsed lap time
+         * against the activity's time/distance stream.
+         *
+         * This is especially useful for manually recorded laps.
+         */
+        if (
+          startDistance == null &&
+          Number.isFinite(lap.elapsedTime) &&
+          timeData.length === distanceData.length &&
+          timeData.length >= 2
+        ) {
+          const lapStartTime = cursorTime;
+          const lapEndTime =
+            cursorTime + lap.elapsedTime;
+
+          const fromTime =
+            distanceAtTime(lapStartTime);
+
+          const toTime =
+            distanceAtTime(lapEndTime);
+
+          if (
+            fromTime != null &&
+            toTime != null &&
+            toTime > fromTime
+          ) {
+            startDistance = fromTime;
+            endDistance = toTime;
+
+            cursorTime = lapEndTime;
+          }
+        }
+
+        /*
+         * METHOD 3:
+         * Real lap distance as fallback.
+         *
+         * Crucially, this is still positioned on the FULL
+         * activity X axis rather than making the graph itself
+         * only as long as the sum of laps.
+         */
+        if (
+          startDistance == null ||
+          endDistance == null
+        ) {
+          startDistance = cursorDistance;
+          endDistance =
+            cursorDistance +
+            Math.max(
+              0.01,
+              lap.distanceKm
+            );
+        }
+
+        /*
+         * Keep boundaries inside the actual activity.
+         */
+        startDistance =
           Math.max(
             0,
             Math.min(
               workoutDistance,
-              distance
+              startDistance
             )
           );
 
-        return left +
-          (clamped / workoutDistance) * graphW;
-      }
+        endDistance =
+          Math.max(
+            startDistance + 0.005,
+            Math.min(
+              workoutDistance,
+              endDistance
+            )
+          );
+
+        cursorDistance = endDistance;
+
+        return {
+          ...lap,
+          startDistance,
+          endDistance
+        };
+      });
 
       /*
        * =========================================================
@@ -1383,7 +1557,7 @@
        */
 
       const paces =
-        validLaps.map(l => l.pace);
+        intervalData.map(lap => lap.pace);
 
       const fastest =
         Math.min(...paces);
@@ -1419,142 +1593,45 @@
 
       /*
        * =========================================================
-       * INTERVAL BLOCKS
+       * BLOCKS
        * =========================================================
-       *
-       * Prefer actual start/end stream indices.
-       *
-       * This is the critical difference from the previous version:
-       *
-       *   WRONG:
-       *     lap 1 = 1 km
-       *     lap 2 = 1 km
-       *     lap 3 = 1 km
-       *
-       *   RIGHT:
-       *     lap start = distance[start_index]
-       *     lap end   = distance[end_index]
-       *
-       * This preserves the actual position of a manual lap inside
-       * the complete activity.
        */
-
-      let runningFallbackDistance = 0;
-
-      const intervalData =
-        validLaps.map(lap => {
-
-          let startDistance;
-          let endDistance;
-
-          if (
-            hasRealStream &&
-            Number.isFinite(lap.startIndex) &&
-            Number.isFinite(lap.endIndex) &&
-            streamDistancesKm[lap.startIndex] != null &&
-            streamDistancesKm[lap.endIndex] != null
-          ) {
-            startDistance =
-              streamDistancesKm[
-                Math.max(
-                  0,
-                  Math.min(
-                    streamDistancesKm.length - 1,
-                    Math.round(lap.startIndex)
-                  )
-                )
-              ];
-
-            endDistance =
-              streamDistancesKm[
-                Math.max(
-                  0,
-                  Math.min(
-                    streamDistancesKm.length - 1,
-                    Math.round(lap.endIndex)
-                  )
-                )
-              ];
-
-            /*
-             * Some data sources can return the indexes reversed.
-             */
-            if (endDistance < startDistance) {
-              [startDistance, endDistance] =
-                [endDistance, startDistance];
-            }
-
-          } else {
-
-            /*
-             * Placeholder/fallback only.
-             */
-            startDistance =
-              runningFallbackDistance;
-
-            endDistance =
-              startDistance +
-              Math.max(
-                0.01,
-                lap.distance / 1000
-              );
-
-            runningFallbackDistance =
-              endDistance;
-          }
-
-          return {
-            ...lap,
-            startDistance,
-            endDistance
-          };
-        });
-
-      /*
-       * Don't allow malformed lap boundaries to make a block
-       * extend outside the activity.
-       */
-      intervalData.forEach(lap => {
-        lap.startDistance =
-          Math.max(
-            0,
-            Math.min(
-              workoutDistance,
-              lap.startDistance
-            )
-          );
-
-        lap.endDistance =
-          Math.max(
-            lap.startDistance,
-            Math.min(
-              workoutDistance,
-              lap.endDistance
-            )
-          );
-      });
 
       const blocks =
         intervalData.map(lap => {
 
-          const x =
+          const x1 =
             distanceX(lap.startDistance);
 
           const x2 =
             distanceX(lap.endDistance);
 
+          const x =
+            Math.min(x1, x2);
+
+          /*
+           * Do NOT use a tiny fixed width.
+           * The width is always proportional to the real
+           * interval distance on the full activity axis.
+           */
           const width =
             Math.max(
-              3,
-              x2 - x - 2
+              4,
+              Math.abs(x2 - x1) - 2
             );
 
           const y =
-            paceY(lap.pace);
+            Math.max(
+              top,
+              Math.min(
+                graphBottom - 5,
+                paceY(lap.pace)
+              )
+            );
 
           const height =
             Math.max(
-              4,
+              5,
               graphBottom - y
             );
 
@@ -1572,9 +1649,9 @@
        * =========================================================
        */
 
-      const paceTicks = 4;
-
       let paceLabels = '';
+
+      const paceTicks = 4;
 
       for (
         let i = 0;
@@ -1648,10 +1725,6 @@
        * =========================================================
        * HEART RATE
        * =========================================================
-       *
-       * HR uses the exact same distance domain as the graph.
-       * It is NOT forced to the end of the activity unless the
-       * recorded final lap actually reaches that point.
        */
 
       const hrData =
@@ -1663,7 +1736,6 @@
         hrData.length >= 2 &&
         distanceData.length === hrData.length
       ) {
-
         const windowSize = 5;
 
         const smoothed =
@@ -1752,7 +1824,6 @@
             i < smoothed.length;
             i++
           ) {
-
             const hr =
               smoothed[i];
 
@@ -1762,22 +1833,15 @@
             if (
               !Number.isFinite(hr) ||
               !Number.isFinite(rawDistance)
-            ) {
-              continue;
-            }
+            ) continue;
 
             const distanceKm =
               rawDistance / 1000;
 
-            /*
-             * Plot HR across the complete activity distance.
-             */
             if (
               distanceKm < 0 ||
               distanceKm > workoutDistance
-            ) {
-              continue;
-            }
+            ) continue;
 
             const x =
               distanceX(distanceKm);
@@ -1802,7 +1866,6 @@
           }
 
           if (points.length >= 2) {
-
             hrPath =
               `M ${points[0][0].toFixed(1)} ` +
               `${points[0][1].toFixed(1)}`;
@@ -1812,7 +1875,6 @@
               i < points.length - 1;
               i++
             ) {
-
               const current =
                 points[i];
 
@@ -1868,21 +1930,23 @@
             height="${block.height.toFixed(1)}"
             rx="4"
             ry="4"
+            fill="#ffffff"
+            fill-opacity="1"
           />
         `).join('');
 
       return `
         <div class="interval-graph">
-
           <svg
             viewBox="0 0 ${W} ${H}"
             preserveAspectRatio="none"
             aria-label="Pace and heart rate graph"
           >
-
             ${paceLabels}
 
-            ${blockHtml}
+            <g class="interval-bars">
+              ${blockHtml}
+            </g>
 
             ${
               hrPath
@@ -1896,9 +1960,7 @@
             }
 
             ${distanceLabels}
-
           </svg>
-
         </div>
       `;
     }
