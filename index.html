@@ -129,6 +129,44 @@
       color: white
     }
 
+    .style-strip-wrap {
+      margin-top: 10px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 8px;
+      background: rgba(255, 255, 255, .045)
+    }
+
+    .style-strip {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      padding-bottom: 2px;
+      -webkit-overflow-scrolling: touch
+    }
+
+    .style-strip::-webkit-scrollbar {
+      display: none
+    }
+
+    .style-pill {
+      scroll-snap-align: center;
+      white-space: nowrap;
+      border-radius: 999px;
+      padding: 9px 13px;
+      background: rgba(255, 255, 255, .06);
+      border: 1px solid rgba(255, 255, 255, .1);
+      font-size: 12px;
+      font-weight: 900;
+      color: var(--muted)
+    }
+
+    .style-pill.active {
+      background: white;
+      color: #111
+    }
+
     .template {
       padding: 22px;
       border-radius: 22px
@@ -443,6 +481,72 @@
       font-size: 18px
     }
 
+    .editorial {
+      font-family: Georgia, "Times New Roman", serif;
+      color: rgba(255, 255, 255, .9);
+      text-shadow: 0 4px 20px rgba(0, 0, 0, .26)
+    }
+
+    .editorial .hero {
+      font-size: 62px;
+      font-weight: 400;
+      letter-spacing: -.08em
+    }
+
+    .editorial .title {
+      font-family: Inter, system-ui, sans-serif
+    }
+
+    .techgrid {
+      font-family: "SF Mono", "Roboto Mono", "Courier New", monospace;
+      color: rgba(255, 255, 255);
+      text-shadow: none
+    }
+
+    .techgrid .stats {
+      border-top: 1px solid rgba(215, 245, 255, .4);
+      border-bottom: 1px solid rgba(215, 245, 255, .24);
+      padding: 12px 0
+    }
+
+    .techgrid .route-path,
+    .techgrid .elev-path {
+      stroke-dasharray: none
+    }
+
+    .ghost {
+      font-family: Inter, system-ui, sans-serif;
+      color: rgba(255, 255, 255, .52)
+    }
+
+    .ghost .hero {
+      font-weight: 1000;
+      letter-spacing: -.12em
+    }
+
+    .ghost .route-path,
+    .ghost .elev-path {
+      opacity: .55
+    }
+
+    .labelmaker {
+      font-family: "Arial Narrow", Arial, sans-serif;
+      color: white
+    }
+
+    .labelmaker .title {
+      background: rgba(255, 255, 255, .92);
+      color: #111;
+      padding: 6px 8px;
+      border-radius: 2px;
+      display: inline-block
+    }
+
+    .labelmaker .hero {
+      font-family: Impact, "Arial Black", sans-serif;
+      letter-spacing: -0.0em
+    }
+
     .runline {
       font-family: Inter, system-ui, sans-serif;
       color: white
@@ -463,6 +567,22 @@
       border-radius: 999px;
       padding: 8px 11px;
       background: rgba(255, 255, 255, .04)
+    }
+
+    .deepdata {
+      font-family: "SF Mono", "Roboto Mono", "Courier New", monospace;
+      background: rgba(0, 0, 0, .18);
+      border: 1px solid rgba(255, 255, 255, .18);
+      color: rgba(255, 255, 255, .92);
+      border-radius: 14px
+    }
+
+    .deepdata .hero {
+      font-size: 42px
+    }
+
+    .deepdata .stats {
+      grid-template-columns: repeat(2, 1fr)
     }
 
     .sheet-backdrop {
@@ -938,6 +1058,14 @@
       font-size: 50px
     }
 
+    .overlay.layout-portrait .editorial .hero {
+      font-size: 50px
+    }
+
+    .overlay.layout-portrait .deepdata .hero {
+      font-size: 38px
+    }
+
     .overlay.layout-portrait .runline .hero {
       font-size: 40px
     }
@@ -1086,42 +1214,22 @@
         grid-template-columns: 1fr
       }
     }
-      .style-strip-wrap {
-      margin-top: 10px;
-      border: 1px solid var(--line);
-      border-radius: 18px;
-      padding: 8px;
-      background: rgba(255,255,255,.045);
-    }
-    .style-strip {
-      display: flex;
-      gap: 8px;
-      overflow-x: auto;
-      scroll-snap-type: x mandatory;
-      padding-bottom: 2px;
-      -webkit-overflow-scrolling: touch;
-    }
-    .style-strip::-webkit-scrollbar { display: none; }
-    .style-pill {
-      scroll-snap-align: center;
-      flex: 0 0 auto;
-      padding: 9px 13px;
-      border: 1px solid var(--line);
-      border-radius: 999px;
-      background: transparent;
-      color: var(--muted);
-      font: inherit;
-      font-size: 11px;
-      white-space: nowrap;
-      cursor: pointer;
-    }
-    .style-pill.active {
-      color: var(--fg);
-      border-color: var(--fg);
-      background: rgba(255,255,255,.08);
-    }
+      .weekly-tools{margin-top:8px}
+    .weekly-buttons{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+    .weekly-btn{min-width:0;padding:9px 7px;font-size:11px;white-space:nowrap}
+    .weekly-btn.active{background:white;color:#111;border-color:white}
+    .weekly-panel{margin-top:8px;border:1px solid var(--line);border-radius:16px;padding:13px 14px;background:rgba(255,255,255,.045)}
+    .weekly-heading{font-size:10px;font-weight:900;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-bottom:9px}
+    .weekly-sport-row{display:grid;grid-template-columns:1fr auto auto;gap:12px;align-items:baseline;padding:5px 0;font-size:12px}
+    .weekly-sport-row+.weekly-sport-row{border-top:1px solid rgba(255,255,255,.07)}
+    .weekly-sport-name,.weekly-distance,.weekly-time,.weekly-subtime{font-weight:850}
+    .weekly-distance,.weekly-time,.weekly-subtime{font-variant-numeric:tabular-nums;white-space:nowrap}
+    .weekly-hero{font-size:42px;line-height:.9;font-weight:950;letter-spacing:-.07em;margin:2px 0 9px}
+    .weekly-unit{font-size:12px;letter-spacing:.08em;margin-left:5px;opacity:.6}
+    .weekly-subtime{font-size:15px}
+    .weekly-empty{color:var(--muted);font-size:12px}
 
-</style>
+  </style>
 </head>
 
 <body>
@@ -1141,7 +1249,6 @@
         </div>
       </div>
 
-
       <div class="style-strip-wrap">
         <div style="display:grid;grid-template-columns:44px 1fr 44px;gap:8px;align-items:center">
           <button id="stylePrev">‹</button>
@@ -1159,6 +1266,15 @@
           <button class="active" data-bg="off">No BG</button>
           <button data-bg="on">BG On</button>
         </div>
+      </div>
+      <div class="weekly-tools">
+        <div class="weekly-buttons" id="weeklyButtons">
+          <button class="weekly-btn active" data-weekly="all">All Sports</button>
+          <button class="weekly-btn" data-weekly="run">Run</button>
+          <button class="weekly-btn" data-weekly="ride">Bike</button>
+          <button class="weekly-btn" data-weekly="swim">Swim</button>
+        </div>
+        <div class="weekly-panel" id="weeklyPanel"></div>
       </div>
       <div class="opacity-slider-wrap" id="opacitySliderWrap">
         <label>Opacity</label>
@@ -1206,360 +1322,314 @@
   </div>
   <div class="toast" id="toast"></div>
   <script>
-const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
-const profiles =  {
-  run:  {
-    title: 1, distance: 1, time: 1, pace: 1, elevation: 0, heart: 1, power: 0, route: 0, elevProfile: 0, splits: 0, date: 0
-  }, ride:  {
-    title: 1, distance: 1, time: 1, pace: 1, elevation: 1, heart: 1, power: 1, route: 1, elevProfile: 0, splits: 0, date: 0
-  }, minimal:  {
-    title: 1, distance: 1, time: 1, pace: 1, elevation: 0, heart: 0, power: 0, route: 0, elevProfile: 0, splits: 0, date: 0
-  }, all:  {
-    title: 1, distance: 1, time: 1, pace: 1, elevation: 1, heart: 1, power: 1, route: 1, elevProfile: 1, splits: 0, date: 1
-  }
-};
-const styleDefs = [
-      { key: 'performance', name: 'Performance', className: 'performance nobg' },
-      { key: 'brutalist', name: 'Brutalist', className: 'brutalist nobg' },
-      { key: 'airmono', name: 'Air Mono', className: 'airmono nobg' },
-      { key: 'runline', name: 'Run Line', className: 'runline nobg' }
-    ];
-    const profileLabels =  {
-  run: 'Running Default', ride: 'Cycling Default', minimal: 'Minimal Core', all: 'All Data'
-};
-const moduleLabels =  {
-  title: 'Title', distance: 'Distance', time: 'Time', pace: 'Pace / Speed', elevation: 'Elevation', heart: 'Heart Rate', power: 'Power', route: 'Route Map', elevProfile: 'Elevation Profile', splits: 'Splits', date: 'Date'
-};
-const state =  {
-  token: localStorage.getItem('strava_access_token') || '', style: 'brutalist', styleIndex: 1, tone: 'white', bg: false, bgOpacity: 0.75, layout: 'landscape', profile: 'run', activity: null, detail: null, mods:  {
-    ...profiles.run
-  }
-};
-function toast(t)  {
-  let e = $('#toast');
-  e.textContent = t;
-  e.classList.add('show');
-  setTimeout(() => e.classList.remove('show'), 2200)
-} function openSheet(id)  {
-  let sheet = $(id), isOpen = sheet.classList.contains('show');
-  closeSheets();
-  if (!isOpen)  {
-    $('#sheetBackdrop').classList.add('show');
-    sheet.classList.add('show')
-  }
-} function closeSheets()  {
-  $('#sheetBackdrop').classList.remove('show');
-  $$('.sheet').forEach(s => s.classList.remove('show'))
-} function fmtTime(sec)  {
-  sec = Math.round(sec || 0);
-  let h = Math.floor(sec / 3600), m = Math.floor(sec % 3600 / 60), s = sec % 60;
-  return h ? `${h}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}` : `${m}:${String(s).padStart(2, '0')}`
-} function kind(t)  {
-  t = (t || 'Run').toLowerCase();
-  return t.includes('ride') || t.includes('bike') || t.includes('cycle') ? 'Ride' : t.includes('walk') ? 'Walk' : t.includes('hike') ? 'Hike' : 'Run'
-} function distKm(a)  {
-  return +(a.distance_km || ((a.distance || 0) / 1000).toFixed(1))
-} function paceText(a)  {
-  let k = kind(a.type || a.sport_type), km = distKm(a), sec = a.moving_time || 0;
-  if (k === 'Ride') return `${(a.average_speed_kmh || ((a.average_speed || 0) * 3.6).toFixed(1))} KM/H`;
-  let p = sec / km, m = Math.floor(p / 60), s = Math.round(p % 60);
-  return km ? `${m}:${String(s).padStart(2, '0')} /KM` : '--'
-}
-function data()  {
-  let a = state.detail?.activity || state.activity ||  {
-  };
-  return  {
-    title: (a.name || 'SELECT ACTIVITY').toUpperCase(), type: kind(a.sport_type || a.type), distance: (distKm(a) || 12.4).toFixed(1), time: fmtTime(a.moving_time || 3482), pace: paceText(a), elevation: '+' + Math.round(a.total_elevation_gain ?? a.elevation_m ?? 214) + 'M', heart: a.average_heartrate ? Math.round(a.average_heartrate) + ' BPM' : '--', power: a.average_watts ? Math.round(a.average_watts) + ' W' : '--', date: a.start_date ? new Date(a.start_date).toLocaleDateString(undefined,  {
-      month: 'short', day: 'numeric'
-    }) : ''
-  }
-} function pointsToPath(points, w = 300, h = 160, pad = 10)  {
-  if (!points || points.length < 2) return 'M20 120 C 70 30, 120 145, 160 78 S 230 40, 280 110';
-  let xs = points.map(p => p[1]), ys = points.map(p => p[0]), minX = Math.min(...xs), maxX = Math.max(...xs), minY = Math.min(...ys), maxY = Math.max(...ys), sx = (w - pad * 2) / (maxX - minX || 1), sy = (h - pad * 2) / (maxY - minY || 1), sample = points.filter((_, i) => i % Math.ceil(points.length / 90) === 0);
-  return sample.map((p, i) => `${i ? 'L' : 'M'}${((p[1] - minX) * sx + pad).toFixed(1)} ${((maxY - p[0]) * sy + pad).toFixed(1)}`).join(' ')
-} function elevPath(vals, w = 320, h = 80)  {
-  if (!vals || vals.length < 2) vals = [20, 40, 32, 70, 44, 90, 76, 110, 80, 120];
-  let min = Math.min(...vals), max = Math.max(...vals), sample = vals.filter((_, i) => i % Math.ceil(vals.length / 90) === 0), path = sample.map((v, i) =>  {
-    let x = i / (sample.length - 1) * w, y = h - ((v - min) / (max - min || 1)) * h;
-    return `${i ? 'L' : 'M'}${x.toFixed(1)} ${y.toFixed(1)}`
-  }).join(' ');
-  return  {
-    line: path, fill: `${path} L${w} ${h} L0 ${h} Z`
-  }
-} function routeSvg()  {
-  let path = pointsToPath(state.detail?.streams?.latlng?.data);
-  return `<div class='routebox'><svg viewBox='0 0 300 160'><path class='route-path' d='${path}'/></svg></div>`
-} function elevationSvg()  {
-  let ep = elevPath(state.detail?.streams?.altitude?.data);
-  return `<div class='elevbox'><svg viewBox='0 0 320 80'><path class='elev-fill' d='${ep.fill}'/><path class='elev-path' d='${ep.line}'/></svg></div>`
-} function getLaps()  {
-  let laps = (state.detail?.laps || []).filter(l => l.pace_sec_per_km);
-  if (!laps.length && data().type === 'Run') laps = [292, 287].map((p, i) => ( {
-    index: i + 1, pace_sec_per_km: p
-  }));
-  return laps
-} function paceStr(p)  {
-  let m = Math.floor(p / 60), s = Math.round(p % 60);
-  return `${m}:${String(s).padStart(2, '0')}`
-} function splitsHtml()  {
-  const laps = getLaps();
-  if (!laps.length) return '';
-  const streams = state.detail?.streams ||  {
-  };
-  const distanceData = (streams.distance?.data || []).map(Number);
-  const timeData = (streams.time?.data || []).map(Number);
-  const streamDistancesKm = distanceData
-  .filter(Number.isFinite)
-  .map(v => v / 1000);
-  const activityDistanceKm = Number(data().distance) || 0;
-  const workoutDistance =
-  activityDistanceKm > 0
-  ? activityDistanceKm
-  : (
-  streamDistancesKm.length
-  ? streamDistancesKm[streamDistancesKm.length - 1]
-  : 0
-  );
-  if (!workoutDistance) return '';
-  /*
-  * =========================================================
-  * GRAPH
-  * =========================================================
-  */
-  const W = 600;
-  const H = 250;
-  const left = 82;
-  const right = 10;
-  const top = 16;
-  const bottom = 32;
-  const graphW = W - left - right;
-  const graphH = H - top - bottom;
-  const graphBottom = top + graphH;
-  function distanceX(distance)  {
-    return left +
-    (
-    Math.max(0, Math.min(workoutDistance, distance))
-    / workoutDistance
-    ) * graphW;
-  }
-  /*
-  * =========================================================
-  * NORMALISE LAPS
-  * =========================================================
-  *
-  * We support all three forms of Strava lap data:
-  *
-  * 1. start_index/end_index
-  * 2. elapsed-time boundaries mapped onto the stream
-  * 3. lap distance as a final fallback
-  *
-  * The graph itself ALWAYS remains 0 -> full activity distance.
-  */
-  const validLaps = laps
-  .map((lap, index) => ( {
-    raw: lap,
-    index,
-    pace: Number(lap.pace_sec_per_km),
-    distanceKm: Math.max(
-    0,
-    Number(lap.distance || 0) / 1000
-    ),
-    startIndex: Number(lap.start_index),
-    endIndex: Number(lap.end_index),
-    elapsedTime: Number(lap.elapsed_time),
-    movingTime: Number(lap.moving_time)
-  }))
-  .filter(lap =>
-  Number.isFinite(lap.pace) &&
-  lap.pace > 0
-  );
-  if (!validLaps.length) return '';
-  /*
-  * Find the distance corresponding to a time value.
-  * Strava stream time is elapsed seconds from the activity start.
-  */
-  function distanceAtTime(seconds)  {
-    if (
-    !Number.isFinite(seconds) ||
-    !timeData.length ||
-    timeData.length !== distanceData.length
-    )  {
-      return null;
-    }
-    let lo = 0;
-    let hi = timeData.length - 1;
-    while (lo <= hi)  {
-      const mid = Math.floor((lo + hi) / 2);
-      const t = timeData[mid];
-      if (!Number.isFinite(t)) break;
-      if (t < seconds)  {
-        lo = mid + 1;
-      } else  {
-        hi = mid - 1;
+    const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)]; const profiles = { run: { title: 1, distance: 1, time: 1, pace: 1, elevation: 0, heart: 1, power: 0, route: 0, elevProfile: 0, splits: 1, date: 0 }, ride: { title: 1, distance: 1, time: 1, pace: 1, elevation: 1, heart: 1, power: 1, route: 1, elevProfile: 0, splits: 0, date: 0 }, minimal: { title: 1, distance: 1, time: 1, pace: 1, elevation: 0, heart: 0, power: 0, route: 0, elevProfile: 0, splits: 0, date: 0 }, all: { title: 1, distance: 1, time: 1, pace: 1, elevation: 1, heart: 1, power: 1, route: 1, elevProfile: 1, splits: 1, date: 1 } }; const styleDefs = [{ key: 'editorial', name: 'Editorial', className: 'editorial nobg' }, { key: 'performance', name: 'Performance', className: 'performance nobg' }, { key: 'brutalist', name: 'Brutalist', className: 'brutalist nobg' }, { key: 'airmono', name: 'Air Mono', className: 'airmono nobg' }, { key: 'techgrid', name: 'Tech Grid', className: 'techgrid nobg' }, { key: 'ghost', name: 'Ghost', className: 'ghost nobg' }, { key: 'labelmaker', name: 'Label Maker', className: 'labelmaker nobg' }, { key: 'runline', name: 'Run Line', className: 'runline nobg' }, { key: 'deepdata', name: 'Deep Data', className: 'deepdata' }]; const profileLabels = { run: 'Running Default', ride: 'Cycling Default', minimal: 'Minimal Core', all: 'All Data' }; const moduleLabels = { title: 'Title', distance: 'Distance', time: 'Time', pace: 'Pace / Speed', elevation: 'Elevation', heart: 'Heart Rate', power: 'Power', route: 'Route Map', elevProfile: 'Elevation Profile', splits: 'Splits', date: 'Date' }; const state = { token: localStorage.getItem('strava_access_token') || '', style: 'editorial', styleIndex: 0, tone: 'white', bg: false, bgOpacity: 0.75, layout: 'landscape', profile: 'run', activity: null, detail: null, mods: { ...profiles.run } }; function toast(t) { let e = $('#toast'); e.textContent = t; e.classList.add('show'); setTimeout(() => e.classList.remove('show'), 2200) } function openSheet(id) { let sheet = $(id), isOpen = sheet.classList.contains('show'); closeSheets(); if (!isOpen) { $('#sheetBackdrop').classList.add('show'); sheet.classList.add('show') } } function closeSheets() { $('#sheetBackdrop').classList.remove('show'); $$('.sheet').forEach(s => s.classList.remove('show')) } function fmtTime(sec) { sec = Math.round(sec || 0); let h = Math.floor(sec / 3600), m = Math.floor(sec % 3600 / 60), s = sec % 60; return h ? `${h}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}` : `${m}:${String(s).padStart(2, '0')}` } function kind(t) { t = (t || 'Run').toLowerCase(); return t.includes('ride') || t.includes('bike') || t.includes('cycle') ? 'Ride' : t.includes('walk') ? 'Walk' : t.includes('hike') ? 'Hike' : 'Run' } function distKm(a) { return +(a.distance_km || ((a.distance || 0) / 1000).toFixed(1)) } function paceText(a) { let k = kind(a.type || a.sport_type), km = distKm(a), sec = a.moving_time || 0; if (k === 'Ride') return `${(a.average_speed_kmh || ((a.average_speed || 0) * 3.6).toFixed(1))} KM/H`; let p = sec / km, m = Math.floor(p / 60), s = Math.round(p % 60); return km ? `${m}:${String(s).padStart(2, '0')} /KM` : '--' } 
+    function data() { let a = state.detail?.activity || state.activity || {}; return { title: (a.name || 'SELECT ACTIVITY').toUpperCase(), type: kind(a.sport_type || a.type), distance: (distKm(a) || 12.4).toFixed(1), time: fmtTime(a.moving_time || 3482), pace: paceText(a), elevation: '+' + Math.round(a.total_elevation_gain ?? a.elevation_m ?? 214) + 'M', heart: a.average_heartrate ? Math.round(a.average_heartrate) + ' BPM' : '--', power: a.average_watts ? Math.round(a.average_watts) + ' W' : '--', date: a.start_date ? new Date(a.start_date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) : '' } } function pointsToPath(points, w = 300, h = 160, pad = 10) { if (!points || points.length < 2) return 'M20 120 C 70 30, 120 145, 160 78 S 230 40, 280 110'; let xs = points.map(p => p[1]), ys = points.map(p => p[0]), minX = Math.min(...xs), maxX = Math.max(...xs), minY = Math.min(...ys), maxY = Math.max(...ys), sx = (w - pad * 2) / (maxX - minX || 1), sy = (h - pad * 2) / (maxY - minY || 1), sample = points.filter((_, i) => i % Math.ceil(points.length / 90) === 0); return sample.map((p, i) => `${i ? 'L' : 'M'}${((p[1] - minX) * sx + pad).toFixed(1)} ${((maxY - p[0]) * sy + pad).toFixed(1)}`).join(' ') } function elevPath(vals, w = 320, h = 80) { if (!vals || vals.length < 2) vals = [20, 40, 32, 70, 44, 90, 76, 110, 80, 120]; let min = Math.min(...vals), max = Math.max(...vals), sample = vals.filter((_, i) => i % Math.ceil(vals.length / 90) === 0), path = sample.map((v, i) => { let x = i / (sample.length - 1) * w, y = h - ((v - min) / (max - min || 1)) * h; return `${i ? 'L' : 'M'}${x.toFixed(1)} ${y.toFixed(1)}` }).join(' '); return { line: path, fill: `${path} L${w} ${h} L0 ${h} Z` } } function routeSvg() { let path = pointsToPath(state.detail?.streams?.latlng?.data); return `<div class='routebox'><svg viewBox='0 0 300 160'><path class='route-path' d='${path}'/></svg></div>` } function elevationSvg() { let ep = elevPath(state.detail?.streams?.altitude?.data); return `<div class='elevbox'><svg viewBox='0 0 320 80'><path class='elev-fill' d='${ep.fill}'/><path class='elev-path' d='${ep.line}'/></svg></div>` } function getLaps() { let laps = (state.detail?.laps || []).filter(l => l.pace_sec_per_km); if (!laps.length && data().type === 'Run') laps = [292, 287].map((p, i) => ({ index: i + 1, pace_sec_per_km: p })); return laps } function paceStr(p) { let m = Math.floor(p / 60), s = Math.round(p % 60); return `${m}:${String(s).padStart(2, '0')}` } function splitsHtml() {
+      const laps = getLaps();
+      if (!laps.length) return '';
+
+      const streams = state.detail?.streams || {};
+      const distanceData = (streams.distance?.data || []).map(Number);
+      const timeData = (streams.time?.data || []).map(Number);
+
+      const streamDistancesKm = distanceData
+        .filter(Number.isFinite)
+        .map(v => v / 1000);
+
+      const activityDistanceKm = Number(data().distance) || 0;
+
+      const workoutDistance =
+        activityDistanceKm > 0
+          ? activityDistanceKm
+          : (
+              streamDistancesKm.length
+                ? streamDistancesKm[streamDistancesKm.length - 1]
+                : 0
+            );
+
+      if (!workoutDistance) return '';
+
+      /*
+       * =========================================================
+       * GRAPH
+       * =========================================================
+       */
+
+      const W = 600;
+      const H = 250;
+
+      const left = 82;
+      const right = 10;
+      const top = 16;
+      const bottom = 32;
+
+      const graphW = W - left - right;
+      const graphH = H - top - bottom;
+      const graphBottom = top + graphH;
+
+      function distanceX(distance) {
+        return left +
+          (
+            Math.max(0, Math.min(workoutDistance, distance))
+            / workoutDistance
+          ) * graphW;
       }
-    }
-    const i1 = Math.max(0, Math.min(timeData.length - 1, hi));
-    const i2 = Math.max(0, Math.min(timeData.length - 1, lo));
-    const t1 = timeData[i1];
-    const t2 = timeData[i2];
-    const d1 = Number.isFinite(distanceData[i1])
-    ? distanceData[i1] / 1000
-    : null;
-    const d2 = Number.isFinite(distanceData[i2])
-    ? distanceData[i2] / 1000
-    : null;
-    if (d1 == null && d2 == null) return null;
-    if (d1 == null) return d2;
-    if (d2 == null) return d1;
-    if (i1 === i2 || t2 === t1) return d1;
-    const ratio =
-    Math.max(
-    0,
-    Math.min(
-    1,
-    (seconds - t1) / (t2 - t1)
-    )
-    );
-    return d1 + (d2 - d1) * ratio;
-  }
-  /*
-  * Prefer actual stream indexes.
-  */
-  function boundaryFromIndex(index)  {
-    if (
-    !Number.isFinite(index) ||
-    !distanceData.length
-    ) return null;
-    const i =
-    Math.max(
-    0,
-    Math.min(
-    distanceData.length - 1,
-    Math.round(index)
-    )
-    );
-    const metres =
-    Number(distanceData[i]);
-    return Number.isFinite(metres)
-    ? metres / 1000
-    : null;
-  }
-  /*
-  * Build the interval boundaries.
-  */
-  let cursorDistance = 0;
-  let cursorTime = 0;
-  const intervalData = validLaps.map((lap, i) =>  {
-    let startDistance = null;
-    let endDistance = null;
-    /*
-    * METHOD 1:
-    * Actual Strava start/end stream indexes.
-    */
-    const indexedStart =
-    boundaryFromIndex(lap.startIndex);
-    const indexedEnd =
-    boundaryFromIndex(lap.endIndex);
-    if (
-    indexedStart != null &&
-    indexedEnd != null &&
-    indexedEnd > indexedStart
-    )  {
-      startDistance = indexedStart;
-      endDistance = indexedEnd;
-    }
-    /*
-    * METHOD 2:
-    * If indexes aren't present, use elapsed lap time
+
+      /*
+       * =========================================================
+       * NORMALISE LAPS
+       * =========================================================
+       *
+       * We support all three forms of Strava lap data:
+       *
+       * 1. start_index/end_index
+       * 2. elapsed-time boundaries mapped onto the stream
+       * 3. lap distance as a final fallback
+       *
+       * The graph itself ALWAYS remains 0 -> full activity distance.
+       */
+
+      const validLaps = laps
+        .map((lap, index) => ({
+          raw: lap,
+          index,
+          pace: Number(lap.pace_sec_per_km),
+          distanceKm: Math.max(
+            0,
+            Number(lap.distance || 0) / 1000
+          ),
+          startIndex: Number(lap.start_index),
+          endIndex: Number(lap.end_index),
+          elapsedTime: Number(lap.elapsed_time),
+          movingTime: Number(lap.moving_time)
+        }))
+        .filter(lap =>
+          Number.isFinite(lap.pace) &&
+          lap.pace > 0
+        );
+
+      if (!validLaps.length) return '';
+
+      /*
+       * Find the distance corresponding to a time value.
+       * Strava stream time is elapsed seconds from the activity start.
+       */
+      function distanceAtTime(seconds) {
+        if (
+          !Number.isFinite(seconds) ||
+          !timeData.length ||
+          timeData.length !== distanceData.length
+        ) {
+          return null;
+        }
+
+        let lo = 0;
+        let hi = timeData.length - 1;
+
+        while (lo <= hi) {
+          const mid = Math.floor((lo + hi) / 2);
+          const t = timeData[mid];
+
+          if (!Number.isFinite(t)) break;
+
+          if (t < seconds) {
+            lo = mid + 1;
+          } else {
+            hi = mid - 1;
+          }
+        }
+
+        const i1 = Math.max(0, Math.min(timeData.length - 1, hi));
+        const i2 = Math.max(0, Math.min(timeData.length - 1, lo));
+
+        const t1 = timeData[i1];
+        const t2 = timeData[i2];
+
+        const d1 = Number.isFinite(distanceData[i1])
+          ? distanceData[i1] / 1000
+          : null;
+
+        const d2 = Number.isFinite(distanceData[i2])
+          ? distanceData[i2] / 1000
+          : null;
+
+        if (d1 == null && d2 == null) return null;
+        if (d1 == null) return d2;
+        if (d2 == null) return d1;
+        if (i1 === i2 || t2 === t1) return d1;
+
+        const ratio =
+          Math.max(
+            0,
+            Math.min(
+              1,
+              (seconds - t1) / (t2 - t1)
+            )
+          );
+
+        return d1 + (d2 - d1) * ratio;
+      }
+
+      /*
+       * Prefer actual stream indexes.
+       */
+      function boundaryFromIndex(index) {
+        if (
+          !Number.isFinite(index) ||
+          !distanceData.length
+        ) return null;
+
+        const i =
+          Math.max(
+            0,
+            Math.min(
+              distanceData.length - 1,
+              Math.round(index)
+            )
+          );
+
+        const metres =
+          Number(distanceData[i]);
+
+        return Number.isFinite(metres)
+          ? metres / 1000
+          : null;
+      }
+
+      /*
+       * Build the interval boundaries.
+       */
+      let cursorDistance = 0;
+      let cursorTime = 0;
+
+      const intervalData = validLaps.map((lap, i) => {
+
+        let startDistance = null;
+        let endDistance = null;
+
+        /*
+         * METHOD 1:
+         * Actual Strava start/end stream indexes.
+         */
+        const indexedStart =
+          boundaryFromIndex(lap.startIndex);
+
+        const indexedEnd =
+          boundaryFromIndex(lap.endIndex);
+
+        if (
+          indexedStart != null &&
+          indexedEnd != null &&
+          indexedEnd > indexedStart
+        ) {
+          startDistance = indexedStart;
+          endDistance = indexedEnd;
+        }
+
+        /*
+         * METHOD 2:
+         * If indexes aren't present, use elapsed lap time
          * against the activity's time/distance stream.
-    *
-    * This is especially useful for manually recorded laps.
-    */
-    if (
-    startDistance == null &&
-    Number.isFinite(lap.elapsedTime) &&
-    timeData.length === distanceData.length &&
-    timeData.length >= 2
-    )  {
-      const lapStartTime = cursorTime;
-      const lapEndTime =
-      cursorTime + lap.elapsedTime;
-      const fromTime =
-      distanceAtTime(lapStartTime);
-      const toTime =
-      distanceAtTime(lapEndTime);
-      if (
-      fromTime != null &&
-      toTime != null &&
-      toTime > fromTime
-      )  {
-        startDistance = fromTime;
-        endDistance = toTime;
-        cursorTime = lapEndTime;
-      }
-    }
-    /*
-    * METHOD 3:
-    * Real lap distance as fallback.
-    *
-    * Crucially, this is still positioned on the FULL
-    * activity X axis rather than making the graph itself
-    * only as long as the sum of laps.
-    */
-    if (
-    startDistance == null ||
-    endDistance == null
-    )  {
-      startDistance = cursorDistance;
-      endDistance =
-      cursorDistance +
-      Math.max(
-      0.01,
-      lap.distanceKm
-      );
-    }
-    /*
-    * Keep boundaries inside the actual activity.
-    */
-    startDistance =
-    Math.max(
-    0,
-    Math.min(
-    workoutDistance,
-    startDistance
-    )
-    );
-    endDistance =
-    Math.max(
-    startDistance + 0.005,
-    Math.min(
-    workoutDistance,
-    endDistance
-    )
-    );
-    cursorDistance = endDistance;
-    return  {
-      ...lap,
-      startDistance,
-      endDistance
-    };
-  });
-  /*
-  * =========================================================
-  * PACE SCALE — HIGH / AVE / LOW
-  * =========================================================
-  *
-  * High = fastest pace (lowest seconds/km)
-  * Ave  = activity average pace
-  * Low  = slowest pace (highest seconds/km)
-  *
-  * The three markers sit at their actual Y positions.
-  */
-  const paces = intervalData.map(lap => lap.pace);
-  const highPace = Math.min(...paces);
-  const lowPace = Math.max(...paces);
-  /*
-  * Use the activity's actual moving-time / distance average
+         *
+         * This is especially useful for manually recorded laps.
+         */
+        if (
+          startDistance == null &&
+          Number.isFinite(lap.elapsedTime) &&
+          timeData.length === distanceData.length &&
+          timeData.length >= 2
+        ) {
+          const lapStartTime = cursorTime;
+          const lapEndTime =
+            cursorTime + lap.elapsedTime;
+
+          const fromTime =
+            distanceAtTime(lapStartTime);
+
+          const toTime =
+            distanceAtTime(lapEndTime);
+
+          if (
+            fromTime != null &&
+            toTime != null &&
+            toTime > fromTime
+          ) {
+            startDistance = fromTime;
+            endDistance = toTime;
+
+            cursorTime = lapEndTime;
+          }
+        }
+
+        /*
+         * METHOD 3:
+         * Real lap distance as fallback.
+         *
+         * Crucially, this is still positioned on the FULL
+         * activity X axis rather than making the graph itself
+         * only as long as the sum of laps.
+         */
+        if (
+          startDistance == null ||
+          endDistance == null
+        ) {
+          startDistance = cursorDistance;
+          endDistance =
+            cursorDistance +
+            Math.max(
+              0.01,
+              lap.distanceKm
+            );
+        }
+
+        /*
+         * Keep boundaries inside the actual activity.
+         */
+        startDistance =
+          Math.max(
+            0,
+            Math.min(
+              workoutDistance,
+              startDistance
+            )
+          );
+
+        endDistance =
+          Math.max(
+            startDistance + 0.005,
+            Math.min(
+              workoutDistance,
+              endDistance
+            )
+          );
+
+        cursorDistance = endDistance;
+
+        return {
+          ...lap,
+          startDistance,
+          endDistance
+        };
+      });
+
+      /*
+       * =========================================================
+       * PACE SCALE — HIGH / AVE / LOW
+       * =========================================================
+       *
+       * High = fastest pace (lowest seconds/km)
+       * Ave  = activity average pace
+       * Low  = slowest pace (highest seconds/km)
+       *
+       * The three markers sit at their actual Y positions.
+       */
+
+      const paces = intervalData.map(lap => lap.pace);
+
+      const highPace = Math.min(...paces);
+      const lowPace = Math.max(...paces);
+
+      /*
+       * Use the activity's actual moving-time / distance average
        * where available. This keeps "Ave" independent of how
        * many manual laps were recorded.
        */
@@ -1986,47 +2056,85 @@ const x =
       `;
     }
 
-    function statBlock(label, val) { return `<div><div class='label'>${label}</div><div class='val'>${val}</div></div>` } function applyProfile(name, quiet = false) { state.profile = name; state.mods = { ...profiles[name] }; renderToggles(); render(); if (!quiet) toast(profileLabels[name] + ' applied') } function setAllModules(value) { Object.keys(state.mods).forEach(k => state.mods[k] = value ? 1 : 0); state.profile = value ? 'all' : 'custom'; renderToggles(); render(); } function renderToggles() { let box = $('#toggles'); box.innerHTML = Object.keys(state.mods).map(k => `<div class='toggle ${
-    state.mods[k] ? 'active' : ''
-  }' data-mod='${
-    k
-  }'>${moduleLabels[k]}</div>`).join(''); $$('.toggle').forEach(t => t.onclick = () => { let k = t.dataset.mod; state.mods[k] = state.mods[k] ? 0 : 1; state.profile = 'custom'; renderToggles(); render() }) }
-    function renderStyles() {
-      const box = $('#styleStrip');
-      box.innerHTML = styleDefs.map((s, i) => `
-        <div class="style-pill ${state.style === s.key ? 'active' : ''}" data-i="${i}">
-          ${s.name}
-        </div>
-      `).join('');
 
-      $$('.style-pill').forEach(p => {
-        p.onclick = () => setStyleByIndex(p.dataset.i);
+    function weeklyKind(a) {
+      const t = String(a?.sport_type || a?.type || '').toLowerCase();
+      if (t.includes('ride') || t.includes('bike') || t.includes('cycle')) return 'ride';
+      if (t.includes('swim')) return 'swim';
+      if (t.includes('run') || t.includes('trail')) return 'run';
+      return t || 'other';
+    }
+
+    function weeklyLabel(key) {
+      return key === 'run' ? 'Run' :
+             key === 'ride' ? 'Bike' :
+             key === 'swim' ? 'Swim' :
+             key.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+    }
+
+    function weeklyActivities() {
+      const cutoff = Date.now() - 7 * 24 * 60 * 60 * 1000;
+      return (window.acts || []).filter(a => {
+        const t = Date.parse(a.start_date || a.start_date_local || '');
+        return Number.isFinite(t) && t >= cutoff && t <= Date.now();
       });
     }
 
-    function setStyleByIndex(i) {
-      i = Math.max(0, Math.min(styleDefs.length - 1, +i || 0));
-      state.styleIndex = i;
-      state.style = styleDefs[i].key;
-      renderStyles();
-      render();
-
-      const active = document.querySelector('.style-pill.active');
-      if (active) {
-        active.scrollIntoView({
-          behavior: 'smooth',
-          inline: 'center',
-          block: 'nearest'
-        });
-      }
+    function weeklyTotalsFor(key) {
+      return weeklyActivities()
+        .filter(a => key === 'all' || weeklyKind(a) === key)
+        .reduce((x, a) => {
+          x.distance += Number(a.distance_km || ((Number(a.distance) || 0) / 1000));
+          x.time += Number(a.moving_time || 0);
+          return x;
+        }, { distance: 0, time: 0 });
     }
 
+    function renderWeeklyTotals(key = 'all') {
+      const panel = $('#weeklyPanel');
+      if (!panel) return;
 
-function render() { let d = data(), m = state.mods, def = styleDefs.find(s => s.key === state.style) || styleDefs[0], stats = []; if (m.time) stats.push(statBlock('Time', d.time)); if (m.pace) stats.push(statBlock(d.type === 'Ride' ? 'Speed' : 'Pace', d.pace)); if (m.elevation) stats.push(statBlock('Elev', d.elevation)); if (m.heart) stats.push(statBlock('Heart', d.heart)); if (m.power && d.power !== '--') stats.push(statBlock('Power', d.power)); if (m.date && d.date) stats.push(statBlock('Date', d.date)); $('#overlay').className = `overlay tone-${state.tone} layout-${state.layout} ${state.bg ? 'with-bg' : ''}`; const templateClass = state.bg ? def.className.replace('nobg', '').trim() : def.className; $('#overlay').innerHTML = `<div class='template ${
-    templateClass
-  }'>${m.route ? routeSvg() : ''}${m.title ? `<div class='title'>${d.title}</div>` : ''}${m.distance ? `<div class='hero'>${d.distance}<span class='unit'>KM</span></div>` : ''}<div class='stats'>${stats.join('')}</div>${m.elevProfile ? elevationSvg() : ''}${m.splits ? splitsHtml() : ''}</div>`; if (state.bg) applyGlassBg($('#overlay .template')); } async function connect() { try { let r = await fetch('/api/strava/config'), c = await r.json(); if (!r.ok) throw Error(c.error || 'Missing config'); let u = new URL('https://www.strava.com/oauth/authorize'); u.searchParams.set('client_id', c.client_id); u.searchParams.set('redirect_uri', location.origin + location.pathname); u.searchParams.set('response_type', 'code'); u.searchParams.set('approval_prompt', 'auto'); u.searchParams.set('scope', 'read,activity:read_all'); location.href = u } catch (e) { toast(e.message) } } async function oauth() { let p = new URLSearchParams(location.search), code = p.get('code'); if (p.get('error')) { toast('Strava cancelled'); history.replaceState({}, '', location.pathname) } if (!code) return; $('#status').textContent = 'Connecting to Strava…'; try { let r = await fetch('/api/strava/exchange', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ code }) }), j = await r.json(); if (!r.ok) throw Error(j.message || j.error || 'Token exchange failed'); state.token = j.access_token; localStorage.setItem('strava_access_token', state.token); renderConnectionStatus(); history.replaceState({}, '', location.pathname); toast('Strava connected'); load() } catch (e) { $('#status').textContent = e.message } } function renderConnectionStatus() { const dot = $('#stravaConnectedDot'); if (dot) dot.style.display = state.token ? 'inline-block' : 'none' } async function load() { if (!state.token) { $('#status').textContent = 'Connect Strava, then tap an activity to build your overlay.'; return } $('#status').textContent = 'Loading recent activities…'; try { let r = await fetch('/api/strava/activities', { headers: { Authorization: 'Bearer ' + state.token } }), a = await r.json(); if (!r.ok) throw Error(a.message || a.error || 'Could not load activities'); window.acts = a; $('#status').textContent = `Loaded ${a.length} activities. Tap one to import.`; $('#activityList').innerHTML = a.map((x, i) => `<button class='activity-card' data-i='${
-    i
-  }'><b>${x.name || x.type}</b><span>${kind(x.type)} · ${x.distance_km} km · ${fmtTime(x.moving_time)} · +${x.elevation_m} m</span></button>`).join(''); $$('.activity-card').forEach(b => b.onclick = () => importActivity(window.acts[b.dataset.i])) } catch (e) { $('#status').textContent = e.message + ' — try connecting again.' } } async function importActivity(a) { state.activity = a; state.detail = null; applyProfile(kind(a.type) === 'Ride' ? 'ride' : 'run', true); render(); toast((kind(a.type) === 'Ride' ? 'Cycling' : 'Running') + ' profile applied'); try { let r = await fetch('/api/strava/activity?id=' + a.id, { headers: { Authorization: 'Bearer ' + state.token } }), j = await r.json(); if (!r.ok) throw Error(j.message || j.error || 'Detail failed'); state.detail = j; toast('Activity imported'); closeSheets(); render() } catch (e) { toast('Basic import only: ' + e.message) } } async function exportImage() { try { toast('Preparing transparent PNG…'); let canvas = await html2canvas($('#exportStage'), { backgroundColor: null, scale: 3, useCORS: true }), dataUrl = canvas.toDataURL('image/png'); $('#saveImg').src = dataUrl; $('#saveImg').classList.add('clean-preview'); let card = $('.save-card'); card.classList.remove('white-mode', 'black-mode'); card.classList.add(state.tone === 'white' ? 'black-mode' : 'white-mode'); $('#saveModal').classList.add('show'); toast('Image ready: long-press to save') } catch (e) { toast('Export failed: ' + e.message) } } function openImage() { let src = $('#saveImg').src; if (src) window.open(src, '_blank') }
+      if (key === 'all') {
+        const groups = {};
+        weeklyActivities().forEach(a => {
+          const sport = weeklyKind(a);
+          if (!groups[sport]) groups[sport] = { distance: 0, time: 0 };
+          groups[sport].distance += Number(a.distance_km || ((Number(a.distance) || 0) / 1000));
+          groups[sport].time += Number(a.moving_time || 0);
+        });
+
+        const order = { run: 0, ride: 1, swim: 2 };
+        const keys = Object.keys(groups).sort((a,b) => (order[a] ?? 99) - (order[b] ?? 99));
+
+        panel.innerHTML = `
+          <div class="weekly-heading">Weekly Total · Last 7 Days</div>
+          ${keys.length ? keys.map(k => `
+            <div class="weekly-sport-row">
+              <div class="weekly-sport-name">${weeklyLabel(k)}</div>
+              <div class="weekly-distance">${groups[k].distance.toFixed(1)} KM</div>
+              <div class="weekly-time">${fmtTime(groups[k].time)}</div>
+            </div>
+          `).join('') : '<div class="weekly-empty">No activities in the last 7 days.</div>'}
+        `;
+        return;
+      }
+
+      const totals = weeklyTotalsFor(key);
+      panel.innerHTML = `
+        <div class="weekly-heading">${weeklyLabel(key)} · Weekly Total · Last 7 Days</div>
+        <div class="weekly-hero">${totals.distance.toFixed(1)}<span class="weekly-unit">KM</span></div>
+        <div class="weekly-subtime">${fmtTime(totals.time)}</div>
+      `;
+    }
+
+    $$('#weeklyButtons .weekly-btn').forEach(button => {
+      button.onclick = () => {
+        $$('#weeklyButtons .weekly-btn').forEach(b => b.classList.toggle('active', b === button));
+        renderWeeklyTotals(button.dataset.weekly);
+      };
+    });
+
+    function statBlock(label, val) { return `<div><div class='label'>${label}</div><div class='val'>${val}</div></div>` } function applyProfile(name, quiet = false) { state.profile = name; state.mods = { ...profiles[name] }; renderToggles(); render(); if (!quiet) toast(profileLabels[name] + ' applied') } function setAllModules(value) { Object.keys(state.mods).forEach(k => state.mods[k] = value ? 1 : 0); state.profile = value ? 'all' : 'custom'; renderToggles(); render(); } function renderToggles() { let box = $('#toggles'); box.innerHTML = Object.keys(state.mods).map(k => `<div class='toggle ${state.mods[k] ? 'active' : ''}' data-mod='${k}'>${moduleLabels[k]}</div>`).join(''); $$('.toggle').forEach(t => t.onclick = () => { let k = t.dataset.mod; state.mods[k] = state.mods[k] ? 0 : 1; state.profile = 'custom'; renderToggles(); render() }) } function renderStyles() { let box = $('#styleStrip'); box.innerHTML = styleDefs.map((s, i) => `<div class='style-pill ${state.style === s.key ? 'active' : ''}' data-i='${i}'>${s.name}</div>`).join(''); $$('.style-pill').forEach(p => p.onclick = () => setStyleByIndex(p.dataset.i)) } function setStyleByIndex(i) { i = Math.max(0, Math.min(styleDefs.length - 1, +i || 0)); state.styleIndex = i; state.style = styleDefs[i].key; renderStyles(); render(); let active = document.querySelector('.style-pill.active'); if (active) active.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' }) } function render() { let d = data(), m = state.mods, def = styleDefs.find(s => s.key === state.style) || styleDefs[0], stats = []; if (m.time) stats.push(statBlock('Time', d.time)); if (m.pace) stats.push(statBlock(d.type === 'Ride' ? 'Speed' : 'Pace', d.pace)); if (m.elevation) stats.push(statBlock('Elev', d.elevation)); if (m.heart) stats.push(statBlock('Heart', d.heart)); if (m.power && d.power !== '--') stats.push(statBlock('Power', d.power)); if (m.date && d.date) stats.push(statBlock('Date', d.date)); $('#overlay').className = `overlay tone-${state.tone} layout-${state.layout} ${state.bg ? 'with-bg' : ''}`; const templateClass = state.bg ? def.className.replace('nobg', '').trim() : def.className; $('#overlay').innerHTML = `<div class='template ${templateClass}'>${m.title ? `<div class='title'>${d.title}</div>` : ''}${m.distance ? `<div class='hero'>${d.distance}<span class='unit'>KM</span></div>` : ''}<div class='stats'>${stats.join('')}</div>${m.route ? routeSvg() : ''}${m.elevProfile ? elevationSvg() : ''}${m.splits ? splitsHtml() : ''}</div>`; if (state.bg) applyGlassBg($('#overlay .template')); } async function connect() { try { let r = await fetch('/api/strava/config'), c = await r.json(); if (!r.ok) throw Error(c.error || 'Missing config'); let u = new URL('https://www.strava.com/oauth/authorize'); u.searchParams.set('client_id', c.client_id); u.searchParams.set('redirect_uri', location.origin + location.pathname); u.searchParams.set('response_type', 'code'); u.searchParams.set('approval_prompt', 'auto'); u.searchParams.set('scope', 'read,activity:read_all'); location.href = u } catch (e) { toast(e.message) } } async function oauth() { let p = new URLSearchParams(location.search), code = p.get('code'); if (p.get('error')) { toast('Strava cancelled'); history.replaceState({}, '', location.pathname) } if (!code) return; $('#status').textContent = 'Connecting to Strava…'; try { let r = await fetch('/api/strava/exchange', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ code }) }), j = await r.json(); if (!r.ok) throw Error(j.message || j.error || 'Token exchange failed'); state.token = j.access_token; localStorage.setItem('strava_access_token', state.token); renderConnectionStatus(); history.replaceState({}, '', location.pathname); toast('Strava connected'); load() } catch (e) { $('#status').textContent = e.message } } function renderConnectionStatus() { const dot = $('#stravaConnectedDot'); if (dot) dot.style.display = state.token ? 'inline-block' : 'none' } async function load() { if (!state.token) { $('#status').textContent = 'Connect Strava, then tap an activity to build your overlay.'; return } $('#status').textContent = 'Loading recent activities…'; try { let r = await fetch('/api/strava/activities', { headers: { Authorization: 'Bearer ' + state.token } }), a = await r.json(); if (!r.ok) throw Error(a.message || a.error || 'Could not load activities'); window.acts = a; renderWeeklyTotals(document.querySelector('#weeklyButtons .weekly-btn.active')?.dataset.weekly || 'all'); $('#status').textContent = `Loaded ${a.length} activities. Tap one to import.`; $('#activityList').innerHTML = a.map((x, i) => `<button class='activity-card' data-i='${i}'><b>${x.name || x.type}</b><span>${kind(x.type)} · ${x.distance_km} km · ${fmtTime(x.moving_time)} · +${x.elevation_m} m</span></button>`).join(''); $$('.activity-card').forEach(b => b.onclick = () => importActivity(window.acts[b.dataset.i])) } catch (e) { $('#status').textContent = e.message + ' — try connecting again.' } } async function importActivity(a) { state.activity = a; state.detail = null; applyProfile(kind(a.type) === 'Ride' ? 'ride' : 'run', true); render(); toast((kind(a.type) === 'Ride' ? 'Cycling' : 'Running') + ' profile applied'); try { let r = await fetch('/api/strava/activity?id=' + a.id, { headers: { Authorization: 'Bearer ' + state.token } }), j = await r.json(); if (!r.ok) throw Error(j.message || j.error || 'Detail failed'); state.detail = j; toast('Activity imported'); closeSheets(); render() } catch (e) { toast('Basic import only: ' + e.message) } } async function exportImage() { try { toast('Preparing transparent PNG…'); let canvas = await html2canvas($('#exportStage'), { backgroundColor: null, scale: 3, useCORS: true }), dataUrl = canvas.toDataURL('image/png'); $('#saveImg').src = dataUrl; $('#saveImg').classList.add('clean-preview'); let card = $('.save-card'); card.classList.remove('white-mode', 'black-mode'); card.classList.add(state.tone === 'white' ? 'black-mode' : 'white-mode'); $('#saveModal').classList.add('show'); toast('Image ready: long-press to save') } catch (e) { toast('Export failed: ' + e.message) } } function openImage() { let src = $('#saveImg').src; if (src) window.open(src, '_blank') }
     function toggleLayout() { state.layout = state.layout === 'landscape' ? 'portrait' : 'landscape'; const btn = $('#layoutBtn'); btn.textContent = state.layout === 'portrait' ? '▯' : '▭'; btn.classList.toggle('active', state.layout === 'portrait'); btn.setAttribute('aria-label', state.layout === 'portrait' ? 'Switch to landscape layout' : 'Switch to portrait layout'); render() }
     function setTone(t) { state.tone = t; $$('#toneControl button').forEach(b => b.classList.toggle('active', b.dataset.tone === t)); render() }
     function setBg(v) { state.bg = v === 'on'; $$('#bgControl button').forEach(b => b.classList.toggle('active', b.dataset.bg === v)); $('#opacitySliderWrap').classList.toggle('show', state.bg); render() }
@@ -2034,71 +2142,63 @@ function render() { let d = data(), m = state.mods, def = styleDefs.find(s => s.
     $$('#toneControl button').forEach(b => b.onclick = () => setTone(b.dataset.tone));
     $$('#bgControl button').forEach(b => b.onclick = () => setBg(b.dataset.bg));
     $('#opacitySlider').addEventListener('input', function () { state.bgOpacity = this.value / 100; $('#opacityVal').textContent = this.value + '%'; render() });
-    $('#stylePrev').onclick = () =>
-      setStyleByIndex(state.styleIndex - 1);
-    $('#styleNext').onclick = () =>
-      setStyleByIndex(state.styleIndex + 1);
-
-    $('#layoutBtn').onclick = toggleLayout; $('#activitiesBtn').onclick = () => openSheet('#activitiesSheet'); $('#modulesBtn').onclick = () => openSheet('#modulesSheet'); $('#sheetBackdrop').onclick = closeSheets; $$('.closeSheet').forEach(b => b.onclick = closeSheets); $('#connectBtn').onclick = connect; $('#refreshBtn').onclick = load; $('#exportBtn').onclick = exportImage; $('#openBtn').onclick = openImage; $('#closeSave').onclick = () => $('#saveModal').classList.remove('show'); $('#resetBtn').onclick = () => { state.detail = null; state.activity = null; applyProfile('run', true); toast('Reset overlay') }; 
+    $('#layoutBtn').onclick = toggleLayout; $('#activitiesBtn').onclick = () => openSheet('#activitiesSheet'); $('#modulesBtn').onclick = () => openSheet('#modulesSheet'); $('#stylePrev').onclick = () => setStyleByIndex(state.styleIndex - 1); $('#styleNext').onclick = () => setStyleByIndex(state.styleIndex + 1); $('#sheetBackdrop').onclick = closeSheets; $$('.closeSheet').forEach(b => b.onclick = closeSheets); $('#connectBtn').onclick = connect; $('#refreshBtn').onclick = load; $('#exportBtn').onclick = exportImage; $('#openBtn').onclick = openImage; $('#closeSave').onclick = () => $('#saveModal').classList.remove('show'); $('#resetBtn').onclick = () => { state.detail = null; state.activity = null; applyProfile('run', true); toast('Reset overlay') }; 
     $('#allOnBtn').onclick = () => setAllModules(true);
     $('#allOffBtn').onclick = () => setAllModules(false);
 
     /*
      * Swipe the bottom sheets down to close.
      * A small movement is ignored so normal taps don't accidentally dismiss.
-  */
-  $$('.sheet').forEach(sheet =>  {
-    const handle = sheet.querySelector('.sheet-handle');
-    let startY = 0;
-    let currentY = 0;
-    let dragging = false;
-    handle.addEventListener('touchstart', e =>  {
-      if (!sheet.classList.contains('show')) return;
-      startY = e.touches[0].clientY;
-      currentY = startY;
-      dragging = true;
-      sheet.style.transition = 'none';
-    },  {
-      passive: true
+     */
+    $$('.sheet').forEach(sheet => {
+      const handle = sheet.querySelector('.sheet-handle');
+      let startY = 0;
+      let currentY = 0;
+      let dragging = false;
+
+      handle.addEventListener('touchstart', e => {
+        if (!sheet.classList.contains('show')) return;
+        startY = e.touches[0].clientY;
+        currentY = startY;
+        dragging = true;
+        sheet.style.transition = 'none';
+      }, { passive: true });
+
+      handle.addEventListener('touchmove', e => {
+        if (!dragging) return;
+        currentY = e.touches[0].clientY;
+        const delta = Math.max(0, currentY - startY);
+        sheet.style.transform = `translateY(${delta}px)`;
+      }, { passive: true });
+
+      handle.addEventListener('touchend', () => {
+        if (!dragging) return;
+        dragging = false;
+
+        const delta = Math.max(0, currentY - startY);
+
+        sheet.style.transition = '';
+        sheet.style.transform = '';
+
+        if (delta > 70) {
+          closeSheets();
+        }
+      }, { passive: true });
     });
-    handle.addEventListener('touchmove', e =>  {
-      if (!dragging) return;
-      currentY = e.touches[0].clientY;
-      const delta = Math.max(0, currentY - startY);
-      sheet.style.transform = `translateY(${delta}px)`;
-    },  {
-      passive: true
-    });
-    handle.addEventListener('touchend', () =>  {
-      if (!dragging) return;
-      dragging = false;
-      const delta = Math.max(0, currentY - startY);
-      sheet.style.transition = '';
-      sheet.style.transform = '';
-      if (delta > 70)  {
-        closeSheets();
+
+    /*
+     * Export preview:
+     * tapping anywhere outside the image closes the preview.
+     * Tapping/long-pressing the image itself does not.
+     */
+    $('#saveModal').addEventListener('click', e => {
+      if (e.target !== $('#saveImg')) {
+        $('#saveModal').classList.remove('show');
       }
-    },  {
-      passive: true
     });
-  });
-  /*
-  * Export preview:
-  * tapping anywhere outside the image closes the preview.
-  * Tapping/long-pressing the image itself does not.
-  */
-  $('#saveModal').addEventListener('click', e =>  {
-    if (e.target !== $('#saveImg'))  {
-      $('#saveModal').classList.remove('show');
-    }
-  });
-  renderStyles();
-  renderToggles();
-  render();
-  renderConnectionStatus();
-  oauth();
-  if (state.token) load();
-</script>
+
+renderStyles(); renderToggles(); renderWeeklyTotals('all'); render(); renderConnectionStatus(); oauth(); if (state.token) load();
+  </script>
 </body>
 
 </html>
