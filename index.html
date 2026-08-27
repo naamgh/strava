@@ -1,239 +1,2180 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8">
-  <title>Canvas Effects Processor</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>Activity Overlay Studio</title>
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
   <style>
+    :root {
+      --bg: #08090c;
+      --text: #f7f8fb;
+      --muted: #8d96a6;
+      --line: rgba(255, 255, 255, .12);
+      --accent: #ff5a2f;
+      --card: rgba(16, 19, 27, .86)
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent
+    }
+
     body {
-      font-family: system-ui, -apple-system, sans-serif;
-      background: #1e1e1e;
-      color: #fff;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 20px;
-      padding: 20px;
-    }
-
-    .container {
-      display: flex;
-      gap: 20px;
-      align-items: flex-start;
-    }
-
-    canvas {
-      border: 1px solid #444;
-      background: #000;
-      max-width: 100%;
-      height: auto;
-    }
-
-    .controls {
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
-      background: #2a2a2a;
-      padding: 20px;
-      border-radius: 8px;
-      min-width: 250px;
-    }
-
-    label {
-      display: flex;
-      flex-direction: column;
-      gap: 5px;
-      font-size: 14px;
-    }
-
-    input[type="range"] {
-      width: 100%;
+      margin: 0;
+      min-height: 100vh;
+      background: radial-gradient(circle at 20% 0, #252033, #08090c 45%, #040507);
+      color: var(--text);
+      font-family: Inter, system-ui, -apple-system, Segoe UI, sans-serif
     }
 
     button {
-      padding: 10px;
-      background: #007acc;
-      color: white;
-      border: none;
-      border-radius: 4px;
+      font: inherit;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, .07);
+      color: var(--text);
+      border-radius: 999px;
+      padding: 10px 12px;
+      font-size: 13px;
+      font-weight: 850
+    }
+
+    button.primary {
+      background: var(--accent);
+      border-color: transparent
+    }
+
+    .app {
+      max-width: 560px;
+      margin: auto;
+      padding: 12px 12px 96px
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 5;
+      margin: -14px -12px 10px;
+      padding: 14px 12px 8px;
+      background: linear-gradient(#08090cf0, #08090cd0, #08090c00);
+      backdrop-filter: blur(18px)
+    }
+
+    .brand {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: center
+    }
+
+    h1 {
+      font-size: 18px;
+      margin: 0;
+      letter-spacing: -.04em
+    }
+
+    .sub,
+    .hint,
+    .status {
+      font-size: 12px;
+      line-height: 1.45;
+      color: var(--muted)
+    }
+
+    .preview-wrap {
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      padding: 8px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, .09), rgba(255, 255, 255, .025));
+      box-shadow: 0 18px 55px #0008
+    }
+
+    .checker {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 9/10.9;
+      border-radius: 19px;
+      overflow: hidden;
+      display: grid;
+      place-items: center;
+      background-color: #151821;
+      background-image: linear-gradient(45deg, #222632 25%, transparent 25%), linear-gradient(-45deg, #222632 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #222632 75%), linear-gradient(-45deg, transparent 75%, #222632 75%);
+      background-size: 25px 25px;
+      background-position: 0 0, 0 12.5px, 12.5px -12.5px, -12.5px 0
+    }
+
+    .checker:before {
+      content: "TRANSPARENT PNG PREVIEW";
+      position: absolute;
+      top: 11px;
+      left: 11px;
+      color: #ffffff50;
+      font-size: 8px;
+      font-weight: 900;
+      letter-spacing: .14em;
+      pointer-events: none;
+    }
+
+    .export-stage {
+      width: 80%;
+      min-height: 44%;
+      display: flex;
+      align-items: center;
+      justify-content: center
+    }
+
+    .overlay {
+      width: 100%;
+      max-width: 410px;
+      color: white
+    }
+
+    .style-strip-wrap {
+      margin-top: 10px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 8px;
+      background: rgba(255, 255, 255, .045)
+    }
+
+    .style-strip {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      padding-bottom: 2px;
+      -webkit-overflow-scrolling: touch
+    }
+
+    .style-strip::-webkit-scrollbar {
+      display: none
+    }
+
+    .style-pill {
+      scroll-snap-align: center;
+      white-space: nowrap;
+      border-radius: 999px;
+      padding: 9px 13px;
+      background: rgba(255, 255, 255, .06);
+      border: 1px solid rgba(255, 255, 255, .1);
+      font-size: 12px;
+      font-weight: 900;
+      color: var(--muted)
+    }
+
+    .style-pill.active {
+      background: white;
+      color: #111
+    }
+
+    .template {
+      padding: 22px;
+      border-radius: 22px
+    }
+
+    .title {
+      font-size: 12px;
+      font-weight: 950;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      opacity: .75
+    }
+
+    .hero {
+      font-size: 56px;
+      font-weight: 1000;
+      letter-spacing: -.11em;
+      line-height: .88;
+      margin-top: 8px
+    }
+
+    .unit {
+      font-size: 16px;
+      margin-left: 8px;
+      opacity: .72;
+      letter-spacing: .08em;
+      font-weight: 700
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-top: 16px
+    }
+
+    .label {
+      font-size: 9px;
+      text-transform: uppercase;
+      letter-spacing: .14em;
+      opacity: .55
+    }
+
+    .val {
+      font-size: 15px;
+      font-weight: 900;
+      margin-top: 3px
+    }
+
+    .routebox,
+    .elevbox,
+    .splits,
+    .split-summary {
+      margin-top: 16px
+    }
+
+    .routebox svg,
+    .elevbox svg {
+      width: 100%;
+      height: auto;
+      display: block;
+      overflow: visible
+    }
+
+    .route-path,
+    .elev-path {
+      fill: none;
+      stroke: currentColor;
+      stroke-linecap: round;
+      stroke-linejoin: round
+    }
+
+    .route-path {
+      stroke-width: 4;
+      filter: drop-shadow(0 0 8px currentColor)
+    }
+
+    .elev-path {
+      stroke-width: 3
+    }
+
+    .elev-fill {
+      fill: currentColor;
+      opacity: .1
+    }
+
+    .splits {
+      display: grid;
+      gap: 8px
+    }
+
+    .split {
+      display: grid;
+      grid-template-columns: 43px 1fr 50px;
+      gap: 10px;
+      align-items: center;
+      font-size: 11px
+    }
+
+    .bar-bg {
+      height: 5px;
+      border-radius: 99px;
+      background: rgba(255, 255, 255, .14);
+      overflow: hidden
+    }
+
+    .bar-fill {
+      height: 100%;
+      border-radius: 99px;
+      background: currentColor;
+      opacity: .85
+    }
+
+    .fast {
+      font-weight: 1000
+    }
+
+    .split-summary {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px
+    }
+
+    .summary-card {
+      border: 1px solid rgba(255, 255, 255, .18);
+      border-radius: 14px;
+      padding: 9px;
+      background: rgba(255, 255, 255, .035)
+    }
+
+    .fast-chip-grid {
+      margin-top: 10px;
+      display: flex;
+      gap: 7px;
+      flex-wrap: wrap
+    }
+
+    .fast-chip {
+      border: 1px solid rgba(255, 255, 255, .22);
+      border-radius: 999px;
+      padding: 7px 9px;
+      font-size: 11px;
+      font-weight: 900;
+      background: rgba(255, 255, 255, .04)
+    }
+
+    .nobg {
+      background: transparent !important;
+      box-shadow: none !important;
+      border: none !important;
+      backdrop-filter: none !important
+    }
+
+    .performance {
+      font-family: "SF Mono", "Roboto Mono", "Cascadia Mono", "Courier New", monospace;
+      color: rgba(255, 255, 255, .96);
+      letter-spacing: .01em;
+    }
+
+    .performance .title {
+      font-family: Inter, system-ui, sans-serif;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: .24em;
+      text-transform: uppercase;
+      opacity: .72;
+    }
+
+    .performance .hero {
+      font-family: Inter, system-ui, sans-serif;
+      font-size: 70px;
+      font-weight: 900;
+      letter-spacing: -.075em;
+      line-height: .88;
+    }
+
+    .performance .unit {
+      font-family: "SF Mono", "Roboto Mono", monospace;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .14em;
+      margin-left: 8px;
+      vertical-align: .18em;
+    }
+
+    .performance .stats {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0;
+      margin-top: 18px;
+      border-top: 1px solid rgba(255, 255, 255, .28);
+      border-bottom: 1px solid rgba(255, 255, 255, .18);
+    }
+
+    .performance .stats > div {
+      padding: 11px 10px 12px 0;
+      border: 0;
+      border-right: 1px solid rgba(255, 255, 255, .16);
+      border-radius: 0;
+      background: transparent;
+    }
+
+    .performance .stats > div:nth-child(2n) {
+      padding-left: 12px;
+      border-right: 0;
+    }
+
+    .performance .label {
+      font-size: 8px;
+      letter-spacing: .2em;
+      opacity: .55;
+    }
+
+    .performance .val {
+      margin-top: 3px;
+      font-size: 15px;
+      font-weight: 800;
+      letter-spacing: -.02em;
+    }
+
+    .brutalist {
+      font-family: Impact, "Arial Black", system-ui, sans-serif;
+      color: rgba(255, 255, 255, .98);
+      text-transform: uppercase;
+    }
+
+    .brutalist .title {
+      font-family: Inter, system-ui, sans-serif;
+      font-size: 9px;
+      font-weight: 900;
+      letter-spacing: .16em;
+      opacity: .7;
+    }
+
+    .brutalist .hero {
+      font-size: 82px;
+      line-height: .76;
+      letter-spacing: -.045em;
+      font-weight: 900;
+    }
+
+    .brutalist .unit {
+      font-family: Inter, system-ui, sans-serif;
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: .08em;
+      margin-left: 8px;
+    }
+
+    .brutalist .stats {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0;
+      margin-top: 20px;
+      border-top: 5px solid currentColor;
+      border-bottom: 2px solid currentColor;
+    }
+
+    .brutalist .stats > div {
+      padding: 10px 9px 11px 0;
+      border: 0;
+      border-right: 2px solid currentColor;
+      border-radius: 0;
+      background: transparent;
+    }
+
+    .brutalist .stats > div:nth-child(2n) {
+      padding-left: 10px;
+      border-right: 0;
+    }
+
+    .brutalist .label {
+      font-family: Inter, system-ui, sans-serif;
+      font-size: 8px;
+      font-weight: 900;
+      letter-spacing: .14em;
+    }
+
+    .brutalist .val {
+      margin-top: 2px;
+      font-size: 19px;
+      line-height: 1;
+    }
+
+    .airmono {
+      font-family: "SF Mono", "Roboto Mono", "Cascadia Mono", "Courier New", monospace;
+      color: rgba(255, 255, 255, .9);
+      text-shadow: 0 0 20px rgba(255, 255, 255, .18)
+    }
+
+    .airmono .hero {
+      font-size: 50px;
+      letter-spacing: -.08em
+    }
+
+    .airmono .title,
+    .airmono .label {
+      letter-spacing: .22em
+    }
+
+    .blockfade {
+      font-family: Impact, "Arial Black", system-ui, sans-serif;
+      color: rgba(255, 255, 255, .78);
+      text-transform: uppercase;
+      text-shadow: 0 10px 30px rgba(0, 0, 0, .35)
+    }
+
+    .blockfade .hero {
+      font-size: 68px;
+      letter-spacing: -0.0em;
+      line-height: .82
+    }
+
+    .blockfade .val {
+      font-size: 18px
+    }
+
+    .editorial {
+      font-family: Georgia, "Times New Roman", serif;
+      color: rgba(255, 255, 255, .9);
+      text-shadow: 0 4px 20px rgba(0, 0, 0, .26)
+    }
+
+    .editorial .hero {
+      font-size: 62px;
+      font-weight: 400;
+      letter-spacing: -.08em
+    }
+
+    .editorial .title {
+      font-family: Inter, system-ui, sans-serif
+    }
+
+    .techgrid {
+      font-family: "SF Mono", "Roboto Mono", "Courier New", monospace;
+      color: rgba(255, 255, 255);
+      text-shadow: none
+    }
+
+    .techgrid .stats {
+      border-top: 1px solid rgba(215, 245, 255, .4);
+      border-bottom: 1px solid rgba(215, 245, 255, .24);
+      padding: 12px 0
+    }
+
+    .techgrid .route-path,
+    .techgrid .elev-path {
+      stroke-dasharray: none
+    }
+
+    .ghost {
+      font-family: Inter, system-ui, sans-serif;
+      color: rgba(255, 255, 255, .52)
+    }
+
+    .ghost .hero {
+      font-weight: 1000;
+      letter-spacing: -.12em
+    }
+
+    .ghost .route-path,
+    .ghost .elev-path {
+      opacity: .55
+    }
+
+    .labelmaker {
+      font-family: "Arial Narrow", Arial, sans-serif;
+      color: white
+    }
+
+    .labelmaker .title {
+      background: rgba(255, 255, 255, .92);
+      color: #111;
+      padding: 6px 8px;
+      border-radius: 2px;
+      display: inline-block
+    }
+
+    .labelmaker .hero {
+      font-family: Impact, "Arial Black", sans-serif;
+      letter-spacing: -0.0em
+    }
+
+    .runline {
+      font-family: Inter, system-ui, sans-serif;
+      color: white
+    }
+
+    .runline .hero {
+      font-size: 44px
+    }
+
+    .runline .stats {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px
+    }
+
+    .runline .stats>div {
+      border: 1px solid rgba(255, 255, 255, .34);
+      border-radius: 999px;
+      padding: 8px 11px;
+      background: rgba(255, 255, 255, .04)
+    }
+
+    .deepdata {
+      font-family: "SF Mono", "Roboto Mono", "Courier New", monospace;
+      background: rgba(0, 0, 0, .18);
+      border: 1px solid rgba(255, 255, 255, .18);
+      color: rgba(255, 255, 255, .92);
+      border-radius: 14px
+    }
+
+    .deepdata .hero {
+      font-size: 42px
+    }
+
+    .deepdata .stats {
+      grid-template-columns: repeat(2, 1fr)
+    }
+
+    .sheet-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 40;
+      background: rgba(0, 0, 0, .45);
+      opacity: 0;
+      pointer-events: none;
+      transition: .22s
+    }
+
+    .sheet-backdrop.show {
+      opacity: 1;
+      pointer-events: auto
+    }
+
+    .sheet {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 50;
+      transform: translateY(110%);
+      transition: .26s cubic-bezier(.2, .8, .2, 1);
+      padding: 12px 12px calc(86px + env(safe-area-inset-bottom));
+      background: rgba(8, 9, 12, .94);
+      border-top: 1px solid var(--line);
+      border-radius: 26px 26px 0 0;
+      backdrop-filter: blur(24px)
+    }
+
+    .sheet-handle {
+      width: 46px;
+      height: 5px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.28);
+      margin: 0 auto 10px;
+      touch-action: none;
+      cursor: grab;
+    }
+
+    .sheet-handle:active {
+      cursor: grabbing;
+    }
+
+    .module-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin: 0 0 12px;
+    }
+
+    .sheet.show {
+      transform: translateY(0)
+    }
+
+    .sheet-inner {
+      max-width: 560px;
+      margin: auto
+    }
+
+    .sheet-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px
+    }
+
+    .sheet-title {
+      font-size: 15px;
+      font-weight: 950;
+      letter-spacing: -.03em
+    }
+
+    .toggles,
+    .profiles {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px
+    }
+
+    .toggle,
+    .profile {
+      border-radius: 16px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, .06);
+      padding: 12px;
+      text-align: center;
+      font-size: 13px;
+      font-weight: 850
+    }
+
+    .toggle {
       cursor: pointer;
-      font-weight: bold;
+      touch-action: manipulation;
+      user-select: none;
     }
 
-    button:hover {
-      background: #005999;
+    .toggle.active,
+    .profile.active {
+      background: rgba(255, 90, 47, .18);
+      border-color: rgba(255, 90, 47, .55);
+      color: white
     }
-  </style>
+
+    .activity-list {
+      display: grid;
+      gap: 8px;
+      max-height: 300px;
+      overflow: auto;
+      margin-top: 10px
+    }
+
+    .activity-card {
+      border-radius: 18px;
+      text-align: left;
+      padding: 12px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, .055)
+    }
+
+    .activity-card b {
+      display: block
+    }
+
+    .activity-card span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 4px
+    }
+
+    .toolbar {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 60;
+      padding: 10px 12px calc(12px + env(safe-area-inset-bottom));
+      background: rgba(7, 8, 11, .88);
+      backdrop-filter: blur(22px);
+      border-top: 1px solid var(--line)
+    }
+
+    .bar {
+      max-width: 560px;
+      margin: auto;
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 6px
+    }
+
+    .bar button {
+      padding: 10px 6px;
+      font-size: 12px;
+      text-align: center;
+    }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 92px;
+      transform: translateX(-50%);
+      z-index: 80;
+      background: white;
+      color: #111;
+      border-radius: 999px;
+      padding: 10px 14px;
+      font-size: 13px;
+      font-weight: 900;
+      opacity: 0;
+      transition: .25s
+    }
+
+    .toast.show {
+      opacity: 1;
+      bottom: 108px
+    }
+
+    .weekly-sheet-copy {
+      color: var(--muted);
+      font-size: 12px;
+      margin: -2px 0 12px;
+    }
+
+    .weekly-options {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .weekly-export-stage {
+      position: fixed;
+      left: -10000px;
+      top: 0;
+      width: 900px;
+      padding: 76px 84px;
+      box-sizing: border-box;
+      background: transparent;
+      color: #fff;
+      text-transform: uppercase;
+      pointer-events: none;
+    }
+
+    .weekly-export-stage.tone-black { color: #07080a; }
+
+    .weekly-card {
+      width: 100%;
+      font-family: Inter, system-ui, sans-serif;
+    }
+
+    .weekly-card.brutalist,
+    .weekly-card.performance,
+    .weekly-card.airmono,
+    .weekly-card.editorial,
+    .weekly-card.runline,
+    .weekly-card.techgrid,
+    .weekly-card.ghost,
+    .weekly-card.labelmaker,
+    .weekly-card.deepdata {
+      color: inherit;
+    }
+
+    .weekly-kicker {
+      font-size: 14px;
+      font-weight: 900;
+      letter-spacing: .18em;
+      margin-bottom: 34px;
+    }
+
+    .weekly-period {
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: .16em;
+      opacity: .55;
+      margin-top: -26px;
+      margin-bottom: 32px;
+    }
+
+    .weekly-rows {
+      border-top: 5px solid currentColor;
+      border-bottom: 2px solid currentColor;
+    }
+
+    .weekly-row {
+      display: grid;
+      grid-template-columns: 1fr auto auto;
+      gap: 34px;
+      align-items: baseline;
+      padding: 18px 0 20px;
+      border-bottom: 1px solid currentColor;
+    }
+
+    .weekly-row:last-child { border-bottom: 0; }
+
+    .weekly-sport {
+      font-size: 22px;
+      font-weight: 950;
+      letter-spacing: -.025em;
+    }
+
+    .weekly-distance,
+    .weekly-time,
+    .weekly-activities {
+      font-size: 20px;
+      font-weight: 900;
+      white-space: nowrap;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .weekly-hero {
+      font-size: 106px;
+      line-height: .78;
+      font-weight: 950;
+      letter-spacing: -.06em;
+      margin: 4px 0 22px;
+    }
+
+    .weekly-hero-unit {
+      font-family: Inter, system-ui, sans-serif;
+      font-size: 18px;
+      font-weight: 900;
+      letter-spacing: .1em;
+      margin-left: 10px;
+    }
+
+    .weekly-time-hero {
+      font-size: 30px;
+      font-weight: 900;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .weekly-card.brutalist {
+      font-family: Impact, "Arial Black", system-ui, sans-serif;
+    }
+
+    .weekly-card.brutalist .weekly-kicker,
+    .weekly-card.brutalist .weekly-period,
+    .weekly-card.brutalist .weekly-hero-unit {
+      font-family: Inter, system-ui, sans-serif;
+    }
+
+    @media(max-width:700px) {
+      .weekly-export-stage { width: 700px; padding: 56px 58px; }
+    }
+
+    .save-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 70;
+      background: rgba(0, 0, 0, .92);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 18px
+    }
+
+    .save-modal.show {
+      display: flex
+    }
+
+    .save-card {
+      width: min(420px, 100%);
+      text-align: center
+    }
+
+    .save-card img {
+      width: 100%;
+      border-radius: 22px;
+      background-image: linear-gradient(45deg, #ccc 25%, transparent 25%), linear-gradient(-45deg, #ccc 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #ccc 75%), linear-gradient(-45deg, transparent 75%, #ccc 75%);
+      background-size: 24px 24px;
+      background-position: 0 0, 0 12px, 12px -12px, -12px 0
+    }
+
+    .save-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 12px
+    }
+
+    .appearance-controls {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 8px
+    }
+
+    .segmented {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 3px;
+      background: rgba(255, 255, 255, .045)
+    }
+
+    .segmented button {
+      border: 0;
+      border-radius: 999px;
+      padding: 8px 8px;
+      background: transparent;
+      color: var(--muted);
+      font-size: 12px
+    }
+
+    .segmented button.active {
+      background: white;
+      color: #111
+    }
+
+    .overlay.tone-black {
+      color: #07080a
+    }
+
+    .overlay.tone-white {
+      color: white
+    }
+
+    /* Tone affects overlay even with no background */
+    .overlay.tone-black .template {
+      color: #07080a !important;
+      text-shadow: none !important;
+    }
+
+    .overlay.tone-black .route-path,
+    .overlay.tone-black .elev-path,
+    .overlay.tone-black .bar-fill {
+      stroke: #07080a !important;
+      background: #07080a !important;
+    }
+
+    .overlay.tone-black .elev-fill {
+      fill: #07080a !important;
+      opacity: .12 !important;
+    }
+
+    .overlay.tone-black .bar-bg {
+      background: rgba(0, 0, 0, .12) !important;
+    }
+
+    .overlay.tone-black .summary-card,
+    .overlay.tone-black .fast-chip,
+    .overlay.tone-black .runline .stats>div {
+      border-color: rgba(0, 0, 0, .18) !important;
+      background: rgba(0, 0, 0, .03) !important;
+    }
+
+    .overlay.tone-white .route-path,
+    .overlay.tone-white .elev-path {
+      stroke: white !important;
+    }
+
+    .with-bg .template {
+      padding: 22px;
+      border-radius: 24px !important;
+      backdrop-filter: blur(3px) !important;
+      -webkit-backdrop-filter: blur(3px) !important
+    }
+
+    .with-bg.tone-white .template {
+      color: white !important
+    }
+
+    .with-bg.tone-black .template {
+      color: #07080a !important;
+      text-shadow: none !important
+    }
+
+    .opacity-slider-wrap {
+      margin-top: 8px;
+      display: none;
+      align-items: center;
+      gap: 10px;
+      padding: 0 2px
+    }
+
+    .opacity-slider-wrap.show {
+      display: flex
+    }
+
+    .opacity-slider-wrap label {
+      font-size: 11px;
+      color: var(--muted);
+      white-space: nowrap;
+      font-weight: 700
+    }
+
+    .opacity-slider-wrap span {
+      font-size: 11px;
+      color: var(--muted);
+      min-width: 28px;
+      text-align: right;
+      font-weight: 700
+    }
+
+    input[type=range].glass-slider {
+      flex: 1;
+      -webkit-appearance: none;
+      appearance: none;
+      height: 4px;
+      border-radius: 99px;
+      background: rgba(255, 255, 255, .15);
+      outline: none
+    }
+
+    input[type=range].glass-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: white;
+      box-shadow: 0 1px 6px rgba(0, 0, 0, .4);
+      cursor: pointer
+    }
+
+    input[type=range].glass-slider::-moz-range-thumb {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: white;
+      border: none;
+      box-shadow: 0 1px 6px rgba(0, 0, 0, .4);
+      cursor: pointer
+    }
+
+    .save-card.white-mode {
+      background: #fff;
+      border-radius: 24px;
+      padding: 14px
+    }
+
+    .save-card.black-mode {
+      background: #050608;
+      border-radius: 24px;
+      padding: 14px
+    }
+
+    .save-card.white-mode .hint {
+      color: #333
+    }
+
+    .save-card.black-mode .hint {
+      color: #c8ccd6
+    }
+
+    .save-card img.clean-preview {
+      background: none !important;
+      border-radius: 18px
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px
+    }
+
+    .layout-btn {
+      width: 42px;
+      height: 42px;
+      display: grid;
+      place-items: center;
+      padding: 0;
+      font-size: 21px;
+      line-height: 1;
+      border-radius: 999px
+    }
+
+    .layout-btn.active {
+      background: white;
+      color: #111
+    }
+
+    .overlay.layout-portrait {
+      max-width: 280px
+    }
+
+    .overlay.layout-portrait .template {
+      padding: 22px 18px
+    }
+
+    .overlay.layout-portrait .hero {
+      font-size: 44px;
+      line-height: .95;
+      letter-spacing: -.075em;
+      margin-top: 12px
+    }
+
+    .overlay.layout-portrait .unit {
+      font-size: 13px;
+      margin-left: 7px;
+      letter-spacing: .08em
+    }
+
+    .overlay.layout-portrait .stats {
+      display: grid !important;
+      grid-template-columns: 1fr !important;
+      gap: 8px;
+      margin-top: 18px
+    }
+
+    .overlay.layout-portrait .stats>div {
+      display: grid;
+      grid-template-columns: 86px 1fr;
+      align-items: baseline;
+      gap: 10px;
+      border: 0;
+      padding: 0;
+      background: transparent
+    }
+
+    .overlay.layout-portrait .val {
+      text-align: right;
+      font-size: 14px
+    }
+
+    .overlay.layout-portrait .routebox,
+    .overlay.layout-portrait .elevbox,
+    .overlay.layout-portrait .splits,
+    .overlay.layout-portrait .split-summary {
+      margin-top: 18px
+    }
+
+    .overlay.layout-portrait .routebox svg {
+      max-height: 190px
+    }
+
+    .overlay.layout-portrait .split-summary {
+      grid-template-columns: 1fr !important
+    }
+
+    .overlay.layout-portrait .split {
+      grid-template-columns: 42px 1fr 48px;
+      gap: 8px
+    }
+
+    .overlay.layout-portrait .summary-row {
+      grid-template-columns: 82px 1fr 52px;
+      gap: 8px
+    }
+
+    .overlay.layout-portrait .blockfade .hero {
+      font-size: 50px
+    }
+
+    .overlay.layout-portrait .editorial .hero {
+      font-size: 50px
+    }
+
+    .overlay.layout-portrait .deepdata .hero {
+      font-size: 38px
+    }
+
+    .overlay.layout-portrait .runline .hero {
+      font-size: 40px
+    }
+
+    .overlay.layout-portrait .performance .hero {
+      font-size: 58px;
+    }
+
+    .overlay.layout-portrait .performance .stats,
+    .overlay.layout-portrait .brutalist .stats {
+      grid-template-columns: 1fr;
+    }
+
+    .overlay.layout-portrait .performance .stats > div,
+    .overlay.layout-portrait .performance .stats > div:nth-child(2n),
+    .overlay.layout-portrait .brutalist .stats > div,
+    .overlay.layout-portrait .brutalist .stats > div:nth-child(2n) {
+      padding-left: 0;
+      padding-right: 0;
+      border-right: 0;
+      border-bottom: 1px solid rgba(255, 255, 255, .14);
+    }
+
+    .overlay.layout-portrait .performance .stats > div:last-child,
+    .overlay.layout-portrait .brutalist .stats > div:last-child {
+      border-bottom: 0;
+    }
+
+    .overlay.layout-portrait .brutalist .hero {
+      font-size: 62px;
+    }
+
+    /* PACE GRAPH */
+    .interval-graph {
+      width: 100%;
+      margin-top: 22px;
+      position: relative;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    }
+
+    .interval-graph svg {
+      display: block;
+      width: 100%;
+      height: auto;
+      overflow: visible;
+    }
+
+    .interval-graph .pace-label {
+      fill: currentColor;
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: -.04em;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .interval-graph .distance-label {
+      fill: currentColor;
+      opacity: .55;
+      font-size: 9px;
+      font-weight: 800;
+      letter-spacing: -.02em;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .interval-graph .pace-guide {
+      stroke: currentColor;
+      stroke-width: 1;
+      stroke-dasharray: 4 8;
+      opacity: .10;
+    }
+
+    .interval-graph .interval-bar {
+      fill: #ffffff !important;
+      fill-opacity: 1 !important;
+      stroke: none !important;
+      opacity: 1 !important;
+      vector-effect: non-scaling-stroke;
+      display: block;
+    }
+
+    .interval-graph .interval-bars {
+      display: block;
+      opacity: 1;
+    }
+
+    .interval-graph .hr-line {
+      fill: none;
+      stroke: #ff3b30;
+      stroke-width: 1.7;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      vector-effect: non-scaling-stroke;
+    }
+
+    .overlay.tone-white .interval-graph {
+      color: #ffffff;
+    }
+
+    .overlay.tone-black .interval-graph {
+      color: #07080a;
+    }
+
+    .overlay.layout-portrait .interval-graph {
+      margin-top: 18px;
+    }
+
+    .overlay.layout-portrait .interval-graph .pace-label {
+      font-size: 11px;
+    }
+
+    .overlay.layout-portrait .interval-graph .distance-label {
+      font-size: 8px;
+    }
+
+    .overlay.layout-portrait .interval-graph .hr-line {
+      stroke-width: 1.6;
+    }
+
+    @media(max-width:390px) {
+      .hero {
+        font-size: 46px
+      }
+
+      .stats {
+        grid-template-columns: repeat(2, 1fr)
+      }
+
+      .checker {
+        aspect-ratio: 9/10.6
+      }
+
+      .split-summary {
+        grid-template-columns: 1fr
+      }
+    }
+  
+    /* Main Screen Effects Panel Styles */
+    .effects-panel {
+      margin-top: 10px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 8px 12px;
+      background: rgba(255, 255, 255, .045);
+    }
+
+    .effects-panel-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 4px 0;
+    }
+
+    .effects-panel-title {
+      font-size: 13px;
+      font-weight: 850;
+      letter-spacing: -.01em;
+    }
+
+    .clear-fx-btn {
+      padding: 5px 12px;
+      font-size: 11px;
+      background: rgba(255, 255, 255, .08);
+    }
+
+    .effects-list{display:flex;flex-direction:column;gap:7px;margin:8px 0 4px}
+    .effect-row{border:1px solid var(--line);border-radius:12px;overflow:hidden}
+    .effect-toggle{width:100%;display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:transparent;color:inherit;border:0;font:inherit;font-size:12px;font-weight:800;text-align:left;cursor:pointer}
+    .effect-toggle span{font-size:10px;opacity:.55}
+    .effect-row.on .effect-toggle{background:rgba(128,128,128,.12)}
+    .effect-row.on .effect-toggle span{opacity:1;color:var(--accent)}
+    .effect-controls{display:none;padding:2px 12px 11px;gap:8px}
+    .effect-row.on .effect-controls{display:grid}
+    .effect-controls label{display:grid;grid-template-columns:76px 1fr;align-items:center;gap:8px;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+    .effect-controls input{width:100%}
+    .fx-stage{position:relative;overflow:visible}
+    .fx-clone{position:absolute;inset:0;pointer-events:none}
+    .fx-clone.red-channel * { color: #ff3b30 !important; stroke: #ff3b30 !important; }
+    .fx-clone.cyan-channel * { color: #00f0ff !important; stroke: #00f0ff !important; }
+    .fx-texture{position:absolute;inset:0;pointer-events:none}
+    .fx-scanlines{background:repeating-linear-gradient(to bottom,rgba(127,127,127,.4) 0 1px,transparent 1px 4px);mix-blend-mode:multiply}
+</style>
 </head>
+
 <body>
+  <div class="app">
+    <header>
+      <div class="brand">
+        <div>
+          <h1>Overlay Studio by Veera.cc</h1>
+          <div class="sub">Hint: individually export map/elevation profile for extra creativity!</div>
+        </div><div class="header-actions"><button id="layoutBtn" class="layout-btn" type="button" aria-label="Switch to portrait layout">▭</button><button id="resetBtn" type="button">Reset</button></div>
+      </div>
+    </header>
+    <div class="preview-wrap">
+      <div class="checker">
+        <div id="exportStage" class="export-stage">
+          <div id="overlay" class="overlay tone-white"></div>
+        </div>
+      </div>
 
-  <h2>Image Effect Processor</h2>
+      <div class="style-strip-wrap">
+        <div style="display:grid;grid-template-columns:44px 1fr 44px;gap:8px;align-items:center">
+          <button id="stylePrev">‹</button>
+          <div id="styleStrip" class="style-strip"></div>
+          <button id="styleNext">›</button>
+        </div>
+      </div>
 
-  <div class="container">
-    <canvas id="previewCanvas" width="800" height="500"></canvas>
+      <div class="appearance-controls">
+        <div class="segmented" id="toneControl">
+          <button class="active" data-tone="white">White</button>
+          <button data-tone="black">Black</button>
+        </div>
+        <div class="segmented" id="bgControl">
+          <button class="active" data-bg="off">No BG</button>
+          <button data-bg="on">BG On</button>
+        </div>
+      </div>
+      <div class="opacity-slider-wrap" id="opacitySliderWrap">
+        <label>Opacity</label>
+        <input type="range" class="glass-slider" id="opacitySlider" min="5" max="95" value="75">
+        <span id="opacityVal">75%</span>
+      </div>
 
-    <div class="controls">
-      <label>
-        Upload Image
-        <input type="file" id="imageInput" accept="image/*">
-      </label>
-
-      <label>
-        <input type="checkbox" id="enableRgbSplit" checked> Enable RGB Split
-      </label>
-
-      <label>
-        RGB Shift Offset
-        <input type="range" id="rgbOffset" min="0" max="20" value="4">
-      </label>
-
-      <label>
-        RGB Opacity
-        <input type="range" id="rgbOpacity" min="0" max="1" step="0.05" value="0.3">
-      </label>
-
-      <button id="exportBtn">Export High-Res PNG</button>
+      <!-- Main Screen Inline Effects Controls -->
+      <div class="effects-panel" id="effectsSection">
+        <div class="effects-panel-head">
+          <div class="effects-panel-title">Effects</div>
+          <button id="clearEffectsBtn" class="clear-fx-btn" type="button">Clear Effects</button>
+        </div>
+        <div class="effects-list">
+          <div class="effect-row" data-effect="motion">
+            <button class="effect-toggle" type="button" data-effect-toggle="motion">Motion Blur <span>OFF</span></button>
+            <div class="effect-controls">
+              <label>Intensity <input type="range" min="0" max="100" value="25" data-effect-range="motionIntensity"></label>
+              <label>Direction <input type="range" min="0" max="359" value="0" data-effect-range="motionDirection"></label>
+            </div>
+          </div>
+          <div class="effect-row" data-effect="scanlines">
+            <button class="effect-toggle" type="button" data-effect-toggle="scanlines">Scanlines <span>OFF</span></button>
+            <div class="effect-controls">
+              <label>Intensity <input type="range" min="0" max="100" value="15" data-effect-range="scanlinesIntensity"></label>
+            </div>
+          </div>
+          <div class="effect-row" data-effect="rgb">
+            <button class="effect-toggle" type="button" data-effect-toggle="rgb">RGB Split <span>OFF</span></button>
+            <div class="effect-controls">
+              <label>Intensity <input type="range" min="0" max="100" value="12" data-effect-range="rgbIntensity"></label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="sheet-backdrop" id="sheetBackdrop"></div>
+  <div class="sheet" id="activitiesSheet">
+    <div class="sheet-handle" aria-label="Swipe down to close"></div>
+    <div class="sheet-inner">
+      <div class="sheet-head">
+        <div class="sheet-title">Activities</div><button class="closeSheet">Close</button>
+      </div><button class="primary" id="connectBtn">Connect Strava</button> <button id="refreshBtn">Refresh</button>
+      <div class="status" id="status">Connect Strava, then tap an activity to build your overlay.</div>
+      <div class="activity-list" id="activityList"></div>
+    </div>
+  </div>
+  <div class="sheet" id="modulesSheet">
+    <div class="sheet-handle" aria-label="Swipe down to close"></div>
+    <div class="sheet-inner">
+      <div class="sheet-head">
+        <div class="sheet-title">Modules</div><button class="closeSheet">Close</button>
+      </div>
+      <div class="module-actions">
+        <button id="allOnBtn" class="primary">All On</button>
+        <button id="allOffBtn">All Off</button>
+      </div>
+      <div class="toggles" id="toggles"></div>
+    </div>
+  </div>
+  <div class="sheet" id="weeklySheet">
+    <div class="sheet-handle" aria-label="Swipe down to close"></div>
+    <div class="sheet-inner">
+      <div class="sheet-head">
+        <div class="sheet-title">Weekly Total</div><button class="closeSheet">Close</button>
+      </div>
+      <div class="weekly-sheet-copy">Rolling last 7 days · export as transparent overlay</div>
+      <div class="weekly-options">
+        <button data-weekly-export="all" class="primary">All Sports</button>
+        <button data-weekly-export="run">Run</button>
+        <button data-weekly-export="ride">Bike</button>
+        <button data-weekly-export="swim">Swim</button>
+      </div>
+    </div>
+  </div>
+  <div class="toolbar">
+    <div class="bar">
+      <button id="activitiesBtn">Activities <span id="stravaConnectedDot" style="display:none;width:7px;height:7px;border-radius:50%;background:#fc4c02;display:inline-block;margin-left:4px;vertical-align:middle;box-shadow:0 0 6px #fc4c02aa"></span></button>
+      <button id="modulesBtn">Modules</button>
+      <button id="weeklyBtn">Weekly</button>
+      <button id="fxNavBtn">Effects</button>
+      <button class="primary" id="exportBtn">Export PNG</button>
     </div>
   </div>
 
+  <div id="weeklyExportStage" class="weekly-export-stage"></div>
+  <div class="save-modal" id="saveModal">
+    <div class="save-card"><img id="saveImg">
+      <p class="hint">Transparent PNG ready. In Chrome iOS, long-press the image and choose Save Image / Save to Photos.
+      </p>
+      <div class="save-actions"><button class="primary" id="openBtn">Open Image</button><button id="closeSave">Close</button></div>
+    </div>
+  </div>
+  <div class="toast" id="toast"></div>
   <script>
-    const previewCanvas = document.getElementById('previewCanvas');
-    const imageInput = document.getElementById('imageInput');
-    const enableRgbSplitInput = document.getElementById('enableRgbSplit');
-    const rgbOffsetInput = document.getElementById('rgbOffset');
-    const rgbOpacityInput = document.getElementById('rgbOpacity');
-    const exportBtn = document.getElementById('exportBtn');
+    const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)]; 
+    const profiles = { run: { title: 1, distance: 1, time: 1, pace: 1, elevation: 0, heart: 1, power: 0, route: 0, elevProfile: 0, splits: 1, date: 0 }, ride: { title: 1, distance: 1, time: 1, pace: 1, elevation: 1, heart: 1, power: 1, route: 1, elevProfile: 0, splits: 0, date: 0 }, minimal: { title: 1, distance: 1, time: 1, pace: 1, elevation: 0, heart: 0, power: 0, route: 0, elevProfile: 0, splits: 0, date: 0 }, all: { title: 1, distance: 1, time: 1, pace: 1, elevation: 1, heart: 1, power: 1, route: 1, elevProfile: 1, splits: 1, date: 1 } }; 
+    const styleDefs = [{ key: 'editorial', name: 'Editorial', className: 'editorial nobg' }, { key: 'performance', name: 'Performance', className: 'performance nobg' }, { key: 'brutalist', name: 'Brutalist', className: 'brutalist nobg' }, { key: 'airmono', name: 'Air Mono', className: 'airmono nobg' }, { key: 'techgrid', name: 'Tech Grid', className: 'techgrid nobg' }, { key: 'ghost', name: 'Ghost', className: 'ghost nobg' }, { key: 'labelmaker', name: 'Label Maker', className: 'labelmaker nobg' }, { key: 'runline', name: 'Run Line', className: 'runline nobg' }, { key: 'deepdata', name: 'Deep Data', className: 'deepdata' }]; 
+    const profileLabels = { run: 'Running Default', ride: 'Cycling Default', minimal: 'Minimal Core', all: 'All Data' }; 
+    const moduleLabels = { title: 'Title', distance: 'Distance', time: 'Time', pace: 'Pace / Speed', elevation: 'Elevation', heart: 'Heart Rate', power: 'Power', route: 'Route Map', elevProfile: 'Elevation Profile', splits: 'Splits', date: 'Date' }; 
+    
+    const defaultEffects = { motion: false, motionIntensity: 25, motionDirection: 0, scanlines: false, scanlinesIntensity: 15, rgb: false, rgbIntensity: 12 };
+    
+    const state = { 
+      effects: { ...defaultEffects }, 
+      token: localStorage.getItem('strava_access_token') || '', 
+      style: 'editorial', 
+      styleIndex: 0, 
+      tone: 'white', 
+      bg: false, 
+      bgOpacity: 0.75, 
+      layout: 'landscape', 
+      profile: 'run', 
+      activity: null, 
+      detail: null, 
+      mods: { ...profiles.run } 
+    }; 
 
-    let loadedImage = null;
+    function toast(t) { let e = $('#toast'); e.textContent = t; e.classList.add('show'); setTimeout(() => e.classList.remove('show'), 2200) } 
+    function openSheet(id) { let sheet = $(id), isOpen = sheet.classList.contains('show'); closeSheets(); if (!isOpen) { $('#sheetBackdrop').classList.add('show'); sheet.classList.add('show') } } 
+    function closeSheets() { $('#sheetBackdrop').classList.remove('show'); $$('.sheet').forEach(s => s.classList.remove('show')) } 
+    function fmtTime(sec) { sec = Math.round(sec || 0); let h = Math.floor(sec / 3600), m = Math.floor(sec % 3600 / 60), s = sec % 60; return h ? `${h}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}` : `${m}:${String(s).padStart(2, '0')}` } 
+    function kind(t) { t = (t || 'Run').toLowerCase(); return t.includes('ride') || t.includes('bike') || t.includes('cycle') ? 'Ride' : t.includes('walk') ? 'Walk' : t.includes('hike') ? 'Hike' : 'Run' } 
+    function distKm(a) { return +(a.distance_km || ((a.distance || 0) / 1000).toFixed(1)) } 
+    function paceText(a) { let k = kind(a.type || a.sport_type), km = distKm(a), sec = a.moving_time || 0; if (k === 'Ride') return `${(a.average_speed_kmh || ((a.average_speed || 0) * 3.6).toFixed(1))} KM/H`; let p = sec / km, m = Math.floor(p / 60), s = Math.round(p % 60); return km ? `${m}:${String(s).padStart(2, '0')} /KM` : '--' } 
+    function data() { let a = state.detail?.activity || state.activity || {}; return { title: (a.name || 'SELECT ACTIVITY').toUpperCase(), type: kind(a.sport_type || a.type), distance: (distKm(a) || 12.4).toFixed(1), time: fmtTime(a.moving_time || 3482), pace: paceText(a), elevation: '+' + Math.round(a.total_elevation_gain ?? a.elevation_m ?? 214) + 'M', heart: a.average_heartrate ? Math.round(a.average_heartrate) + ' BPM' : '--', power: a.average_watts ? Math.round(a.average_watts) + ' W' : '--', date: a.start_date ? new Date(a.start_date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) : '' } } 
+    function pointsToPath(points, w = 300, h = 160, pad = 10) { if (!points || points.length < 2) return 'M20 120 C 70 30, 120 145, 160 78 S 230 40, 280 110'; let xs = points.map(p => p[1]), ys = points.map(p => p[0]), minX = Math.min(...xs), maxX = Math.max(...xs), minY = Math.min(...ys), maxY = Math.max(...ys), sx = (w - pad * 2) / (maxX - minX || 1), sy = (h - pad * 2) / (maxY - minY || 1), sample = points.filter((_, i) => i % Math.ceil(points.length / 90) === 0); return sample.map((p, i) => `${i ? 'L' : 'M'}${((p[1] - minX) * sx + pad).toFixed(1)} ${((maxY - p[0]) * sy + pad).toFixed(1)}`).join(' ') } 
+    function elevPath(vals, w = 320, h = 80) { if (!vals || vals.length < 2) vals = [20, 40, 32, 70, 44, 90, 76, 110, 80, 120]; let min = Math.min(...vals), max = Math.max(...vals), sample = vals.filter((_, i) => i % Math.ceil(vals.length / 90) === 0), path = sample.map((v, i) => { let x = i / (sample.length - 1) * w, y = h - ((v - min) / (max - min || 1)) * h; return `${i ? 'L' : 'M'}${x.toFixed(1)} ${y.toFixed(1)}` }).join(' '); return { line: path, fill: `${path} L${w} ${h} L0 ${h} Z` } } 
+    function routeSvg() { let path = pointsToPath(state.detail?.streams?.latlng?.data); return `<div class='routebox'><svg viewBox='0 0 300 160'><path class='route-path' d='${path}'/></svg></div>` } 
+    function elevationSvg() { let ep = elevPath(state.detail?.streams?.altitude?.data); return `<div class='elevbox'><svg viewBox='0 0 320 80'><path class='elev-fill' d='${ep.fill}'/><path class='elev-path' d='${ep.line}'/></svg></div>` } 
+    function getLaps() { let laps = (state.detail?.laps || []).filter(l => l.pace_sec_per_km); if (!laps.length && data().type === 'Run') laps = [292, 287].map((p, i) => ({ index: i + 1, pace_sec_per_km: p })); return laps } 
+    function paceStr(p) { let m = Math.floor(p / 60), s = Math.round(p % 60); return `${m}:${String(s).padStart(2, '0')}` } 
+    
+    function splitsHtml() {
+      const laps = getLaps();
+      if (!laps.length) return '';
 
-    // Default placeholder drawing if no image uploaded
-    function drawPlaceholder(canvas) {
-      const ctx = canvas.getContext('2d');
-      ctx.fillStyle = '#333';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-      ctx.fillStyle = '#888';
-      ctx.font = '20px sans-serif';
-      ctx.textAlign = 'center';
-      ctx.fillText('Upload an image to start', canvas.width / 2, canvas.height / 2);
+      const streams = state.detail?.streams || {};
+      const distanceData = (streams.distance?.data || []).map(Number);
+      const timeData = (streams.time?.data || []).map(Number);
+
+      const streamDistancesKm = distanceData.filter(Number.isFinite).map(v => v / 1000);
+      const activityDistanceKm = Number(data().distance) || 0;
+      const workoutDistance = activityDistanceKm > 0 ? activityDistanceKm : (streamDistancesKm.length ? streamDistancesKm[streamDistancesKm.length - 1] : 0);
+
+      if (!workoutDistance) return '';
+
+      const W = 600, H = 250, left = 48, right = 10, top = 16, bottom = 32;
+      const graphW = W - left - right, graphH = H - top - bottom, graphBottom = top + graphH;
+
+      function distanceX(distance) {
+        return left + (Math.max(0, Math.min(workoutDistance, distance)) / workoutDistance) * graphW;
+      }
+
+      const validLaps = laps
+        .map((lap, index) => ({
+          raw: lap,
+          index,
+          pace: Number(lap.pace_sec_per_km),
+          distanceKm: Math.max(0, Number(lap.distance || 0) / 1000),
+          startIndex: Number(lap.start_index),
+          endIndex: Number(lap.end_index),
+          elapsedTime: Number(lap.elapsed_time),
+          movingTime: Number(lap.moving_time)
+        }))
+        .filter(lap => Number.isFinite(lap.pace) && lap.pace > 0);
+
+      if (!validLaps.length) return '';
+
+      function distanceAtTime(seconds) {
+        if (!Number.isFinite(seconds) || !timeData.length || timeData.length !== distanceData.length) return null;
+        let lo = 0, hi = timeData.length - 1;
+        while (lo <= hi) {
+          const mid = Math.floor((lo + hi) / 2);
+          const t = timeData[mid];
+          if (!Number.isFinite(t)) break;
+          if (t < seconds) lo = mid + 1; else hi = mid - 1;
+        }
+        const i1 = Math.max(0, Math.min(timeData.length - 1, hi));
+        const i2 = Math.max(0, Math.min(timeData.length - 1, lo));
+        const t1 = timeData[i1], t2 = timeData[i2];
+        const d1 = Number.isFinite(distanceData[i1]) ? distanceData[i1] / 1000 : null;
+        const d2 = Number.isFinite(distanceData[i2]) ? distanceData[i2] / 1000 : null;
+
+        if (d1 == null && d2 == null) return null;
+        if (d1 == null) return d2;
+        if (d2 == null) return d1;
+        if (i1 === i2 || t2 === t1) return d1;
+
+        const ratio = Math.max(0, Math.min(1, (seconds - t1) / (t2 - t1)));
+        return d1 + (d2 - d1) * ratio;
+      }
+
+      function boundaryFromIndex(index) {
+        if (!Number.isFinite(index) || !distanceData.length) return null;
+        const i = Math.max(0, Math.min(distanceData.length - 1, Math.round(index)));
+        const metres = Number(distanceData[i]);
+        return Number.isFinite(metres) ? metres / 1000 : null;
+      }
+
+      let cursorDistance = 0, cursorTime = 0;
+      const intervalData = validLaps.map((lap) => {
+        let startDistance = null, endDistance = null;
+        const indexedStart = boundaryFromIndex(lap.startIndex);
+        const indexedEnd = boundaryFromIndex(lap.endIndex);
+
+        if (indexedStart != null && indexedEnd != null && indexedEnd > indexedStart) {
+          startDistance = indexedStart; endDistance = indexedEnd;
+        }
+
+        if (startDistance == null && Number.isFinite(lap.elapsedTime) && timeData.length === distanceData.length && timeData.length >= 2) {
+          const lapStartTime = cursorTime;
+          const lapEndTime = cursorTime + lap.elapsedTime;
+          const fromTime = distanceAtTime(lapStartTime);
+          const toTime = distanceAtTime(lapEndTime);
+          if (fromTime != null && toTime != null && toTime > fromTime) {
+            startDistance = fromTime; endDistance = toTime; cursorTime = lapEndTime;
+          }
+        }
+
+        if (startDistance == null || endDistance == null) {
+          startDistance = cursorDistance;
+          endDistance = cursorDistance + Math.max(0.01, lap.distanceKm);
+        }
+
+        startDistance = Math.max(0, Math.min(workoutDistance, startDistance));
+        endDistance = Math.max(startDistance + 0.005, Math.min(workoutDistance, endDistance));
+        cursorDistance = endDistance;
+
+        return { ...lap, startDistance, endDistance };
+      });
+
+      const paces = intervalData.map(lap => lap.pace);
+      const fastest = Math.min(...paces);
+      const slowest = Math.max(...paces);
+      const paceRange = Math.max(slowest - fastest, 30);
+      const pacePadding = paceRange * 0.12;
+      const paceMin = Math.max(1, fastest - pacePadding);
+      const paceMax = slowest + pacePadding;
+
+      function paceY(pace) {
+        const ratio = (pace - paceMin) / (paceMax - paceMin || 1);
+        return top + ratio * graphH;
+      }
+
+      const blocks = intervalData.map(lap => {
+        const x1 = distanceX(lap.startDistance);
+        const x2 = distanceX(lap.endDistance);
+        const x = Math.min(x1, x2);
+        const width = Math.max(4, Math.abs(x2 - x1) - 2);
+        const y = Math.max(top, Math.min(graphBottom - 5, paceY(lap.pace)));
+        const height = Math.max(5, graphBottom - y);
+        return { x, y, width, height };
+      });
+
+      let paceLabels = '';
+      const paceTicks = 4;
+      for (let i = 0; i <= paceTicks; i++) {
+        const pace = paceMin + ((paceMax - paceMin) / paceTicks) * i;
+        const y = paceY(pace);
+        paceLabels += `<text class="pace-label" x="${left - 8}" y="${y + 4}" text-anchor="end">${paceStr(pace)}</text>`;
+        paceLabels += `<line class="pace-guide" x1="${left}" y1="${y}" x2="${W - right}" y2="${y}"/>`;
+      }
+
+      let distanceLabels = '';
+      const distanceStep = workoutDistance <= 5 ? 1 : workoutDistance <= 15 ? 2 : 5;
+      for (let d = 0; d <= workoutDistance + 0.001; d += distanceStep) {
+        const x = distanceX(d);
+        distanceLabels += `<text class="distance-label" x="${x}" y="${H - 8}" text-anchor="middle">${d.toFixed(0)} km</text>`;
+      }
+
+      const hrData = streams.heartrate?.data || [];
+      let hrPath = '';
+
+      if (hrData.length >= 2 && distanceData.length === hrData.length) {
+        const windowSize = 5;
+        const smoothed = hrData.map((_, i) => {
+          const start = Math.max(0, i - Math.floor(windowSize / 2));
+          const end = Math.min(hrData.length, i + Math.ceil(windowSize / 2));
+          let sum = 0, count = 0;
+          for (let j = start; j < end; j++) {
+            const value = Number(hrData[j]);
+            if (Number.isFinite(value)) { sum += value; count++; }
+          }
+          return count ? sum / count : null;
+        });
+
+        const validHr = smoothed.filter(Number.isFinite);
+        if (validHr.length >= 2) {
+          let hrMin = Math.min(...validHr);
+          let hrMax = Math.max(...validHr);
+          if (hrMax - hrMin < 10) {
+            const midpoint = (hrMax + hrMin) / 2;
+            hrMin = midpoint - 5; hrMax = midpoint + 5;
+          }
+          const hrTop = top + graphH * 0.12;
+          const hrBottom = top + graphH * 0.82;
+          const points = [];
+
+          for (let i = 0; i < smoothed.length; i++) {
+            const hr = smoothed[i];
+            const rawDistance = Number(distanceData[i]);
+            if (!Number.isFinite(hr) || !Number.isFinite(rawDistance)) continue;
+            const distanceKm = rawDistance / 1000;
+            if (distanceKm < 0 || distanceKm > workoutDistance) continue;
+            const x = distanceX(distanceKm);
+            const ratio = (hr - hrMin) / (hrMax - hrMin || 1);
+            const y = hrBottom - ratio * (hrBottom - hrTop);
+            points.push([x, y]);
+          }
+
+          if (points.length >= 2) {
+            hrPath = `M ${points[0][0].toFixed(1)} ${points[0][1].toFixed(1)}`;
+            for (let i = 1; i < points.length - 1; i++) {
+              const current = points[i];
+              const next = points[i + 1];
+              const midX = (current[0] + next[0]) / 2;
+              const midY = (current[1] + next[1]) / 2;
+              hrPath += ` Q ${current[0].toFixed(1)} ${current[1].toFixed(1)} ${midX.toFixed(1)} ${midY.toFixed(1)}`;
+            }
+            const last = points[points.length - 1];
+            hrPath += ` T ${last[0].toFixed(1)} ${last[1].toFixed(1)}`;
+          }
+        }
+      }
+
+      const blockHtml = blocks.map(block => `
+        <rect class="interval-bar" x="${block.x.toFixed(1)}" y="${block.y.toFixed(1)}" width="${block.width.toFixed(1)}" height="${block.height.toFixed(1)}" rx="4" ry="4" fill="#ffffff" fill-opacity="1"/>
+      `).join('');
+
+      return `
+        <div class="interval-graph">
+          <svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-label="Pace and heart rate graph">
+            ${paceLabels}
+            <g class="interval-bars">${blockHtml}</g>
+            ${hrPath ? `<path class="hr-line" d="${hrPath}"/>` : ''}
+            ${distanceLabels}
+          </svg>
+        </div>
+      `;
     }
 
-    drawPlaceholder(previewCanvas);
+    function weeklySportKey(a) {
+      const t = String(a?.sport_type || a?.type || '').toLowerCase();
+      if (t.includes('ride') || t.includes('bike') || t.includes('cycle')) return 'ride';
+      if (t.includes('swim')) return 'swim';
+      if (t.includes('run') || t.includes('trail')) return 'run';
+      if (t.includes('weight') || t.includes('strength') || t.includes('workout') || t.includes('gym')) return 'gym';
+      if (t.includes('walk')) return 'walk';
+      if (t.includes('hike')) return 'hike';
+      return t || 'other';
+    }
 
-    /**
-     * Renders the image with normalized visual effects.
-     */
-    function renderCanvasEffects(canvas, image, options = {}) {
-      if (!image) return;
+    function weeklySportLabel(key) {
+      const labels = { run: 'RUN', ride: 'BIKE', swim: 'SWIM', gym: 'GYM', walk: 'WALK', hike: 'HIKE' };
+      return labels[key] || key.replace(/[_-]+/g, ' ').toUpperCase();
+    }
 
-      const ctx = canvas.getContext('2d', { colorSpace: 'srgb' });
-      const width = canvas.width;
-      const height = canvas.height;
+    function rollingSevenDayActivities() {
+      const now = Date.now();
+      const cutoff = now - 7 * 24 * 60 * 60 * 1000;
+      return (window.acts || []).filter(a => {
+        const t = Date.parse(a.start_date || a.start_date_local || '');
+        return Number.isFinite(t) && t >= cutoff && t <= now;
+      });
+    }
 
-      // Clear canvas state
-      ctx.clearRect(0, 0, width, height);
+    function weeklyTotals(sport = 'all') {
+      const groups = {};
+      rollingSevenDayActivities().forEach(a => {
+        const key = weeklySportKey(a);
+        if (!key || (sport !== 'all' && key !== sport)) return;
+        if (!groups[key]) groups[key] = { distance: 0, time: 0, activities: 0 };
+        groups[key].distance += Number(a.distance_km || ((Number(a.distance) || 0) / 1000) || 0);
+        groups[key].time += Number(a.moving_time || 0);
+        groups[key].activities += 1;
+      });
+      return groups;
+    }
 
-      // RESOLUTION SCALING: Keeps effect proportion consistent across resolutions
-      const referenceWidth = options.referenceWidth || 800;
-      const scale = width / referenceWidth;
+    function weeklyStyleClass() {
+      return (styleDefs.find(s => s.key === state.style)?.className || 'brutalist nobg').split(/\s+/)[0];
+    }
 
-      // Draw base image
-      ctx.globalAlpha = 1.0;
-      ctx.globalCompositeOperation = 'source-over';
-      ctx.drawImage(image, 0, 0, width, height);
+    function weeklyOverlayHtml(sport = 'all') {
+      const groups = weeklyTotals(sport);
+      const cardClass = `weekly-card ${weeklyStyleClass()}`;
+      const title = sport === 'all' ? 'WEEKLY TOTAL' : `${weeklySportLabel(sport)} · WEEKLY TOTAL`;
+      const keys = sport === 'all'
+        ? Object.keys(groups).sort((a, b) => {
+            const order = { run: 0, ride: 1, swim: 2, gym: 3, walk: 4, hike: 5 };
+            return (order[a] ?? 99) - (order[b] ?? 99);
+          })
+        : (groups[sport] ? [sport] : []);
 
-      // RGB SPLIT EFFECT (No blown-out whiteout, subtle alpha channel control)
-      if (options.enableRgbSplit) {
-        const baseOffset = options.rgbOffset !== undefined ? options.rgbOffset : 4;
-        const offsetX = baseOffset * scale;
-        const offsetY = baseOffset * scale;
+      if (!keys.length) {
+        return `<div class="${cardClass}"><div class="weekly-kicker">${title}</div><div class="weekly-period">LAST 7 DAYS</div><div class="weekly-time-hero">NO ACTIVITIES</div></div>`;
+      }
 
-        const splitOpacity = options.rgbOpacity !== undefined ? options.rgbOpacity : 0.3;
+      if (sport === 'all') {
+        return `<div class="${cardClass}">
+          <div class="weekly-kicker">WEEKLY TOTAL</div>
+          <div class="weekly-period">LAST 7 DAYS</div>
+          <div class="weekly-rows">${keys.map(k => {
+            const x = groups[k];
+            const hasDistance = x.distance > 0;
+            return `<div class="weekly-row">
+              <div class="weekly-sport">${weeklySportLabel(k)}</div>
+              ${hasDistance
+                ? `<div class="weekly-distance">${x.distance.toFixed(1)} KM</div>`
+                : `<div class="weekly-activities">${x.activities} ACTIVIT${x.activities === 1 ? 'Y' : 'IES'}</div>`}
+              <div class="weekly-time">${fmtTime(x.time)}</div>
+            </div>`;
+          }).join('')}</div>
+        </div>`;
+      }
 
-        // Offscreen canvas for isolating single-channel passes
-        const buffer = document.createElement('canvas');
-        buffer.width = width;
-        buffer.height = height;
-        const bCtx = buffer.getContext('2d');
+      const x = groups[sport];
+      const hasDistance = x.distance > 0;
+      return `<div class="${cardClass}">
+        <div class="weekly-kicker">${weeklySportLabel(sport)}</div>
+        <div class="weekly-period">WEEKLY TOTAL · LAST 7 DAYS</div>
+        <div class="weekly-hero">${hasDistance ? x.distance.toFixed(1) : x.activities}<span class="weekly-hero-unit">${hasDistance ? 'KM' : (x.activities === 1 ? 'ACTIVITY' : 'ACTIVITIES')}</span></div>
+        <div class="weekly-time-hero">${fmtTime(x.time)}</div>
+      </div>`;
+    }
 
-        // Red Channel Pass
-        bCtx.clearRect(0, 0, width, height);
-        bCtx.drawImage(image, 0, 0, width, height);
-        bCtx.globalCompositeOperation = 'multiply';
-        bCtx.fillStyle = '#FF0000';
-        bCtx.fillRect(0, 0, width, height);
-
-        ctx.save();
-        ctx.globalAlpha = splitOpacity;
-        ctx.globalCompositeOperation = 'screen';
-        ctx.drawImage(buffer, offsetX, -offsetY, width, height);
-        ctx.restore();
-
-        // Cyan Channel Pass
-        bCtx.globalCompositeOperation = 'source-over';
-        bCtx.clearRect(0, 0, width, height);
-        bCtx.drawImage(image, 0, 0, width, height);
-        bCtx.globalCompositeOperation = 'multiply';
-        bCtx.fillStyle = '#00FFFF';
-        bCtx.fillRect(0, 0, width, height);
-
-        ctx.save();
-        ctx.globalAlpha = splitOpacity;
-        ctx.globalCompositeOperation = 'screen';
-        ctx.drawImage(buffer, -offsetX, offsetY, width, height);
-        ctx.restore();
+    async function exportWeeklyImage(sport = 'all') {
+      try {
+        closeSheets();
+        const stage = $('#weeklyExportStage');
+        stage.className = `weekly-export-stage tone-${state.tone}`;
+        stage.innerHTML = weeklyOverlayHtml(sport); 
+        prepareEffectStage(stage, true);
+        
+        const oldLeft = stage.style.left;
+        stage.style.left = '0px';
+        await document.fonts.ready;
+        await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+        
+        const canvas = await html2canvas(stage, { backgroundColor: null, scale: 3, useCORS: true });
+        stage.style.left = oldLeft;
+        stage.innerHTML = '';
+        
+        $('#saveImg').src = canvas.toDataURL('image/png');
+        $('#saveImg').classList.add('clean-preview');
+        const card = $('.save-card');
+        card.classList.remove('white-mode', 'black-mode');
+        card.classList.add(state.tone === 'white' ? 'black-mode' : 'white-mode');
+        $('#saveModal').classList.add('show');
+        toast('Weekly overlay ready: long-press to save');
+      } catch (e) {
+        $('#weeklyExportStage').style.left = '-10000px';
+        toast('Weekly export failed: ' + e.message);
       }
     }
 
-    function getOptions() {
-      return {
-        enableRgbSplit: enableRgbSplitInput.checked,
-        rgbOffset: parseFloat(rgbOffsetInput.value),
-        rgbOpacity: parseFloat(rgbOpacityInput.value),
-        referenceWidth: previewCanvas.width
-      };
-    }
+    function statBlock(label, val) { return `<div><div class='label'>${label}</div><div class='val'>${val}</div></div>` } 
+    function applyProfile(name, quiet = false) { state.profile = name; state.mods = { ...profiles[name] }; renderToggles(); render(); if (!quiet) toast(profileLabels[name] + ' applied') } 
+    function setAllModules(value) { Object.keys(state.mods).forEach(k => state.mods[k] = value ? 1 : 0); state.profile = value ? 'all' : 'custom'; renderToggles(); render(); } 
+    function renderToggles() { let box = $('#toggles'); box.innerHTML = Object.keys(state.mods).map(k => `<div class='toggle ${state.mods[k] ? 'active' : ''}' data-mod='${k}'>${moduleLabels[k]}</div>`).join(''); $$('.toggle').forEach(t => t.onclick = () => { let k = t.dataset.mod; state.mods[k] = state.mods[k] ? 0 : 1; state.profile = 'custom'; renderToggles(); render() }) } 
+    function renderStyles() { let box = $('#styleStrip'); box.innerHTML = styleDefs.map((s, i) => `<div class='style-pill ${state.style === s.key ? 'active' : ''}' data-i='${i}'>${s.name}</div>`).join(''); $$('.style-pill').forEach(p => p.onclick = () => setStyleByIndex(p.dataset.i)) } 
+    function setStyleByIndex(i) { i = Math.max(0, Math.min(styleDefs.length - 1, +i || 0)); state.styleIndex = i; state.style = styleDefs[i].key; renderStyles(); render(); let active = document.querySelector('.style-pill.active'); if (active) active.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' }) } 
 
-    function updatePreview() {
-      if (loadedImage) {
-        renderCanvasEffects(previewCanvas, loadedImage, getOptions());
-      }
-    }
+    function render() { 
+      let d = data(), m = state.mods, def = styleDefs.find(s => s.key === state.style) || styleDefs[0], stats = []; 
+      if (m.time) stats.push(statBlock('Time', d.time)); 
+      if (m.pace) stats.push(statBlock(d.type === 'Ride' ? 'Speed' : 'Pace', d.pace)); 
+      if (m.elevation) stats.push(statBlock('Elev', d.elevation)); 
+      if (m.heart) stats.push(statBlock('Heart', d.heart)); 
+      if (m.power && d.power !== '--') stats.push(statBlock('Power', d.power)); 
+      if (m.date && d.date) stats.push(statBlock('Date', d.date)); 
+      
+      $('#overlay').className = `overlay tone-${state.tone} layout-${state.layout} ${state.bg ? 'with-bg' : ''}`; 
+      const templateClass = state.bg ? def.className.replace('nobg', '').trim() : def.className; 
+      $('#overlay').innerHTML = `<div class='template ${templateClass}'>${m.title ? `<div class='title'>${d.title}</div>` : ''}${m.distance ? `<div class='hero'>${d.distance}<span class='unit'>KM</span></div>` : ''}<div class='stats'>${stats.join('')}</div>${m.route ? routeSvg() : ''}${m.elevProfile ? elevationSvg() : ''}${m.splits ? splitsHtml() : ''}</div>`; 
+      if (state.bg) applyGlassBg($('#overlay .template')); 
 
-    // Event Listeners for Live Controls
-    imageInput.addEventListener('change', (e) => {
-      const file = e.target.files[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = (event) => {
-          const img = new Image();
-          img.onload = () => {
-            loadedImage = img;
-            updatePreview();
-          };
-          img.src = event.target.result;
+      // Re-apply active effects to live stage view immediately
+      prepareEffectStage($('#exportStage'), false);
+    } 
+
+    async function connect() { try { let r = await fetch('/api/strava/config'), c = await r.json(); if (!r.ok) throw Error(c.error || 'Missing config'); let u = new URL('https://www.strava.com/oauth/authorize'); u.searchParams.set('client_id', c.client_id); u.searchParams.set('redirect_uri', location.origin + location.pathname); u.searchParams.set('response_type', 'code'); u.searchParams.set('approval_prompt', 'auto'); u.searchParams.set('scope', 'read,activity:read_all'); location.href = u } catch (e) { toast(e.message) } } 
+    async function oauth() { let p = new URLSearchParams(location.search), code = p.get('code'); if (p.get('error')) { toast('Strava cancelled'); history.replaceState({}, '', location.pathname) } if (!code) return; $('#status').textContent = 'Connecting to Strava…'; try { let r = await fetch('/api/strava/exchange', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ code }) }), j = await r.json(); if (!r.ok) throw Error(j.message || j.error || 'Token exchange failed'); state.token = j.access_token; localStorage.setItem('strava_access_token', state.token); renderConnectionStatus(); history.replaceState({}, '', location.pathname); toast('Strava connected'); load() } catch (e) { $('#status').textContent = e.message } } 
+    function renderConnectionStatus() { const dot = $('#stravaConnectedDot'); if (dot) dot.style.display = state.token ? 'inline-block' : 'none' } 
+    
+    async function load() { 
+      if (!state.token) { $('#status').textContent = 'Connect Strava, then tap an activity to build your overlay.'; return } 
+      $('#status').textContent = 'Loading recent activities…'; 
+      try { 
+        let r = await fetch('/api/strava/activities', { headers: { Authorization: 'Bearer ' + state.token } }), a = await r.json(); 
+        if (!r.ok) throw Error(a.message || a.error || 'Could not load activities'); 
+        window.acts = a; 
+        $('#status').textContent = `Loaded ${a.length} activities. Tap one to import.`; 
+        $('#activityList').innerHTML = a.map((x, i) => `<button class='activity-card' data-i='${i}'><b>${x.name || x.type}</b><span>${kind(x.type)} · ${x.distance_km} km · ${fmtTime(x.moving_time)} · +${x.elevation_m} m</span></button>`).join(''); 
+        $$('.activity-card').forEach(b => b.onclick = () => importActivity(window.acts[b.dataset.i])) 
+      } catch (e) { 
+        $('#status').textContent = e.message + ' — try connecting again.' 
+      } 
+    } 
+
+    async function importActivity(a) { 
+      state.activity = a; state.detail = null; 
+      applyProfile(kind(a.type) === 'Ride' ? 'ride' : 'run', true); 
+      render(); 
+      toast((kind(a.type) === 'Ride' ? 'Cycling' : 'Running') + ' profile applied'); 
+      try { 
+        let r = await fetch('/api/strava/activity?id=' + a.id, { headers: { Authorization: 'Bearer ' + state.token } }), j = await r.json(); 
+        if (!r.ok) throw Error(j.message || j.error || 'Detail failed'); 
+        state.detail = j; 
+        toast('Activity imported'); 
+        closeSheets(); 
+        render(); 
+      } catch (e) { 
+        toast('Basic import only: ' + e.message) 
+      } 
+    } 
+
+    function wireEffectControls(){
+      $$('[data-effect-toggle]').forEach(btn=>{
+        btn.onclick=()=>{
+          const key=btn.dataset.effectToggle;
+          state.effects[key]=!state.effects[key];
+          updateEffectUI();
+          prepareEffectStage($('#exportStage'), false);
         };
-        reader.readAsDataURL(file);
+      });
+      $$('[data-effect-range]').forEach(input=>{
+        input.oninput=()=>{
+          state.effects[input.dataset.effectRange]=Number(input.value);
+          prepareEffectStage($('#exportStage'), false);
+        };
+      });
+      $('#clearEffectsBtn').onclick=clearAllEffects;
+    }
+
+    function updateEffectUI(){
+      $$('[data-effect-row], .effect-row').forEach(row => {
+        const key = row.dataset.effect;
+        if (!key) return;
+        const isOn = !!state.effects[key];
+        row.classList.toggle('on', isOn);
+        const toggleBtn = row.querySelector('.effect-toggle span');
+        if (toggleBtn) toggleBtn.textContent = isOn ? 'ON' : 'OFF';
+      });
+      $$('[data-effect-range]').forEach(input => {
+        const key = input.dataset.effectRange;
+        if (key && state.effects[key] !== undefined) {
+          input.value = state.effects[key];
+        }
+      });
+    }
+
+    function clearAllEffects(){
+      state.effects = { ...defaultEffects };
+      updateEffectUI();
+      prepareEffectStage($('#exportStage'), false);
+      toast('Effects cleared');
+    }
+
+    function clearEffectLayers(stage){
+      if (!stage) return;
+      stage.querySelectorAll('.fx-clone, .fx-texture').forEach(e=>e.remove());
+    }
+
+    function prepareEffectStage(stage, isExporting = false){
+      if(!stage) return;
+      clearEffectLayers(stage);
+
+      const e=state.effects;
+      stage.classList.add('fx-stage');
+
+      const target=stage.querySelector('#overlay,.weekly-card');
+      if(!target) return;
+
+      // Scaling multiplier: html2canvas captures at 3x scale, reducing harsh overlay accumulation
+      const factor = isExporting ? 0.35 : 1.0;
+
+      // Motion blur
+      if(e.motion){
+        const rad=e.motionDirection*Math.PI/180;
+        const copies=Math.min(10, Math.max(2, Math.round((e.motionIntensity / 10) * factor)));
+        const distance=Math.max(1, e.motionIntensity * 0.14 * factor);
+
+        for(let i=copies; i>=1; i--){
+          const p=i/copies;
+          const clone=target.cloneNode(true);
+          clone.removeAttribute('id');
+          clone.className += ' fx-clone';
+          clone.style.opacity=( (0.015 + (1-p)*0.03) * factor ).toFixed(3);
+          clone.style.filter=`blur(${((0.2 + p * 1.2) * factor).toFixed(2)}px)`;
+          clone.style.transform=`translate(${(Math.cos(rad)*distance*i/copies).toFixed(1)}px,${(Math.sin(rad)*distance*i/copies).toFixed(1)}px)`;
+          stage.appendChild(clone);
+        }
+      }
+
+      // RGB split
+      if(e.rgb){
+        const spread=Math.max(1, e.rgbIntensity * 0.08 * factor);
+        const opacityVal = Math.min(0.25, Math.max(0.04, (e.rgbIntensity / 350) * factor)).toFixed(3);
+
+        const red=target.cloneNode(true);
+        const blue=target.cloneNode(true);
+        red.removeAttribute('id'); blue.removeAttribute('id');
+
+        red.className += ' fx-clone red-channel';
+        blue.className += ' fx-clone cyan-channel';
+
+        red.style.opacity = opacityVal;
+        blue.style.opacity = opacityVal;
+        red.style.transform=`translate(${-spread}px,0)`;
+        blue.style.transform=`translate(${spread}px,0)`;
+
+        stage.insertBefore(red,target);
+        stage.insertBefore(blue,target);
+      }
+
+      // Scanlines
+      if(e.scanlines){
+        const tex=document.createElement('div');
+        tex.className='fx-texture fx-scanlines';
+        tex.style.opacity=( (e.scanlinesIntensity / 100 * 0.35) * factor ).toFixed(2);
+        stage.appendChild(tex);
+      }
+    }
+
+    async function exportImage() { 
+      try { 
+        toast('Preparing transparent PNG…'); 
+        const stage = $('#exportStage');
+        prepareEffectStage(stage, true); 
+
+        await document.fonts.ready;
+        await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+
+        let canvas = await html2canvas(stage, { 
+          backgroundColor: null, 
+          scale: 3, 
+          useCORS: true,
+          logging: false
+        });
+        
+        // Restore live screen preview state immediately after capture
+        prepareEffectStage(stage, false);
+
+        let dataUrl = canvas.toDataURL('image/png'); 
+        $('#saveImg').src = dataUrl; 
+        $('#saveImg').classList.add('clean-preview'); 
+        let card = $('.save-card'); 
+        card.classList.remove('white-mode', 'black-mode'); 
+        card.classList.add(state.tone === 'white' ? 'black-mode' : 'white-mode'); 
+        $('#saveModal').classList.add('show'); 
+        toast('Image ready: long-press to save');
+      } catch (e) { 
+        toast('Export failed: ' + e.message) 
+      } 
+    } 
+
+    function openImage() { let src = $('#saveImg').src; if (src) window.open(src, '_blank') }
+    function toggleLayout() { state.layout = state.layout === 'landscape' ? 'portrait' : 'landscape'; const btn = $('#layoutBtn'); btn.textContent = state.layout === 'portrait' ? '▯' : '▭'; btn.classList.toggle('active', state.layout === 'portrait'); btn.setAttribute('aria-label', state.layout === 'portrait' ? 'Switch to landscape layout' : 'Switch to portrait layout'); render() }
+    function setTone(t) { state.tone = t; $$('#toneControl button').forEach(b => b.classList.toggle('active', b.dataset.tone === t)); render() }
+    function setBg(v) { state.bg = v === 'on'; $$('#bgControl button').forEach(b => b.classList.toggle('active', b.dataset.bg === v)); $('#opacitySliderWrap').classList.toggle('show', state.bg); render() }
+    
+    function applyGlassBg(el) { 
+      if (!state.bg) { el.style.background = ''; el.style.boxShadow = ''; el.style.border = ''; return } 
+      const o = state.bgOpacity; 
+      if (state.tone === 'white') { 
+        el.style.background = `rgba(0,0,0,${o})`; 
+        el.style.boxShadow = `0 18px 55px rgba(0,0,0,${Math.min(o + 0.1, 1)})`; 
+        el.style.border = `1px solid rgba(255,255,255,${Math.max(0.08, 0.25 - o * 0.2)})` 
+      } else { 
+        el.style.background = `rgba(255,255,255,${o})`; 
+        el.style.boxShadow = `0 18px 55px rgba(0,0,0,${o * 0.4})`; 
+        el.style.border = `1px solid rgba(0,0,0,${Math.max(0.06, 0.15 - o * 0.1)})` 
+      } 
+    }
+
+    $$('#toneControl button').forEach(b => b.onclick = () => setTone(b.dataset.tone));
+    $$('#bgControl button').forEach(b => b.onclick = () => setBg(b.dataset.bg));
+    $('#opacitySlider').addEventListener('input', function () { state.bgOpacity = this.value / 100; $('#opacityVal').textContent = this.value + '%'; render() });
+    
+    $('#layoutBtn').onclick = toggleLayout; 
+    $('#activitiesBtn').onclick = () => openSheet('#activitiesSheet'); 
+    $('#modulesBtn').onclick = () => openSheet('#modulesSheet'); 
+    $('#weeklyBtn').onclick = () => openSheet('#weeklySheet'); 
+    $('#fxNavBtn').onclick = () => { $('#effectsSection').scrollIntoView({ behavior: 'smooth' }); };
+    $('#exportBtn').onclick = exportImage; 
+
+    $$('#weeklySheet [data-weekly-export]').forEach(b => b.onclick = () => exportWeeklyImage(b.dataset.weeklyExport)); 
+    $('#stylePrev').onclick = () => setStyleByIndex(state.styleIndex - 1); 
+    $('#styleNext').onclick = () => setStyleByIndex(state.styleIndex + 1); 
+    $('#sheetBackdrop').onclick = closeSheets; 
+    $$('.closeSheet').forEach(b => b.onclick = closeSheets); 
+    $('#connectBtn').onclick = connect; 
+    $('#refreshBtn').onclick = load;  
+    $('#openBtn').onclick = openImage; 
+    $('#closeSave').onclick = () => $('#saveModal').classList.remove('show'); 
+    $('#resetBtn').onclick = () => { state.detail = null; state.activity = null; applyProfile('run', true); clearAllEffects(); toast('Reset overlay') }; 
+    $('#allOnBtn').onclick = () => setAllModules(true);
+    $('#allOffBtn').onclick = () => setAllModules(false);
+
+    /*
+     * Swipe bottom sheets down to close.
+     */
+    $$('.sheet').forEach(sheet => {
+      const handle = sheet.querySelector('.sheet-handle');
+      let startY = 0;
+      let currentY = 0;
+      let dragging = false;
+
+      handle.addEventListener('touchstart', e => {
+        if (!sheet.classList.contains('show')) return;
+        startY = e.touches[0].clientY;
+        currentY = startY;
+        dragging = true;
+        sheet.style.transition = 'none';
+      }, { passive: true });
+
+      handle.addEventListener('touchmove', e => {
+        if (!dragging) return;
+        currentY = e.touches[0].clientY;
+        const delta = Math.max(0, currentY - startY);
+        sheet.style.transform = `translateY(${delta}px)`;
+      }, { passive: true });
+
+      handle.addEventListener('touchend', () => {
+        if (!dragging) return;
+        dragging = false;
+
+        const delta = Math.max(0, currentY - startY);
+        sheet.style.transition = '';
+        sheet.style.transform = '';
+
+        if (delta > 70) {
+          closeSheets();
+        }
+      }, { passive: true });
+    });
+
+    /*
+     * Export preview overlay click handler
+     */
+    $('#saveModal').addEventListener('click', e => {
+      if (e.target !== $('#saveImg')) {
+        $('#saveModal').classList.remove('show');
       }
     });
 
-    enableRgbSplitInput.addEventListener('change', updatePreview);
-    rgbOffsetInput.addEventListener('input', updatePreview);
-    rgbOpacityInput.addEventListener('input', updatePreview);
-
-    // PNG Export Handler
-    exportBtn.addEventListener('click', () => {
-      if (!loadedImage) return;
-
-      const exportCanvas = document.createElement('canvas');
-      exportCanvas.width = loadedImage.naturalWidth || 1920;
-      exportCanvas.height = loadedImage.naturalHeight || 1080;
-
-      renderCanvasEffects(exportCanvas, loadedImage, getOptions());
-
-      const link = document.createElement('a');
-      link.download = 'exported-image.png';
-      link.href = exportCanvas.toDataURL('image/png');
-      link.click();
-    });
+    renderStyles(); 
+    renderToggles(); 
+    wireEffectControls(); 
+    render(); 
+    renderConnectionStatus(); 
+    oauth(); 
+    if (state.token) load();
   </script>
 </body>
+
 </html>
