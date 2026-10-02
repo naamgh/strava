@@ -8,7 +8,7 @@
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo+Black&family=Big+Shoulders+Display:wght@900&family=Bricolage+Grotesque:opsz,wght@12..96,800&family=Dela+Gothic+One&family=JetBrains+Mono:wght@500;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo+Black&family=Big+Shoulders+Display:wght@900&family=Bowlby+One&family=Bricolage+Grotesque:opsz,wght@12..96,800&family=Dela+Gothic+One&family=Inter+Tight:wght@100&family=JetBrains+Mono:wght@500;800&family=Oswald:wght@200;300;700&family=Outfit:wght@100..900&family=Rubik:wght@800;900&family=Saira+Extra+Condensed:wght@200;900&family=Unbounded:wght@200;900&display=swap" rel="stylesheet">
   <style>
     :root {
       --bg: #08090c;
@@ -1398,6 +1398,45 @@
 
     .k-monolith .k-fill { font-family: Anton, Impact, sans-serif; letter-spacing: -.01em; margin-top: 5cqw; }
     .k-monolith .k-fill small { font-size: .2em; letter-spacing: .04em; margin-left: .1em; vertical-align: top; position: relative; top: .3em; }
+    /* Hairline — Inter Tight 100 */
+    .k-hairline .k-fill { font-family: "Inter Tight", sans-serif; font-weight: 100; letter-spacing: -.06em; line-height: .8; margin: 3cqw 0 4cqw -1cqw; }
+    .k-hairline .k-dot { color: var(--acc); font-weight: 900; }
+    .k-hairline .k-row { display: flex; justify-content: space-between; gap: 3cqw; border-top: .25cqw solid currentColor; padding-top: 3cqw; }
+    /* Weight Shift — Outfit 100 → 900 */
+    .k-weightshift .k-fill { font-family: Outfit, sans-serif; letter-spacing: -.04em; line-height: .8; margin-top: 3cqw; }
+    .k-weightshift .k-meta { display: grid; gap: 2cqw; margin-top: 6cqw; }
+    .k-weightshift .k-meta b { display: block; font-family: Outfit, sans-serif; font-size: 9cqw; line-height: 1; margin-top: 1cqw; letter-spacing: -.03em; }
+    /* Condensed Column — Saira Extra Condensed 900 / 200 */
+    .k-column .k-grid { display: grid; grid-template-columns: 56% 1fr; column-gap: 4cqw; row-gap: 1.5cqw; align-items: end; margin-top: 3cqw; }
+    .k-column .k-fill { font-family: "Saira Extra Condensed", sans-serif; font-weight: 900; line-height: .78; letter-spacing: -.01em; }
+    .k-column .k-lab { font-family: "Saira Extra Condensed", sans-serif; font-weight: 200; font-size: 6.4cqw; line-height: .95; text-transform: uppercase; letter-spacing: .02em; padding-bottom: .6cqw; }
+    /* One Family — Unbounded 900 / 200 */
+    .k-onefamily .k-fill.big { font-family: Unbounded, sans-serif; font-weight: 900; letter-spacing: -.05em; line-height: .85; margin-top: 3cqw; }
+    .k-onefamily .k-fill.word { font-family: Unbounded, sans-serif; font-weight: 200; line-height: 1; margin: 1.5cqw 0 6cqw; }
+    .k-onefamily .k-uf { display: flex; justify-content: space-between; gap: 3cqw; }
+    .k-onefamily .k-uf span { display: block; font-family: Unbounded, sans-serif; font-weight: 200; font-size: 2.8cqw; letter-spacing: .1em; text-transform: uppercase; }
+    .k-onefamily .k-uf b { display: block; font-family: Unbounded, sans-serif; font-weight: 900; font-size: 6.4cqw; margin-top: 1cqw; letter-spacing: -.03em; white-space: nowrap; }
+    /* Fade Stack — Oswald 700 / 300 / 200 */
+    .k-fadestack .k-fill { font-family: Oswald, sans-serif; text-transform: uppercase; line-height: .95; letter-spacing: -.01em; }
+    .k-fadestack .w7 { font-weight: 700; } .k-fadestack .w3 { font-weight: 300; } .k-fadestack .w2 { font-weight: 200; }
+    .k-fadestack .k-head { margin-bottom: 3cqw; }
+    /* Big Unit — Rubik 900 */
+    .k-bigunit .k-fill { font-family: Rubik, sans-serif; font-weight: 900; line-height: .75; letter-spacing: -.06em; color: var(--acc); margin-top: 3cqw; }
+    .k-bigunit .k-num { position: relative; font-family: Rubik, sans-serif; font-weight: 900; font-size: 22cqw; line-height: .85; letter-spacing: -.04em; margin-top: -16cqw; white-space: nowrap; }
+    .k-bigunit .k-row { display: flex; justify-content: space-between; gap: 3cqw; margin-top: 4cqw; }
+    /* Pills — Rubik 800 */
+    .k-pills .k-pw { display: flex; flex-wrap: wrap; gap: 2.4cqw; align-items: center; }
+    .k-p { font-family: Rubik, sans-serif; font-weight: 800; border-radius: 999px; line-height: 1; white-space: nowrap; letter-spacing: -.02em; }
+    .k-p small { font-size: .45em; letter-spacing: 0; opacity: .7; margin-left: .15em; }
+    .k-p1 { background: var(--acc); color: #111; font-size: 20cqw; padding: 3cqw 6cqw 3.6cqw; }
+    .k-p2 { background: #fff; color: #111; font-size: 10cqw; padding: 2.6cqw 5cqw 3cqw; }
+    .k-p3 { border: .7cqw solid currentColor; font-size: 8cqw; padding: 2.2cqw 4.4cqw 2.6cqw; }
+    .k-p4 { background: #111; color: #fff; font-size: 6.6cqw; padding: 2.2cqw 4.4cqw 2.6cqw; }
+    .k-pills .k-tiny { width: 100%; margin-top: 1cqw; }
+
+    .k-knockout .k-ko { color: var(--acc); margin-top: 3cqw; }
+    .k-knockout .k-ko canvas { display: block; width: 100%; }
+    .k-knockout .k-row { display: flex; justify-content: space-between; gap: 3cqw; margin-top: 4cqw; }
     .k-monolith .k-row { display: flex; justify-content: space-between; gap: 3cqw; margin-top: 5cqw; border-top: .6cqw solid currentColor; padding-top: 3cqw; }
 
     .k-stack .k-line { font-family: "Archivo Black", sans-serif; text-transform: uppercase; letter-spacing: -.035em; line-height: .86; display: flex; justify-content: space-between; align-items: flex-start; }
@@ -1712,7 +1751,7 @@
   <script>
     const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)]; 
     const profiles = { run: { title: 1, distance: 1, time: 1, pace: 1, elevation: 0, heart: 1, power: 0, route: 0, elevProfile: 0, splits: 1, date: 1 }, ride: { title: 1, distance: 1, time: 1, pace: 1, elevation: 1, heart: 1, power: 1, route: 1, elevProfile: 0, splits: 0, date: 1 }, minimal: { title: 1, distance: 1, time: 1, pace: 1, elevation: 0, heart: 0, power: 0, route: 0, elevProfile: 0, splits: 0, date: 0 }, all: { title: 1, distance: 1, time: 1, pace: 1, elevation: 1, heart: 1, power: 1, route: 1, elevProfile: 1, splits: 1, date: 1 } }; 
-    const styleDefs = [{ key: 'monolith', name: 'Monolith' }, { key: 'stack', name: 'Stack' }, { key: 'ticket', name: 'Ticket' }, { key: 'echo', name: 'Echo' }, { key: 'sticker', name: 'Sticker' }, { key: 'routehero', name: 'Route Hero' }, { key: 'splits', name: 'Splits Wall' }];
+    const styleDefs = [{ key: 'monolith', name: 'Monolith' }, { key: 'stack', name: 'Stack' }, { key: 'ticket', name: 'Ticket' }, { key: 'echo', name: 'Echo' }, { key: 'knockout', name: 'Knockout' }, { key: 'sticker', name: 'Sticker' }, { key: 'routehero', name: 'Route Hero' }, { key: 'splits', name: 'Splits Wall' }, { key: 'hairline', name: 'Hairline' }, { key: 'weightshift', name: 'Weight Shift' }, { key: 'column', name: 'Column' }, { key: 'onefamily', name: 'One Family' }, { key: 'fadestack', name: 'Fade Stack' }, { key: 'bigunit', name: 'Big Unit' }, { key: 'pills', name: 'Pills' }];
     const profileLabels = { run: 'Running Default', ride: 'Cycling Default', minimal: 'Minimal Core', all: 'All Data' }; 
     const moduleLabels = { title: 'Title', distance: 'Distance', time: 'Time', pace: 'Pace / Speed', elevation: 'Elevation', heart: 'Heart Rate', power: 'Power', route: 'Route Map', elevProfile: 'Elevation Profile', splits: 'Splits', date: 'Date' }; 
     
@@ -2178,6 +2217,49 @@
         ${state.mods.route ? routeSvgK(true) : '<div style="height:6cqw"></div>'}
         <div class="k-fill"><span class="k-t">${c.hero.n}${c.hero.u ? '<span class="k-acc">K</span>' : ''}</span></div>
         ${c.stats.length ? `<div class="k-strip">${c.stats.slice(0, 4).map(kStat).join('')}</div>` : ''}`,
+      hairline: c => `${kHead(c)}
+        <div class="k-fill"><span class="k-t">${c.hero.n}<span class="k-dot">.</span></span></div>
+        ${c.stats.length ? `<div class="k-row">${c.stats.slice(0, 4).map(kStat).join('')}</div>` : ''}`,
+      weightshift: c => {
+        const ch = [...c.hero.n], n = ch.length, meta = c.stats.slice(0, 3), mw = [200, 500, 900];
+        return `<div class="k-between k-head"><span class="k-tiny">${c.left}</span><span class="k-tiny">${c.hero.u ? 'Kilometres' : 'Moving time'}</span></div>
+          <div class="k-fill"><span class="k-t">${ch.map((x, i) => `<span${i === n - 1 ? ' class="k-acc"' : ''} style="font-weight:${Math.round(100 + 800 * i / Math.max(1, n - 1))}">${x}</span>`).join('')}</span></div>
+          ${meta.length ? `<div class="k-meta" style="grid-template-columns:repeat(${meta.length},1fr)">${meta.map((s, i) => `<div><span class="k-tiny">${s.k}</span><b style="font-weight:${mw[i + 3 - meta.length]}">${s.v}</b></div>`).join('')}</div>` : ''}`;
+      },
+      column: c => {
+        const LAB = { Time: 'Moving<br>time', Pace: 'Min<br>per km', Speed: 'Km<br>per hour', Elev: 'Metres<br>climbed', HR: 'Beats<br>per min', Power: 'Average<br>watts' };
+        const rows = [{ v: c.hero.n, lab: c.hero.u ? 'Kilo&shy;metres' : 'Moving<br>time' }].concat(c.stats.slice(0, 2).map(s => ({ v: s.v, lab: LAB[s.k] || s.k })));
+        return `<span class="k-tiny">${c.left}${c.right ? ' · ' + c.right : ''}</span>
+          <div class="k-grid">${rows.map((r, i) => `<div class="k-fill${i === rows.length - 1 && i ? ' k-acc' : ''}"><span class="k-t">${r.v}</span></div><div class="k-lab">${r.lab}</div>`).join('')}</div>`;
+      },
+      onefamily: c => {
+        const meta = c.stats.slice(0, 3);
+        return `${kHead(c)}
+          <div class="k-fill big"><span class="k-t">${c.hero.n}</span></div>
+          <div class="k-fill word"><span class="k-t">${c.hero.u ? 'KILOMETRES' : 'MOVING TIME'}</span></div>
+          ${meta.length ? `<div class="k-uf">${meta.map((s, i) => `<div><span>${s.k}</span><b${i === meta.length - 1 ? ' class="k-acc"' : ''}>${s.v}</b></div>`).join('')}</div>` : ''}`;
+      },
+      fadestack: c => {
+        const lines = [c.hero.n + (c.hero.u ? ' KM' : '')].concat(c.stats.slice(0, 2).map(s => s.k === 'Time' ? s.v + ' TIME' : s.long));
+        const w = ['w7', 'w3', 'w2'];
+        return `${kHead(c)}${lines.map((t, i) => `<div class="k-fill ${w[i]}${i === lines.length - 1 && i ? ' k-acc' : ''}"><span class="k-t">${t}</span></div>`).join('')}`;
+      },
+      bigunit: c => `${kHead(c)}
+        <div class="k-fill"><span class="k-t">${c.hero.u || 'TIME'}</span></div>
+        <div class="k-num">${c.hero.n}</div>
+        ${c.stats.length ? `<div class="k-row">${c.stats.slice(0, 3).map(kStat).join('')}</div>` : ''}`,
+      pills: c => {
+        const cls = ['k-p2', 'k-p3', 'k-p4', 'k-p4'];
+        const pill = (s, i) => {
+          const m = s.long.match(/^(\S+)\s+(.+)$/);
+          return `<span class="k-p ${cls[i]}">${m && i ? `${m[1]}<small>${m[2].toLowerCase()}</small>` : s.v}</span>`;
+        };
+        return `<div class="k-pw"><span class="k-p k-p1">${c.hero.n}${c.hero.u ? '<small>km</small>' : ''}</span>${c.stats.slice(0, 4).map(pill).join('')}
+          <span class="k-tiny">${c.left}${c.right ? ' — ' + c.right : ''}</span></div>`;
+      },
+      knockout: c => `${kHead(c)}
+        <div class="k-ko"><canvas data-text="${esc(c.hero.n)}" data-unit="${c.hero.u}"></canvas></div>
+        ${c.stats.length ? `<div class="k-row">${c.stats.slice(0, 4).map(kStat).join('')}</div>` : ''}`,
       splits: c => `<span class="k-tiny">${c.ride ? 'Splits' : 'KM splits'} · fastest highlighted</span>
         ${barsHtml(false)}
         <div class="k-big"><span>${c.paceVal}</span><span class="k-tiny">avg ${c.ride ? 'speed' : 'pace'}<br>${c.paceUnit}</span></div>
@@ -2194,11 +2276,35 @@
         if (t.offsetWidth) t.style.fontSize = (100 * avail / t.offsetWidth).toFixed(2) + 'px';
       });
       outlineEcho(root);
-      root.querySelectorAll('.k-fill:not(.k-e) > .k-t, .k-e.solid > .k-t, .k-e canvas, .k-ticket .k-u, .k-s1, .k-s2, .k-splits .k-big > span:first-child, .k-sum').forEach(e => e.classList.add('k-gr'));
+      drawKnockouts(root);
+      root.querySelectorAll('.k-fill:not(.k-e) > .k-t, .k-e.solid > .k-t, .k-e canvas, .k-ko canvas, .k-bigunit .k-num, .k-p1, .k-p2, .k-ticket .k-u, .k-s1, .k-s2, .k-splits .k-big > span:first-child, .k-sum').forEach(e => e.classList.add('k-gr'));
       root.querySelectorAll('.k-shrink, .k-sum').forEach(el => {
         el.style.fontSize = '';
         const max = el.parentElement.clientWidth * .96 - (parseFloat(getComputedStyle(el).marginLeft) || 0);
         for (let i = 0; i < 3 && el.offsetWidth > max; i++) el.style.fontSize = (parseFloat(getComputedStyle(el).fontSize) * max / el.offsetWidth * .98).toFixed(2) + 'px';
+      });
+    }
+
+    // KNOCKOUT: an accent slab with the number cut out, so the photo shows through the digits.
+    // Drawn on a canvas because html2canvas can't use web fonts inside SVG masks.
+    function drawKnockouts(root) {
+      root.querySelectorAll('.k-ko canvas').forEach(cv => {
+        const W = cv.parentElement.clientWidth, H = Math.round(W * .62), k = 3;
+        if (!W) return;
+        const font = n => `${n}px "Bowlby One"`;
+        if (!document.fonts.check(font(40))) document.fonts.load(font(40)).then(() => drawKnockouts(root));
+        cv.width = W * k; cv.height = H * k; cv.style.height = H + 'px';
+        const x = cv.getContext('2d'); x.scale(k, k);
+        x.fillStyle = getComputedStyle(cv.parentElement).color;
+        x.beginPath(); x.roundRect ? x.roundRect(0, 0, W, H, W * .025) : x.rect(0, 0, W, H); x.fill();
+        x.globalCompositeOperation = 'destination-out';
+        const text = cv.dataset.text, unit = cv.dataset.unit, pad = W * .05;
+        x.font = font(100);
+        const m = x.measureText(text), cap = m.actualBoundingBoxAscent || 72;
+        const fs = Math.min(100 * (W - pad * 2) * .94 / m.width, 100 * H * .62 / cap);
+        x.font = font(fs); x.textAlign = 'center'; x.textBaseline = 'alphabetic';
+        x.fillText(text, W / 2, H / 2 + (cap * fs / 100) / 2);
+        if (unit) { x.font = font(fs * .17); x.textAlign = 'right'; x.textBaseline = 'top'; x.fillText(unit, W - pad * .8, pad * .7) }
       });
     }
 
@@ -2567,8 +2673,9 @@
     } 
 
     // ─── Studio UI (Style / Data / Colour / Grain tools) ─────────────────────
-    const STYLE_FONTS = { monolith: 'Anton', stack: '"Archivo Black"', ticket: '"Big Shoulders Display"', echo: '"Bricolage Grotesque"', sticker: '"Dela Gothic One"', routehero: 'Anton', splits: '"Archivo Black"' };
-    const STAT_MAX = { monolith: 4, ticket: 3, echo: 3, routehero: 4 };   // how many stats each card's stat row can show
+    const STYLE_FONTS = { monolith: 'Anton', stack: '"Archivo Black"', ticket: '"Big Shoulders Display"', echo: '"Bricolage Grotesque"', knockout: '"Bowlby One"', sticker: '"Dela Gothic One"', routehero: 'Anton', splits: '"Archivo Black"', hairline: '"Inter Tight"', weightshift: 'Outfit', column: '"Saira Extra Condensed"', onefamily: 'Unbounded', fadestack: 'Oswald', bigunit: 'Rubik', pills: 'Rubik' };
+    const STYLE_WEIGHTS = { hairline: 100, weightshift: 900, column: 900, onefamily: 900, fadestack: 700, bigunit: 900, pills: 800 };
+    const STAT_MAX = { monolith: 4, ticket: 3, echo: 3, knockout: 4, routehero: 4, hairline: 4, weightshift: 3, column: 2, onefamily: 3, fadestack: 2, bigunit: 3, pills: 4 };   // how many stats each card's stat row can show
     const icon = id => `<svg class="ic"><use href="#i-${id}"/></svg>`;
 
     // Every panel gets the tallest panel's height, so switching tools never resizes the card.
@@ -2594,7 +2701,7 @@
     }
 
     function renderStyles() {
-      $('#styleStrip').innerHTML = styleDefs.map((s, i) => `<button type="button" class="st-style${state.style === s.key ? ' on' : ''}" data-i="${i}" style="font-family:${STYLE_FONTS[s.key]}">${s.name}</button>`).join('');
+      $('#styleStrip').innerHTML = styleDefs.map((s, i) => `<button type="button" class="st-style${state.style === s.key ? ' on' : ''}" data-i="${i}" style="font-family:${STYLE_FONTS[s.key]}${STYLE_WEIGHTS[s.key] ? ';font-weight:' + STYLE_WEIGHTS[s.key] : ''}">${s.name}</button>`).join('');
       $$('#styleStrip .st-style').forEach(b => b.onclick = () => setStyleByIndex(b.dataset.i));
     }
     function setStyleByIndex(i) {
