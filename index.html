@@ -1409,6 +1409,8 @@
     .k-sentence { font-family: "Inter Tight", sans-serif; font-weight: 300; line-height: 1.45; letter-spacing: -.01em; }
     .k-label { font-family: "Instrument Sans", sans-serif; font-weight: 400; line-height: 1.4; }
     .k-label .k-ql + .k-ql { opacity: .72; }
+    .k-log { font-family: "JetBrains Mono", ui-monospace, monospace; font-weight: 500; line-height: 1.55; letter-spacing: 0; }
+    .k-log .gap { display: inline-block; width: 1.6em; }
 
     /* ── Splits cards ── */
     .k-axis { display: flex; gap: 1.3cqw; margin-top: 1.6cqw; }
@@ -1841,15 +1843,15 @@
   <script>
     const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)]; 
     const profiles = { swim: { title: 1, distance: 1, time: 1, pace: 1, elevation: 0, heart: 1, power: 0, route: 0, elevProfile: 0, splits: 1, date: 1 }, run: { title: 1, distance: 1, time: 1, pace: 1, elevation: 0, heart: 1, power: 0, route: 0, elevProfile: 0, splits: 1, date: 1 }, ride: { title: 1, distance: 1, time: 1, pace: 1, elevation: 1, heart: 1, power: 1, route: 1, elevProfile: 0, splits: 0, date: 1 }, minimal: { title: 1, distance: 1, time: 1, pace: 1, elevation: 0, heart: 0, power: 0, route: 0, elevProfile: 0, splits: 0, date: 0 }, all: { title: 1, distance: 1, time: 1, pace: 1, elevation: 1, heart: 1, power: 1, route: 1, elevProfile: 1, splits: 1, date: 1 } }; 
-    const styleDefs = [{ key: 'monolith', name: 'Monolith' }, { key: 'stack', name: 'Stack' }, { key: 'ticket', name: 'Ticket' }, { key: 'echo', name: 'Echo' }, { key: 'knockout', name: 'Knockout' }, { key: 'sticker', name: 'Sticker' }, { key: 'routehero', name: 'Route Hero' }, { key: 'splits', name: 'Splits Wall' }, { key: 'hairline', name: 'Hairline' }, { key: 'weightshift', name: 'Weight Shift' }, { key: 'column', name: 'Column' }, { key: 'onefamily', name: 'One Family' }, { key: 'fadestack', name: 'Fade Stack' }, { key: 'bigunit', name: 'Big Unit' }, { key: 'pills', name: 'Pills' }, { key: 'splitflag', name: 'Fastest Split' }, { key: 'splitbars', name: 'Split Bars' }, { key: 'ladder', name: 'Ladder' }, { key: 'splitline', name: 'Split Line' }, { key: 'fasthero', name: 'Fastest Hero' }, { key: 'halves', name: 'Halves' }, { key: 'caption', name: 'Caption' }, { key: 'sentence', name: 'Sentence' }, { key: 'label', name: 'Label' }];
+    const styleDefs = [{ key: 'monolith', name: 'Monolith' }, { key: 'stack', name: 'Stack' }, { key: 'ticket', name: 'Ticket' }, { key: 'echo', name: 'Echo' }, { key: 'knockout', name: 'Knockout' }, { key: 'sticker', name: 'Sticker' }, { key: 'routehero', name: 'Route Hero' }, { key: 'splits', name: 'Splits Wall' }, { key: 'hairline', name: 'Hairline' }, { key: 'weightshift', name: 'Weight Shift' }, { key: 'column', name: 'Column' }, { key: 'onefamily', name: 'One Family' }, { key: 'fadestack', name: 'Fade Stack' }, { key: 'bigunit', name: 'Big Unit' }, { key: 'pills', name: 'Pills' }, { key: 'splitflag', name: 'Fastest Split' }, { key: 'splitbars', name: 'Split Bars' }, { key: 'ladder', name: 'Ladder' }, { key: 'splitline', name: 'Split Line' }, { key: 'fasthero', name: 'Fastest Hero' }, { key: 'halves', name: 'Halves' }, { key: 'caption', name: 'Caption' }, { key: 'sentence', name: 'Sentence' }, { key: 'label', name: 'Label' }, { key: 'log', name: 'Log' }];
     const STYLE_CATEGORIES = [
       ['Bold', ['monolith', 'stack', 'ticket', 'echo', 'knockout', 'sticker', 'bigunit', 'pills']],
       ['Type', ['hairline', 'weightshift', 'column', 'onefamily', 'fadestack']],
       ['Splits', ['splitflag', 'splitbars', 'ladder', 'splitline', 'fasthero', 'halves', 'splits', 'routehero']],
-      ['Quiet', ['caption', 'sentence', 'label']]
+      ['Quiet', ['caption', 'sentence', 'label', 'log']]
     ];
     { const order = STYLE_CATEGORIES.flatMap(c => c[1]); styleDefs.sort((a, b) => order.indexOf(a.key) - order.indexOf(b.key)) }   // swiping walks category by category
-    const QUIET_STYLES = new Set(['caption', 'sentence', 'label']);   // understated: no graphics appended
+    const QUIET_STYLES = new Set(['caption', 'sentence', 'label', 'log']);   // understated: no graphics appended
     const SPLIT_STYLES = new Set(['splits', 'splitflag', 'splitbars', 'ladder', 'splitline', 'fasthero', 'halves']);   // cards that are already all about splits
     const profileLabels = { run: 'Running Default', ride: 'Cycling Default', minimal: 'Minimal Core', all: 'All Data' }; 
     const moduleLabels = { title: 'Title', distance: 'Distance', time: 'Time', pace: 'Pace / Speed', elevation: 'Elevation', heart: 'Heart Rate', power: 'Power', route: 'Route Map', elevProfile: 'Elevation Profile', splits: 'Splits', date: 'Date' }; 
@@ -2393,10 +2395,19 @@
         const l2 = [m.date ? q.when : ''].concat(rest).filter(Boolean).slice(0, 3).join(', ');
         return `<div class="k-quiet k-sentence">${ql(l1)}${l2 ? ql(cap(l2) + '.') : ''}</div>`;
       },
+      log: c => {
+        const q = quietFacts(c), m = state.mods, a = state.detail?.activity || state.activity || {};
+        const d = a.start_date_local ? new Date(a.start_date_local.replace('Z', '')) : a.start_date ? new Date(a.start_date) : new Date();
+        const p2 = n => String(n).padStart(2, '0'), gap = '<span class="gap"> </span>';
+        const stamp = `${d.getFullYear()}.${p2(d.getMonth() + 1)}.${p2(d.getDate())}${gap}${p2(d.getHours())}:${p2(d.getMinutes())}`;
+        const l1 = [m.date ? stamp : '', m.title ? q.name.toLowerCase() : ''].filter(Boolean).join(gap);
+        const l2 = q.facts.slice(0, 3).join(gap);
+        return `<div class="k-quiet k-log">${l1 ? ql(l1) : ''}${l2 ? ql(l2) : ''}</div>`;
+      },
       label: c => {
         const q = quietFacts(c), m = state.mods;
         const l1 = [m.title ? q.name : '', m.date ? c.date : ''].filter(Boolean).join(', ');
-        const l2 = q.facts.slice(0, 3).join(' — ');
+        const l2 = q.facts.slice(0, 3).join(', ');
         return `<div class="k-quiet k-label">${l1 ? ql(l1) : ''}${l2 ? ql(l2) : ''}</div>`;
       },
 
@@ -2942,9 +2953,9 @@
     } 
 
     // ─── Studio UI (Style / Data / Colour / Grain tools) ─────────────────────
-    const STYLE_FONTS = { monolith: 'Anton', stack: '"Archivo Black"', ticket: '"Big Shoulders Display"', echo: '"Bricolage Grotesque"', knockout: '"Bowlby One"', sticker: '"Dela Gothic One"', routehero: 'Anton', splits: '"Archivo Black"', hairline: '"Inter Tight"', weightshift: 'Outfit', column: '"Saira Extra Condensed"', onefamily: 'Unbounded', fadestack: 'Oswald', bigunit: 'Rubik', pills: 'Rubik', splitflag: '"Archivo Black"', splitbars: '"Archivo Black"', ladder: '"Inter Tight"', splitline: '"Inter Tight"', fasthero: 'Anton', halves: 'Rubik', caption: '"Hanken Grotesk"', sentence: '"Inter Tight"', label: '"Instrument Sans"' };
-    const STYLE_WEIGHTS = { hairline: 100, weightshift: 900, column: 900, onefamily: 900, fadestack: 700, bigunit: 900, pills: 800, ladder: 100, splitline: 800, halves: 900, caption: 500, sentence: 300, label: 400 };
-    const STAT_MAX = { monolith: 4, ticket: 3, echo: 3, knockout: 4, routehero: 4, caption: 2, sentence: 3, label: 2, hairline: 4, weightshift: 3, column: 2, onefamily: 3, fadestack: 2, bigunit: 3, pills: 4 };   // how many stats each card's stat row can show
+    const STYLE_FONTS = { monolith: 'Anton', stack: '"Archivo Black"', ticket: '"Big Shoulders Display"', echo: '"Bricolage Grotesque"', knockout: '"Bowlby One"', sticker: '"Dela Gothic One"', routehero: 'Anton', splits: '"Archivo Black"', hairline: '"Inter Tight"', weightshift: 'Outfit', column: '"Saira Extra Condensed"', onefamily: 'Unbounded', fadestack: 'Oswald', bigunit: 'Rubik', pills: 'Rubik', splitflag: '"Archivo Black"', splitbars: '"Archivo Black"', ladder: '"Inter Tight"', splitline: '"Inter Tight"', fasthero: 'Anton', halves: 'Rubik', caption: '"Hanken Grotesk"', sentence: '"Inter Tight"', label: '"Instrument Sans"', log: '"JetBrains Mono"' };
+    const STYLE_WEIGHTS = { hairline: 100, weightshift: 900, column: 900, onefamily: 900, fadestack: 700, bigunit: 900, pills: 800, ladder: 100, splitline: 800, halves: 900, caption: 500, sentence: 300, label: 400, log: 500 };
+    const STAT_MAX = { monolith: 4, ticket: 3, echo: 3, knockout: 4, routehero: 4, caption: 2, sentence: 3, label: 2, log: 2, hairline: 4, weightshift: 3, column: 2, onefamily: 3, fadestack: 2, bigunit: 3, pills: 4 };   // how many stats each card's stat row can show
     const icon = id => `<svg class="ic"><use href="#i-${id}"/></svg>`;
 
     // Every panel gets the tallest panel's height, so switching tools never resizes the card.
@@ -2975,25 +2986,28 @@
       $('#styleStrip').innerHTML = STYLE_CATEGORIES.map(([cat, keys]) => `
         <div class="st-shelf">
           <div class="st-shelf-h"><span>${cat}<small>${keys.length}</small></span><span class="st-shelf-nav">
-            <button type="button" class="st-nb" data-dir="-1" aria-label="Previous ${cat} styles"><svg class="ic"><use href="#i-left"/></svg></button>
-            <button type="button" class="st-nb" data-dir="1" aria-label="More ${cat} styles"><svg class="ic"><use href="#i-right"/></svg></button></span></div>
+            <button type="button" class="st-nb" data-dir="-1" aria-label="Previous ${cat} style"><svg class="ic"><use href="#i-left"/></svg></button>
+            <button type="button" class="st-nb" data-dir="1" aria-label="Next ${cat} style"><svg class="ic"><use href="#i-right"/></svg></button></span></div>
           <div class="st-thumbs">${keys.map(k => `<button type="button" class="st-th${state.style === k ? ' on' : ''}" data-key="${k}" aria-label="${name(k)}"><span class="st-th-box"><span class="st-th-card" data-key="${k}"></span></span><span class="st-th-name">${name(k)}</span></button>`).join('')}</div>
         </div>`).join('');
       $$('#styleStrip .st-th').forEach(b => b.onclick = () => setStyleByIndex(styleDefs.findIndex(d => d.key === b.dataset.key)));
       $$('#styleStrip .st-shelf').forEach(sh => {
         const row = sh.querySelector('.st-thumbs'), [prev, next] = sh.querySelectorAll('.st-nb');
-        const sync = () => { prev.disabled = row.scrollLeft < 4; next.disabled = row.scrollLeft + row.clientWidth > row.scrollWidth - 4 };
-        sh.querySelectorAll('.st-nb').forEach(b => b.onclick = () => { row.scrollBy({ left: +b.dataset.dir * row.clientWidth * .8, behavior: 'smooth' }); setTimeout(sync, 350) });
-        row.addEventListener('scroll', sync, { passive: true }); sync();
+        const keys = [...row.querySelectorAll('.st-th')].map(t => t.dataset.key);
+        // ‹ › step to the previous/next style in this row and loop round; from another row they start at its first (or last) style.
+        sh.querySelectorAll('.st-nb').forEach(btn => btn.onclick = () => {
+          const dir = +btn.dataset.dir, at = keys.indexOf(state.style);
+          const k = at < 0 ? keys[dir > 0 ? 0 : keys.length - 1] : keys[(at + dir + keys.length) % keys.length];
+          setStyleByIndex(styleDefs.findIndex(d => d.key === k));
+        });
       });
       thumbsDirty = true;
     }
     function revealActiveThumb(smooth) {
       const b = $('#styleStrip .st-th.on'); if (!b) return;
       const row = b.parentElement, sh = b.closest('.st-shelf'), panel = $('[data-panel="style"]');
-      row.scrollTo({ left: Math.max(0, b.offsetLeft - row.offsetLeft - 8), behavior: smooth ? 'smooth' : 'auto' });
+      row.scrollTo({ left: Math.max(0, b.offsetLeft - row.offsetLeft - (row.clientWidth - b.offsetWidth) / 2), behavior: smooth ? 'smooth' : 'auto' });
       if (sh.offsetTop < panel.scrollTop || sh.offsetTop + sh.offsetHeight > panel.scrollTop + panel.clientHeight) panel.scrollTo({ top: sh.offsetTop - panel.offsetTop - 6, behavior: smooth ? 'smooth' : 'auto' });
-      setTimeout(() => row.dispatchEvent(new Event('scroll')), smooth ? 400 : 0);
     }
     // Live mini renders of every style with the current activity, accent and text colour.
     let thumbsDirty = true, thumbTimer = 0;
