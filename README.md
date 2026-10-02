@@ -1,86 +1,66 @@
-# Strava Activity Overlay Studio
+# Indoor Training Console
 
-Mobile-first social overlay generator for runners and cyclists.
+A single-page indoor cycling app: a library of 500+ structured workouts, ERG control of a
+smart trainer over Web Bluetooth, live power / heart rate / cadence, auto-pause, ramp and
+20-minute FTP tests, and `.fit` + summary-image export for Strava.
 
-## Stack
+Everything runs in the browser. There is no backend and nothing is uploaded: your FTP,
+favourites and Strava connection stay in the browser's storage on your machine, and
+exports download to your computer.
 
-- Frontend: standalone HTML/CSS/JS
-- Backend: Vercel serverless functions
-- Data source: Strava API
+## Files
 
-## Features
+| File | Purpose |
+|---|---|
+| `index.html` | The app, with the workout library embedded |
+| `manifest.webmanifest`, `sw.js`, `icon*.png`, `icon.svg` | Make it installable and give it an offline fallback |
+| `library-gen.js`, `library-builder.html` | Regenerate the workout library (optional) |
 
-- Connect Strava account
-- Import latest activities
-- Restyle activity overlays for Instagram/TikTok
-- Export story-ready PNGs
+## Publishing on GitHub Pages
 
-## Setup
+1. Create a repository (public — Pages on a private repo needs a paid plan).
+2. Upload every file in this folder to the repository root.
+3. In the repository: **Settings → Pages → Build and deployment → Source: Deploy from a branch**,
+   branch `main`, folder `/ (root)`. Save.
+4. After a minute or two the site is live at `https://<username>.github.io/<repo>/`.
 
-## 1. Create Strava API app
+To update the app later, upload the new `index.html` over the old one. Browsers pick it up
+on the next open (the service worker is network-first, so a fresh copy always wins when
+you're online).
 
-Go to:
-https://www.strava.com/settings/api
+## Using it
 
-Create an app.
+Open the URL in **Chrome or Edge** — Web Bluetooth isn't available in Firefox or Safari.
+Chrome on Android works too; iPhone needs a third-party browser such as Bluefy.
 
-Set Authorization Callback Domain to:
+Press **Connect trainer** (and **Connect HR** if you wear a strap) and pick the device from the
+list — Chrome asks each time you open the app. Set your FTP (and max HR, for the heart-rate
+zone chart) in the Rider box at the bottom of the filter panel, pick a workout and
+press **Start Workout**. The Guide button at the bottom of the filter panel has the short
+version of everything, including keyboard shortcuts.
 
-```text
-localhost
-```
+**Install as an app:** in Chrome, the install icon in the address bar (or menu → *Install
+Indoor Training Console*) gives you a frameless window and an icon in the Start menu.
 
-Later replace with your production domain.
+## Uploading straight to Strava
 
-## 2. Add environment variables
+Press **Connect** on the Strava row, approve on Strava's consent page, and you're back in the
+app with your name on the row. After a ride, **Sync to Strava** on the summary sends the .fit
+and links to the new activity. Tokens are kept in that browser's storage only. The summary image
+still has to be attached by hand; Strava's API doesn't accept photos.
 
-Inside Vercel:
+How it works: the app is registered with Strava once (the owner's API application). Its secret
+lives in a small Cloudflare Worker (`cloudflare-worker.js` in this repo) that performs the
+token exchange; the browser talks to Strava directly for everything else. Strava caps a new
+application at 10 connected athletes until you request an increase from developers.strava.com.
 
-```text
-STRAVA_CLIENT_ID=
-STRAVA_CLIENT_SECRET=
-```
+To run your own copy of the Worker: create a Worker on Cloudflare, paste `cloudflare-worker.js`,
+add `STRAVA_CLIENT_ID`, `STRAVA_CLIENT_SECRET` (secret) and `ALLOWED_ORIGIN` (your Pages
+origin) under Settings → Variables, then set `STRAVA_APP_ID` and `STRAVA_PROXY` near the top
+of the Strava section in `index.html`.
 
-## 3. Deploy to Vercel
+## Regenerating the library
 
-Import GitHub repo into Vercel.
-
-Vercel automatically supports the `/api` folder.
-
-## OAuth Flow
-
-Frontend opens:
-
-```text
-https://www.strava.com/oauth/authorize
-```
-
-User approves access.
-
-Strava redirects back with:
-
-```text
-?code=...
-```
-
-Frontend exchanges code through:
-
-```text
-/api/strava/exchange
-```
-
-Then fetches activities from:
-
-```text
-/api/strava/activities
-```
-
-## Next Steps
-
-- Add Connect Strava button
-- Activity picker sheet
-- Polyline route rendering
-- Auto-generated route art
-- Reel/story export presets
-- Transparent PNG export
-- Activity sticker packs
+Open `library-builder.html` from the hosted site (or locally through a server), press
+**Generate library**, review, then **Download index.html** and upload that over the
+existing one.
