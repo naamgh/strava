@@ -1435,7 +1435,7 @@
     .k-ladder .k-big small { margin-left: .2em; font-size: .2em; font-weight: 800; letter-spacing: .04em; }
     .k-lr { display: grid; grid-template-columns: 10cqw 1fr 16cqw; align-items: center; gap: 2.4cqw; height: 6.6cqw; }
     .k-lr .n { font-family: "JetBrains Mono", monospace; font-size: 3cqw; font-weight: 800; opacity: .7; text-align: right; }
-    .k-lr .bar { height: 3.4cqw; border-radius: 0 1cqw 1cqw 0; background: currentColor; }
+    .k-lr .bar { display: block; height: 3.4cqw; max-width: none; margin: 0; justify-self: start; border-radius: 0 1cqw 1cqw 0; background: currentColor; }   /* left-aligned; overrides the old toolbar .bar rule */
     .k-lr .v { font-family: "Inter Tight", sans-serif; font-weight: 100; font-size: 5.4cqw; text-align: right; letter-spacing: -.02em; }
     .k-lr.best .bar { background: var(--acc); }
     .k-lr.best .v { font-weight: 800; color: var(--acc); }
@@ -3024,10 +3024,11 @@
         slot.style.transform = `translate(-50%, -50%) scale(${sc.toFixed(4)})`; slot.style.width = W + 'px';
       });
     }
-    // Presets adapt to the style: Bold cards default to no splits strip. A hand-picked chip (profile 'custom') is left alone.
+    // Presets adapt to the style: Bold and Type cards default to no splits strip. A hand-picked chip (profile 'custom') is left alone.
     function styleDefaults() {
       if (!profiles[state.profile]) return;
-      state.mods.splits = STYLE_CATEGORIES[0][1].includes(state.style) ? 0 : profiles[state.profile].splits;
+      const noSplits = [...STYLE_CATEGORIES[0][1], ...STYLE_CATEGORIES[1][1]];   // Bold + Type
+      state.mods.splits = noSplits.includes(state.style) ? 0 : profiles[state.profile].splits;
     }
     function setStyleByIndex(i) {
       i = ((+i || 0) % styleDefs.length + styleDefs.length) % styleDefs.length;
