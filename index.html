@@ -8,7 +8,7 @@
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo+Black&family=Big+Shoulders+Display:wght@900&family=Bowlby+One&family=Bricolage+Grotesque:opsz,wght@12..96,800&family=Dela+Gothic+One&family=Inter+Tight:wght@100&family=JetBrains+Mono:wght@500;800&family=Oswald:wght@200;300;700&family=Outfit:wght@100..900&family=Rubik:wght@800;900&family=Saira+Extra+Condensed:wght@200;900&family=Unbounded:wght@200;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo+Black&family=Big+Shoulders+Display:wght@900&family=Bowlby+One&family=Bricolage+Grotesque:opsz,wght@12..96,800&family=Dela+Gothic+One&family=Hanken+Grotesk:wght@500&family=Instrument+Sans:wght@400&family=Inter+Tight:wght@100;300;800&family=JetBrains+Mono:wght@500;800&family=Oswald:wght@200;300;700&family=Outfit:wght@100..900&family=Rubik:wght@800;900&family=Saira+Extra+Condensed:wght@200;900&family=Unbounded:wght@200;900&display=swap" rel="stylesheet">
   <style>
     :root {
       --bg: #08090c;
@@ -1386,7 +1386,9 @@
     .overlay { container-type: inline-size; --card-accent: #ff4d1a; }
     .weekly-export-stage { container-type: inline-size; --card-accent: #ff4d1a; text-transform: none; }
     .k-card { --acc: var(--card-accent); }
-    .k-tiny { font-family: "JetBrains Mono", ui-monospace, monospace; font-weight: 500; font-size: 2.7cqw; letter-spacing: .18em; text-transform: uppercase; opacity: .62; line-height: 1.3; }
+    .k-tiny { font-family: "JetBrains Mono", ui-monospace, monospace; font-weight: 800; font-size: 3.4cqw; letter-spacing: .12em; text-transform: uppercase; opacity: .82; line-height: 1.3; }
+    .k-between > .k-tiny:first-child:not(:only-child) { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }   /* long activity titles trim instead of hitting the date */
+    .k-between > .k-tiny:last-child:not(:only-child) { flex: none; }
     .k-mono { font-family: "JetBrains Mono", ui-monospace, monospace; font-weight: 800; font-size: 4.6cqw; line-height: 1.1; white-space: nowrap; }
     .k-fill { white-space: nowrap; line-height: .8; }
     .k-fill > .k-t { display: inline-block; }
@@ -1398,6 +1400,70 @@
 
     .k-monolith .k-fill { font-family: Anton, Impact, sans-serif; letter-spacing: -.01em; margin-top: 5cqw; }
     .k-monolith .k-fill small { font-size: .2em; letter-spacing: .04em; margin-left: .1em; vertical-align: top; position: relative; top: .3em; }
+    /* ── Quiet cards: one or two lines, every word the same size, nothing emphasised ── */
+    .k-quiet { white-space: nowrap; }
+    .k-quiet .k-ql { display: block; }
+    .k-quiet .k-ql > span { display: inline-block; }
+    .k-caption { font-family: "Hanken Grotesk", sans-serif; font-weight: 500; letter-spacing: -.005em; text-align: center; }
+    .k-caption .sep { opacity: .5; margin: 0 .55em; }
+    .k-sentence { font-family: "Inter Tight", sans-serif; font-weight: 300; line-height: 1.45; letter-spacing: -.01em; }
+    .k-label { font-family: "Instrument Sans", sans-serif; font-weight: 400; line-height: 1.4; }
+    .k-label .k-ql + .k-ql { opacity: .72; }
+
+    /* ── Splits cards ── */
+    .k-axis { display: flex; gap: 1.3cqw; margin-top: 1.6cqw; }
+    .k-axis span { flex: 1; min-width: 0; text-align: center; font-family: "JetBrains Mono", monospace; font-size: 2.6cqw; font-weight: 800; opacity: .65; overflow: hidden; }
+    .k-nosplits { margin-top: 6cqw; font-family: "JetBrains Mono", monospace; font-size: 3.4cqw; opacity: .7; }
+    .k-bars2 { display: flex; align-items: flex-end; gap: 1.3cqw; }
+    .k-bars2 i { flex: 1; min-width: 0; position: relative; display: block; background: currentColor; }
+    .k-bars2 i.best { background: var(--acc); }
+    .k-splitflag .k-bars2 { height: 58cqw; margin-top: 22cqw; }
+    .k-flag { position: absolute; bottom: calc(100% + 2cqw); left: 50%; transform: translateX(-50%); text-align: center; white-space: nowrap; }
+    .k-flag.r { left: auto; right: 0; transform: none; text-align: right; }
+    .k-flag.l { left: 0; transform: none; text-align: left; }
+    .k-flag .k-tiny { display: block; opacity: .85; }
+    .k-flag b { display: block; margin-top: 1cqw; font-family: "Archivo Black", sans-serif; font-size: 12cqw; line-height: .9; letter-spacing: -.04em; color: var(--acc); }
+    .k-sf-foot { margin-top: 5cqw; }
+    .k-sf-foot b { font-family: "Archivo Black", sans-serif; font-size: 7cqw; letter-spacing: -.03em; font-weight: 400; }
+    .k-sb-head b { font-family: "Saira Extra Condensed", sans-serif; font-weight: 900; font-size: 15cqw; line-height: .8; }
+    .k-splitbars .k-bars2 { height: 92cqw; margin-top: 5cqw; }
+    /* Time printed up the bar: rotated with a transform (html2canvas can't do writing-mode). */
+    .k-splitbars .k-bars2 i span { position: absolute; top: 2cqw; right: 50%; transform-origin: 100% 0; transform: rotate(-90deg) translateY(-50%); font-family: "Archivo Black", sans-serif; line-height: 1; letter-spacing: -.01em; color: #111; white-space: nowrap; }
+    .k-ladder .k-big { margin: 2cqw 0 5cqw; font-family: "Inter Tight", sans-serif; font-weight: 100; font-size: 24cqw; line-height: .8; letter-spacing: -.05em; white-space: nowrap; }
+    .k-ladder .k-big small { margin-left: .2em; font-size: .2em; font-weight: 800; letter-spacing: .04em; }
+    .k-lr { display: grid; grid-template-columns: 10cqw 1fr 16cqw; align-items: center; gap: 2.4cqw; height: 6.6cqw; }
+    .k-lr .n { font-family: "JetBrains Mono", monospace; font-size: 3cqw; font-weight: 800; opacity: .7; text-align: right; }
+    .k-lr .bar { height: 3.4cqw; border-radius: 0 1cqw 1cqw 0; background: currentColor; }
+    .k-lr .v { font-family: "Inter Tight", sans-serif; font-weight: 100; font-size: 5.4cqw; text-align: right; letter-spacing: -.02em; }
+    .k-lr.best .bar { background: var(--acc); }
+    .k-lr.best .v { font-weight: 800; color: var(--acc); }
+    .k-sl { position: relative; margin: 10cqw 0 4cqw; }
+    .k-sl svg { display: block; width: 100%; height: auto; overflow: visible; }
+    .k-sl .ln { fill: none; stroke: currentColor; stroke-width: .5; }
+    .k-sl .ar { fill: currentColor; opacity: .08; }
+    .k-sl .dot { fill: currentColor; }
+    .k-sl .dot.best { fill: var(--acc); }
+    .k-sl .lab { position: absolute; transform: translate(-50%, -100%); padding-bottom: 1.6cqw; font-family: "Inter Tight", sans-serif; font-weight: 800; font-size: 5.4cqw; white-space: nowrap; }
+    .k-sl .lab.lo { transform: translate(-50%, 0); padding: 1.6cqw 0 0; }
+    .k-sl .lab.r { transform: translate(-100%, -100%); } .k-sl .lab.lo.r { transform: translate(-100%, 0); }
+    .k-sl .lab.l { transform: translate(0, -100%); } .k-sl .lab.lo.l { transform: translate(0, 0); }
+    .k-sl .lab.best { color: var(--acc); }
+    .k-splitline .k-big { font-family: "Inter Tight", sans-serif; font-weight: 800; font-size: 14cqw; line-height: .85; letter-spacing: -.04em; white-space: nowrap; }
+    .k-fasthero .k-eyebrow { font-family: "JetBrains Mono", monospace; font-weight: 800; font-size: 3.4cqw; letter-spacing: .14em; color: var(--acc); }
+    .k-fasthero .k-fill { margin-top: 4cqw; }
+    .k-fasthero .k-fill .k-t { font-family: Anton, Impact, sans-serif; line-height: .8; letter-spacing: -.01em; }
+    .k-spark { display: flex; align-items: flex-end; gap: .9cqw; height: 12cqw; margin-top: 5cqw; }
+    .k-spark i { flex: 1; display: block; background: currentColor; opacity: .45; }
+    .k-spark i.best { background: var(--acc); opacity: 1; }
+    .k-fasthero .k-row { display: flex; justify-content: space-between; gap: 3cqw; margin-top: 4cqw; }
+    .k-badge { display: inline-block; padding: 1.6cqw 3.4cqw 2cqw; border-radius: 999px; background: var(--acc); color: #111; font-family: Rubik, sans-serif; font-weight: 900; font-size: 4.4cqw; }
+    .k-halves .k-fill { margin-top: 4cqw; }
+    .k-halves .k-fill .k-t { font-family: Rubik, sans-serif; font-weight: 900; line-height: .85; letter-spacing: -.05em; }
+    .k-hv { display: grid; grid-template-columns: 1fr 1fr; gap: 3cqw; margin-top: 5cqw; }
+    .k-hv .bar { height: 3cqw; margin: 2cqw 0; background: currentColor; opacity: .45; }
+    .k-hv .fast .bar { background: var(--acc); opacity: 1; }
+    .k-hv b { font-family: "Inter Tight", sans-serif; font-weight: 100; font-size: 11cqw; line-height: 1; letter-spacing: -.04em; white-space: nowrap; }
+
     /* Hairline — Inter Tight 100 */
     .k-hairline .k-fill { font-family: "Inter Tight", sans-serif; font-weight: 100; letter-spacing: -.06em; line-height: .8; margin: 3cqw 0 4cqw -1cqw; }
     .k-hairline .k-dot { color: var(--acc); font-weight: 900; }
@@ -1414,7 +1480,7 @@
     .k-onefamily .k-fill.big { font-family: Unbounded, sans-serif; font-weight: 900; letter-spacing: -.05em; line-height: .85; margin-top: 3cqw; }
     .k-onefamily .k-fill.word { font-family: Unbounded, sans-serif; font-weight: 200; line-height: 1; margin: 1.5cqw 0 6cqw; }
     .k-onefamily .k-uf { display: flex; justify-content: space-between; gap: 3cqw; }
-    .k-onefamily .k-uf span { display: block; font-family: Unbounded, sans-serif; font-weight: 200; font-size: 2.8cqw; letter-spacing: .1em; text-transform: uppercase; }
+    .k-onefamily .k-uf span { display: block; font-family: Unbounded, sans-serif; font-weight: 200; font-size: 3.4cqw; letter-spacing: .08em; text-transform: uppercase; }
     .k-onefamily .k-uf b { display: block; font-family: Unbounded, sans-serif; font-weight: 900; font-size: 6.4cqw; margin-top: 1cqw; letter-spacing: -.03em; white-space: nowrap; }
     /* Fade Stack — Oswald 700 / 300 / 200 */
     .k-fadestack .k-fill { font-family: Oswald, sans-serif; text-transform: uppercase; line-height: .95; letter-spacing: -.01em; }
@@ -1750,8 +1816,10 @@
   <div class="toast" id="toast"></div>
   <script>
     const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)]; 
-    const profiles = { run: { title: 1, distance: 1, time: 1, pace: 1, elevation: 0, heart: 1, power: 0, route: 0, elevProfile: 0, splits: 1, date: 1 }, ride: { title: 1, distance: 1, time: 1, pace: 1, elevation: 1, heart: 1, power: 1, route: 1, elevProfile: 0, splits: 0, date: 1 }, minimal: { title: 1, distance: 1, time: 1, pace: 1, elevation: 0, heart: 0, power: 0, route: 0, elevProfile: 0, splits: 0, date: 0 }, all: { title: 1, distance: 1, time: 1, pace: 1, elevation: 1, heart: 1, power: 1, route: 1, elevProfile: 1, splits: 1, date: 1 } }; 
-    const styleDefs = [{ key: 'monolith', name: 'Monolith' }, { key: 'stack', name: 'Stack' }, { key: 'ticket', name: 'Ticket' }, { key: 'echo', name: 'Echo' }, { key: 'knockout', name: 'Knockout' }, { key: 'sticker', name: 'Sticker' }, { key: 'routehero', name: 'Route Hero' }, { key: 'splits', name: 'Splits Wall' }, { key: 'hairline', name: 'Hairline' }, { key: 'weightshift', name: 'Weight Shift' }, { key: 'column', name: 'Column' }, { key: 'onefamily', name: 'One Family' }, { key: 'fadestack', name: 'Fade Stack' }, { key: 'bigunit', name: 'Big Unit' }, { key: 'pills', name: 'Pills' }];
+    const profiles = { swim: { title: 1, distance: 1, time: 1, pace: 1, elevation: 0, heart: 1, power: 0, route: 0, elevProfile: 0, splits: 1, date: 1 }, run: { title: 1, distance: 1, time: 1, pace: 1, elevation: 0, heart: 1, power: 0, route: 0, elevProfile: 0, splits: 1, date: 1 }, ride: { title: 1, distance: 1, time: 1, pace: 1, elevation: 1, heart: 1, power: 1, route: 1, elevProfile: 0, splits: 0, date: 1 }, minimal: { title: 1, distance: 1, time: 1, pace: 1, elevation: 0, heart: 0, power: 0, route: 0, elevProfile: 0, splits: 0, date: 0 }, all: { title: 1, distance: 1, time: 1, pace: 1, elevation: 1, heart: 1, power: 1, route: 1, elevProfile: 1, splits: 1, date: 1 } }; 
+    const styleDefs = [{ key: 'monolith', name: 'Monolith' }, { key: 'stack', name: 'Stack' }, { key: 'ticket', name: 'Ticket' }, { key: 'echo', name: 'Echo' }, { key: 'knockout', name: 'Knockout' }, { key: 'sticker', name: 'Sticker' }, { key: 'routehero', name: 'Route Hero' }, { key: 'splits', name: 'Splits Wall' }, { key: 'hairline', name: 'Hairline' }, { key: 'weightshift', name: 'Weight Shift' }, { key: 'column', name: 'Column' }, { key: 'onefamily', name: 'One Family' }, { key: 'fadestack', name: 'Fade Stack' }, { key: 'bigunit', name: 'Big Unit' }, { key: 'pills', name: 'Pills' }, { key: 'splitflag', name: 'Fastest Split' }, { key: 'splitbars', name: 'Split Bars' }, { key: 'ladder', name: 'Ladder' }, { key: 'splitline', name: 'Split Line' }, { key: 'fasthero', name: 'Fastest Hero' }, { key: 'halves', name: 'Halves' }, { key: 'caption', name: 'Caption' }, { key: 'sentence', name: 'Sentence' }, { key: 'label', name: 'Label' }];
+    const QUIET_STYLES = new Set(['caption', 'sentence', 'label']);   // understated: no graphics appended
+    const SPLIT_STYLES = new Set(['splits', 'splitflag', 'splitbars', 'ladder', 'splitline', 'fasthero', 'halves']);   // cards that are already all about splits
     const profileLabels = { run: 'Running Default', ride: 'Cycling Default', minimal: 'Minimal Core', all: 'All Data' }; 
     const moduleLabels = { title: 'Title', distance: 'Distance', time: 'Time', pace: 'Pace / Speed', elevation: 'Elevation', heart: 'Heart Rate', power: 'Power', route: 'Route Map', elevProfile: 'Elevation Profile', splits: 'Splits', date: 'Date' }; 
     
@@ -1775,16 +1843,16 @@
     function openSheet(id) { let sheet = $(id), isOpen = sheet.classList.contains('show'); closeSheets(); if (!isOpen) { $('#sheetBackdrop').classList.add('show'); sheet.classList.add('show') } } 
     function closeSheets() { $('#sheetBackdrop').classList.remove('show'); $$('.sheet').forEach(s => s.classList.remove('show')) } 
     function fmtTime(sec) { sec = Math.round(sec || 0); let h = Math.floor(sec / 3600), m = Math.floor(sec % 3600 / 60), s = sec % 60; return h ? `${h}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}` : `${m}:${String(s).padStart(2, '0')}` } 
-    function kind(t) { t = (t || 'Run').toLowerCase(); return t.includes('ride') || t.includes('bike') || t.includes('cycle') ? 'Ride' : t.includes('walk') ? 'Walk' : t.includes('hike') ? 'Hike' : 'Run' } 
+    function kind(t) { t = (t || 'Run').toLowerCase(); return t.includes('swim') ? 'Swim' : t.includes('ride') || t.includes('bike') || t.includes('cycle') ? 'Ride' : t.includes('walk') ? 'Walk' : t.includes('hike') ? 'Hike' : 'Run' } 
     function distKm(a) { return +(a.distance_km || ((a.distance || 0) / 1000).toFixed(1)) } 
-    function paceText(a) { let k = kind(a.type || a.sport_type), km = distKm(a), sec = a.moving_time || 0; if (k === 'Ride') return `${(a.average_speed_kmh || ((a.average_speed || 0) * 3.6).toFixed(1))} KM/H`; let p = sec / km, m = Math.floor(p / 60), s = Math.round(p % 60); return km ? `${m}:${String(s).padStart(2, '0')} /KM` : '--' } 
-    function data() { let a = state.detail?.activity || state.activity || {}; return { title: esc((a.name || 'SELECT ACTIVITY').toUpperCase()), type: kind(a.sport_type || a.type), distance: (distKm(a) || 12.4).toFixed(1), time: fmtTime(a.moving_time || 3482), pace: a.id ? paceText(a) : '4:41 /KM', elevation: '+' + Math.round(a.total_elevation_gain ?? a.elevation_m ?? 214) + 'M', heart: a.average_heartrate ? Math.round(a.average_heartrate) + ' BPM' : a.id ? '--' : '152 BPM', power: a.average_watts ? Math.round(a.average_watts) + ' W' : '--', date: a.start_date ? new Date(a.start_date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) : '' } } 
+    function paceText(a) { let k = kind(a.type || a.sport_type), km = distKm(a), sec = a.moving_time || 0; if (k === 'Swim') return a.distance ? paceStr(sec / (a.distance / 100)) + ' /100M' : '--'; if (k === 'Ride') return `${(a.average_speed_kmh || ((a.average_speed || 0) * 3.6).toFixed(1))} KM/H`; const exactKm = a.distance ? a.distance / 1000 : km; return exactKm ? paceStr(sec / exactKm) + ' /KM' : '--' }   // exact metres, like Strava; the card shows 1-dp km 
+    function data() { let a = state.detail?.activity || state.activity || {}; return { title: esc((a.name || 'SELECT ACTIVITY').toUpperCase()), type: kind(a.sport_type || a.type), distance: (distKm(a) || 12.4).toFixed(1), distM: a.distance || (a.id ? 0 : 12400), time: fmtTime(a.moving_time || 3482), pace: a.id ? paceText(a) : '4:41 /KM', elevation: '+' + Math.round(a.total_elevation_gain ?? a.elevation_m ?? 214) + 'M', heart: a.average_heartrate ? Math.round(a.average_heartrate) + ' BPM' : a.id ? '--' : '152 BPM', power: a.average_watts ? Math.round(a.average_watts) + ' W' : '--', date: a.start_date ? new Date(a.start_date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) : '' } } 
     function pointsToPath(points, w = 300, h = 160, pad = 10) { if (!points || points.length < 2) return 'M20 120 C 70 30, 120 145, 160 78 S 230 40, 280 110'; let xs = points.map(p => p[1]), ys = points.map(p => p[0]), minX = Math.min(...xs), maxX = Math.max(...xs), minY = Math.min(...ys), maxY = Math.max(...ys), sx = (w - pad * 2) / (maxX - minX || 1), sy = (h - pad * 2) / (maxY - minY || 1), sample = points.filter((_, i) => i % Math.ceil(points.length / 90) === 0); return sample.map((p, i) => `${i ? 'L' : 'M'}${((p[1] - minX) * sx + pad).toFixed(1)} ${((maxY - p[0]) * sy + pad).toFixed(1)}`).join(' ') } 
     function elevPath(vals, w = 320, h = 80) { if (!vals || vals.length < 2) vals = [20, 40, 32, 70, 44, 90, 76, 110, 80, 120]; let min = Math.min(...vals), max = Math.max(...vals), sample = vals.filter((_, i) => i % Math.ceil(vals.length / 90) === 0), path = sample.map((v, i) => { let x = i / (sample.length - 1) * w, y = h - ((v - min) / (max - min || 1)) * h; return `${i ? 'L' : 'M'}${x.toFixed(1)} ${y.toFixed(1)}` }).join(' '); return { line: path, fill: `${path} L${w} ${h} L0 ${h} Z` } } 
     function routeSvg() { let path = pointsToPath(state.detail?.streams?.latlng?.data); return `<div class='routebox'><svg viewBox='0 0 300 160'><path class='route-path' d='${path}'/></svg></div>` } 
     function elevationSvg() { let ep = elevPath(state.detail?.streams?.altitude?.data); return `<div class='elevbox'><svg viewBox='0 0 320 80'><path class='elev-fill' d='${ep.fill}'/><path class='elev-path' d='${ep.line}'/></svg></div>` } 
     function getLaps() { let laps = (state.detail?.laps || []).filter(l => l.pace_sec_per_km); if (!laps.length && data().type === 'Run') laps = [292, 287].map((p, i) => ({ index: i + 1, pace_sec_per_km: p })); return laps } 
-    function paceStr(p) { let m = Math.floor(p / 60), s = Math.round(p % 60); return `${m}:${String(s).padStart(2, '0')}` } 
+    function paceStr(p) { p = Math.round(p); let m = Math.floor(p / 60), s = p % 60; return `${m}:${String(s).padStart(2, '0')}` } 
     
     function splitsHtml() {
       const laps = getLaps();
@@ -2127,54 +2195,122 @@
       return `<svg viewBox="0 0 100 ${g.h}"><path class="k-route" d="${g.d}"/>${withDot ? `<circle class="k-dot" cx="${g.start[0].toFixed(1)}" cy="${g.start[1].toFixed(1)}" r="2.6"/>` : ''}</svg>`;
     }
 
-    // Per-unit splits as speeds (m/s): km for runs, 5 km for rides (10 km if long).
-    function splitSpeeds() {
-      const s = state.detail?.streams || {}, D = s.distance?.data || [], T = s.time?.data || [];
-      const ride = data().type === 'Ride';
-      if (D.length > 10 && D.length === T.length) {
-        const total = D[D.length - 1], unit = ride ? (total > 80000 ? 10000 : 5000) : 1000, out = [];
-        let next = unit, t0 = T[0];
-        for (let i = 1; i < D.length; i++) if (D[i] >= next) { out.push(unit / Math.max(1, T[i] - t0)); t0 = T[i]; next += unit }
-        const rest = total - (next - unit);
-        if (rest > unit * .5) out.push(rest / Math.max(1, T[T.length - 1] - t0));
-        if (out.length >= 2) return out;
+    // ─── Splits engine (run / ride / swim) ───────────────────────────────────
+    // Cumulative distance + MOVING time, from streams (pauses removed, like Strava) or else laps.
+    const SPLIT_UNITS = { Ride: [5000, 10000, 20000], Swim: [100, 200, 500] };   // anything else: 1/2/5 km
+    function splitTrack() {
+      const st = state.detail?.streams || {}, D0 = st.distance?.data || [], T0 = st.time?.data || [], mv = st.moving?.data;
+      if (D0.length > 10 && D0.length === T0.length) {
+        if (mv?.length === T0.length) {
+          const T = [0];
+          for (let i = 1; i < T0.length; i++) T.push(T[i - 1] + (mv[i] ? T0[i] - T0[i - 1] : 0));
+          return { D: D0, T };
+        }
+        return { D: D0, T: T0 };
       }
-      const laps = (state.detail?.laps || []).filter(l => l.pace_sec_per_km);
-      if (laps.length >= 2) return laps.map(l => 1000 / l.pace_sec_per_km);
-      if (!state.activity) return [3.3, 3.4, 3.45, 3.38, 3.5, 3.55, 3.48, 3.6, 3.65, 3.8];
-      return [];
+      const D = [0], T = [0];
+      (state.detail?.laps || []).forEach(l => { if (l.distance > 0) { D.push(D[D.length - 1] + l.distance); T.push(T[T.length - 1] + (l.moving_time || l.elapsed_time || 0)) } });
+      return D.length >= 2 ? { D, T } : null;
+    }
+    function splitData() {
+      const sport = data().type, cands = SPLIT_UNITS[sport] || [1000, 2000, 5000], tr = splitTrack();
+      let items = [], unit = cands[0];
+      if (tr) {
+        const { D, T } = tr, d0 = D[0], total = D[D.length - 1] - d0;
+        unit = cands.find(u => total / u <= 16) || cands[cands.length - 1];
+        let next = unit, tPrev = T[0];
+        for (let i = 1; i < D.length; i++) {
+          while (D[i] - d0 >= next) {
+            const f = (next - (D[i - 1] - d0)) / ((D[i] - D[i - 1]) || 1), tb = T[i - 1] + (T[i] - T[i - 1]) * Math.max(0, Math.min(1, f));
+            items.push({ dist: unit, time: Math.max(1, tb - tPrev), end: next }); tPrev = tb; next += unit;
+          }
+        }
+        const rest = total - (next - unit);
+        if (rest > unit * .5) items.push({ dist: rest, time: Math.max(1, T[T.length - 1] - tPrev), end: total });
+      } else if (!state.activity) {
+        items = [298, 292, 290, 295, 288, 286, 284, 289, 281, 272].map((t, i) => ({ dist: 1000, time: t, end: (i + 1) * 1000 }));
+      }
+      items.forEach(x => x.speed = x.dist / x.time);
+      const swim = sport === 'Swim', ride = sport === 'Ride';
+      const fmt = x => ride ? (x.speed * 3.6).toFixed(1) : paceStr((swim ? 100 : 1000) / x.speed);
+      const at = m => swim ? String(Math.round(m)) : String(+(m / 1000).toFixed(m % 1000 ? 1 : 0));   // axis label
+      const label = swim ? unit + ' m' : unit === 1000 ? 'km' : unit / 1000 + ' km';
+      const sp = items.map(x => x.speed), best = sp.indexOf(Math.max(...sp)), worst = sp.indexOf(Math.min(...sp));
+      return { sport, unit, items, fmt, at, label, best, worst, min: Math.min(...sp), max: Math.max(...sp), swim, ride };
+    }
+    function splitSpeeds() { return splitData().items.map(x => x.speed) }
+    // Bar height for a split: faster = taller, never below `lo` of the full height.
+    const splitH = (sd, x, lo = .35) => ((lo + (1 - lo) * (x.speed - sd.min) / (sd.max - sd.min || 1)) * 100).toFixed(1) + '%';
+    function fastestLabel(sd, i) {
+      const u = sd.unit, a = i * u, b = sd.items[i].end;
+      if (sd.swim) return `FASTEST ${u} M · ${a}–${Math.round(b)} M`;
+      if (!sd.ride && u === 1000) return `FASTEST KM ${i + 1}`;
+      return `FASTEST ${u / 1000}K · ${a / 1000}–${+(b / 1000).toFixed(1)} KM`;
+    }
+    // Halves by distance, not by split count: exact time at the halfway point, so odd/partial splits don't matter.
+    function halvesData() {
+      const tr = splitTrack();
+      if (!tr) {
+        if (state.activity) return null;
+        const t = splitData().items.map(x => x.time), n = t.length / 2, sum = a => a.reduce((x, y) => x + y, 0);
+        return { first: sum(t.slice(0, n)), second: sum(t.slice(n)), total: 10000 };
+      }
+      const { D, T } = tr, d0 = D[0], total = D[D.length - 1] - d0, half = total / 2;
+      let th = T[T.length - 1];
+      for (let i = 1; i < D.length; i++) if (D[i] - d0 >= half) { const f = (half - (D[i - 1] - d0)) / ((D[i] - D[i - 1]) || 1); th = T[i - 1] + (T[i] - T[i - 1]) * f; break }
+      const first = th - T[0], second = T[T.length - 1] - th;
+      return first > 0 && second > 0 ? { first, second, total } : null;
     }
     function barsHtml(mini) {
-      const v = splitSpeeds(); if (v.length < 2) return '';
-      const min = Math.min(...v), max = Math.max(...v), best = v.indexOf(max);
-      return `<div class="k-bars${mini ? ' mini' : ''}">${v.map((x, i) => `<i class="${i === best ? 'best' : ''}" style="height:${(35 + 65 * (x - min) / (max - min || 1)).toFixed(1)}%"></i>`).join('')}</div>`;
+      const sd = splitData(); if (sd.items.length < 2) return '';
+      return `<div class="k-bars${mini ? ' mini' : ''}">${sd.items.map((x, i) => `<i class="${i === sd.best ? 'best' : ''}" style="height:${splitH(sd, x)}"></i>`).join('')}</div>`;
     }
-    function negSplit() {
-      const v = splitSpeeds(); if (v.length < 2) return false;
-      const h = Math.floor(v.length / 2), avg = a => a.reduce((x, y) => x + y, 0) / a.length;
-      return avg(v.slice(-h)) > avg(v.slice(0, h));
-    }
+    function negSplit() { const h = halvesData(); return !!h && h.second < h.first }
 
     function cardData() {
-      const d = data(), a = state.detail?.activity || state.activity || {}, m = state.mods, ride = d.type === 'Ride';
+      const d = data(), a = state.detail?.activity || state.activity || {}, m = state.mods, ride = d.type === 'Ride', swim = d.type === 'Swim';
       const paceVal = d.pace === '--' ? '--' : d.pace.split(' ')[0];
-      const paceUnit = ride ? 'KM/H' : '/KM';
+      const paceUnit = ride ? 'KM/H' : swim ? '/100M' : '/KM';
       const hr = d.heart === '--' ? '' : d.heart.split(' ')[0];
       const pw = d.power === '--' ? '' : d.power.replace(' ', '');
-      const dt = a.start_date ? new Date(a.start_date) : new Date();
+      const dt = a.start_date_local ? new Date(a.start_date_local.replace('Z', '')) : a.start_date ? new Date(a.start_date) : new Date();   // local wall-clock date, like Strava shows
       const date = [dt.getDate(), dt.getMonth() + 1, dt.getFullYear() % 100].map(n => String(n).padStart(2, '0')).join('.');
       const stats = [];
-      const hero = m.distance ? { n: d.distance, u: 'KM' } : { n: d.time, u: '' };
+      // Swims under 2 km read in metres ("1,500 M"); everything else in km.
+      const metres = swim && d.distM > 0 && d.distM < 2000;
+      const distText = metres ? Math.round(d.distM).toLocaleString('en-GB') + ' m' : d.distance + ' km';
+      const hero = !m.distance ? { n: d.time, u: '' } : metres ? { n: Math.round(d.distM).toLocaleString('en-GB'), u: 'M', word: 'METRES', short: 'M' } : { n: d.distance, u: 'KM', word: 'KILOMETRES', short: 'K' };
       if (m.time && m.distance) stats.push({ k: 'Time', v: d.time, long: d.time });
       if (m.pace && paceVal !== '--') stats.push({ k: ride ? 'Speed' : 'Pace', v: paceVal, long: `${paceVal} ${paceUnit}` });
-      if (m.elevation) stats.push({ k: 'Elev', v: d.elevation.replace('M', ''), long: d.elevation });
+      if (m.elevation && !swim) stats.push({ k: 'Elev', v: d.elevation.replace('M', ''), long: d.elevation });
       if (m.heart && hr) stats.push({ k: 'HR', v: hr, long: hr + ' BPM' });
       if (m.power && pw) stats.push({ k: 'Power', v: pw, long: pw });
-      return { ...d, ride, paceVal, paceUnit, hr, hero, stats, left: m.title ? d.title : d.type.toUpperCase(), right: m.date ? date : '', date };
+      return { ...d, ride, swim, distText, paceVal, paceUnit, hr, hero, stats, left: m.title ? d.title : d.type.toUpperCase(), right: m.date ? date : '', date };
     }
     const kStat = s => `<div class="k-stat"><span class="k-tiny">${s.k}</span><span class="k-mono">${s.v}</span></div>`;
+    const noSplits = c => `${kHead(c)}<div class="k-nosplits">No split data for this activity yet.</div>`;
     const kHead = c => `<div class="k-between k-head"><span class="k-tiny">${c.left}</span><span class="k-tiny">${c.right}</span></div>`;
     const heroHtml = (c, unitClass = '') => `${c.hero.n}${c.hero.u ? `<small class="${unitClass}">${c.hero.u}</small>` : ''}`;
+
+    // Quiet cards share one list of plain-language facts, in Data-chip order.
+    function quietFacts(c) {
+      const m = state.mods, a = state.detail?.activity || state.activity || {};
+      const rate = c.paceVal === '--' ? '' : c.paceVal + (c.ride ? ' km/h' : c.swim ? ' /100m' : ' /km');
+      const facts = [];
+      if (m.distance) facts.push(c.distText);
+      if (m.time) facts.push(c.time);
+      if (m.pace && rate) facts.push(rate);
+      if (m.heart && c.hr) facts.push(c.hr + ' bpm');
+      if (m.elevation && !c.swim) facts.push(c.elevation.replace('M', ' m'));
+      if (m.power && c.power !== '--') facts.push(c.power.replace(' ', ''));
+      // Strava's start_date_local is local wall-clock time marked as UTC; read it as-is.
+      const d = a.start_date_local ? new Date(a.start_date_local.replace('Z', '')) : a.start_date ? new Date(a.start_date) : new Date(), h = d.getHours();
+      const when = d.toLocaleDateString('en-GB', { weekday: 'long' }) + ' ' + (h < 12 ? 'morning' : h < 17 ? 'afternoon' : h < 21 ? 'evening' : 'night');
+      const name = a.name ? esc(a.name) : 'Sunday long run';
+      return { facts, rate, when, name };
+    }
+    const ql = t => `<span class="k-ql"><span>${t}</span></span>`;
+    const cap = t => t.charAt(0).toUpperCase() + t.slice(1);
 
     const cardRenderers = {
       monolith: c => `${kHead(c)}
@@ -2182,9 +2318,9 @@
         ${c.stats.length ? `<div class="k-row">${c.stats.slice(0, 4).map(kStat).join('')}</div>` : ''}`,
       stack: c => {
         const lines = [];
-        if (state.mods.distance) lines.push({ t: c.distance + 'K' });
+        if (state.mods.distance) lines.push({ t: c.hero.n + c.hero.short });
         if (state.mods.time) lines.push({ t: c.time, tag: 'Time' });
-        if (state.mods.pace && c.paceVal !== '--') lines.push({ t: c.paceVal + (c.ride ? 'KM/H' : '/K'), acc: 1 });
+        if (state.mods.pace && c.paceVal !== '--') lines.push({ t: c.paceVal + (c.ride ? 'KM/H' : c.swim ? '/100' : '/K'), acc: 1 });
         const extra = c.stats.filter(s => !['Time', 'Pace', 'Speed'].includes(s.k));
         return `<div class="k-between k-cap"><span class="k-tiny">${c.left}</span><span class="k-tiny">${c.right}</span></div>
           ${lines.map(l => `<div class="k-line k-fill${l.acc ? ' k-acc' : ''}"><span class="k-t">${l.t}</span>${l.tag ? `<span class="k-tiny">${l.tag}</span>` : ''}</div>`).join('')}
@@ -2193,7 +2329,7 @@
       ticket: c => {
         const route = state.mods.route ? routeSvgK(false) : '';
         return `<div class="k-box">
-            <div class="k-main"><span class="k-tiny">${c.hero.u ? 'Distance' : 'Moving time'}</span><div class="k-fill"><span class="k-t">${c.hero.n}</span></div><div class="k-u">${c.hero.u ? 'KILOMETRES' : 'H:MM:SS'}</div></div>
+            <div class="k-main"><span class="k-tiny">${c.hero.u ? 'Distance' : 'Moving time'}</span><div class="k-fill"><span class="k-t">${c.hero.n}</span></div><div class="k-u">${c.hero.u ? c.hero.word : 'H:MM:SS'}</div></div>
             <div class="k-side"><div class="k-blk">${route || `<span class="k-type">${c.type.toUpperCase()}</span>`}</div>
               ${c.stats.slice(0, 3).map(s => `<div class="k-kv"><span class="k-tiny">${s.k}</span><span class="k-mono">${s.v}</span></div>`).join('')}</div>
           </div>
@@ -2215,20 +2351,100 @@
       },
       routehero: c => `<span class="k-tiny">${c.left}${c.right ? ' · ' + c.right : ''}</span>
         ${state.mods.route ? routeSvgK(true) : '<div style="height:6cqw"></div>'}
-        <div class="k-fill"><span class="k-t">${c.hero.n}${c.hero.u ? '<span class="k-acc">K</span>' : ''}</span></div>
+        <div class="k-fill"><span class="k-t">${c.hero.n}${c.hero.u ? `<span class="k-acc">${c.hero.short}</span>` : ''}</span></div>
         ${c.stats.length ? `<div class="k-strip">${c.stats.slice(0, 4).map(kStat).join('')}</div>` : ''}`,
+      // ── Quiet cards ──
+      caption: c => `<div class="k-quiet k-caption">${ql(quietFacts(c).facts.slice(0, 3).join('<span class="sep">·</span>') || c.left)}</div>`,
+      sentence: c => {
+        const q = quietFacts(c), m = state.mods, verb = { Run: 'Ran', Ride: 'Rode', Swim: 'Swam', Walk: 'Walked', Hike: 'Hiked' }[c.type] || 'Trained';
+        const l1 = m.distance ? `${verb} ${c.distText}${m.time ? ' in ' + c.time : ''}.` : m.time ? `${verb} for ${c.time}.` : `${verb}.`;
+        const rest = q.facts.filter(f => f !== c.distText && f !== c.time);
+        const l2 = [m.date ? q.when : ''].concat(rest).filter(Boolean).slice(0, 3).join(', ');
+        return `<div class="k-quiet k-sentence">${ql(l1)}${l2 ? ql(cap(l2) + '.') : ''}</div>`;
+      },
+      label: c => {
+        const q = quietFacts(c), m = state.mods;
+        const l1 = [m.title ? q.name : '', m.date ? c.date : ''].filter(Boolean).join(', ');
+        const l2 = q.facts.slice(0, 3).join(' — ');
+        return `<div class="k-quiet k-label">${l1 ? ql(l1) : ''}${l2 ? ql(l2) : ''}</div>`;
+      },
+
+      // ── Dedicated splits cards ──
+      splitflag: c => {
+        const sd = splitData(), it = sd.items, n = it.length;
+        if (n < 2) return noSplits(c);
+        const edge = i => i > n * .66 ? ' r' : i < n * .33 ? ' l' : '';
+        return `<div class="k-between k-head"><span class="k-tiny">${c.left}</span><span class="k-tiny">${sd.label} splits</span></div>
+          <div class="k-bars2">${it.map((x, i) => `<i class="${i === sd.best ? 'best' : ''}" style="height:${splitH(sd, x)}">${i === sd.best ? `<span class="k-flag${edge(i)}"><span class="k-tiny">Fastest split</span><b>${sd.fmt(x)}</b></span>` : ''}</i>`).join('')}</div>
+          <div class="k-axis">${it.map(x => `<span>${sd.at(x.end)}</span>`).join('')}</div>
+          <div class="k-between k-sf-foot"><b>${c.distText}</b><b>${c.time}</b></div>`;
+      },
+      splitbars: c => {
+        const sd = splitData(), it = sd.items, n = it.length;
+        if (n < 2) return noSplits(c);
+        const fs = Math.min(6, 66 / n).toFixed(2);
+        return `<div class="k-between k-sb-head"><b>${c.distText.toUpperCase()}</b><span class="k-tiny">${c.left}</span></div>
+          <div class="k-bars2">${it.map((x, i) => `<i class="${i === sd.best ? 'best' : ''}" style="height:${splitH(sd, x, .5)}"><span style="font-size:${fs}cqw">${sd.fmt(x)}</span></i>`).join('')}</div>
+          <div class="k-axis">${it.map(x => `<span>${sd.at(x.end)}</span>`).join('')}</div>`;
+      },
+      ladder: c => {
+        const sd = splitData(), it = sd.items;
+        if (it.length < 2) return noSplits(c);
+        const [num, u] = c.distText.split(' ');
+        return `<span class="k-tiny">${c.left} · ${sd.label} splits</span>
+          <div class="k-big">${num}<small>${u.toUpperCase()}</small></div>
+          ${it.map((x, i) => `<div class="k-lr${i === sd.best ? ' best' : ''}"><span class="n">${sd.at(x.end)}</span><span class="bar" style="width:${splitH(sd, x, .3)}"></span><span class="v">${sd.fmt(x)}</span></div>`).join('')}`;
+      },
+      splitline: c => {
+        const sd = splitData(), it = sd.items, n = it.length;
+        if (n < 2) return noSplits(c);
+        const Hh = 46, VB = Hh + 4, pts = it.map((x, i) => [4 + i * 92 / (n - 1), 6 + (1 - (x.speed - sd.min) / (sd.max - sd.min || 1)) * (Hh - 12)]);
+        const p = pts.map((q, i) => (i ? 'L' : 'M') + q[0].toFixed(1) + ' ' + q[1].toFixed(1)).join('');
+        const lab = (i, best) => { const [x, y] = pts[i], side = x > 85 ? ' r' : x < 15 ? ' l' : ''; return `<span class="lab${best ? ' best' : ' lo'}${side}" style="left:${x}%;top:${(y / VB * 100).toFixed(1)}%">${sd.fmt(it[i])}</span>` };
+        return `<span class="k-tiny">${c.left} · ${sd.label} splits</span>
+          <div class="k-sl"><svg viewBox="0 0 100 ${VB}"><path class="ar" d="${p} L${pts[n - 1][0].toFixed(1)} ${Hh} L${pts[0][0]} ${Hh} Z"/><path class="ln" d="${p}"/>${pts.map((q, i) => `<circle class="dot${i === sd.best ? ' best' : ''}" cx="${q[0].toFixed(1)}" cy="${q[1].toFixed(1)}" r="${i === sd.best ? 1.6 : 1}"/>`).join('')}</svg>${lab(sd.best, true)}${sd.worst !== sd.best ? lab(sd.worst, false) : ''}</div>
+          <div class="k-between"><div class="k-big">${c.distText.toUpperCase()}</div><span class="k-tiny">${c.time}</span></div>`;
+      },
+      fasthero: c => {
+        const sd = splitData(), it = sd.items;
+        if (it.length < 2) return noSplits(c);
+        const b = it[sd.best], unit = sd.ride ? 'km/h' : sd.swim ? '/100 m' : '/km';
+        return `<div class="k-eyebrow">${fastestLabel(sd, sd.best)}</div>
+          <div class="k-fill"><span class="k-t">${sd.fmt(b)}</span></div>
+          <span class="k-tiny">${unit}</span>
+          <div class="k-spark">${it.map((x, i) => `<i class="${i === sd.best ? 'best' : ''}" style="height:${splitH(sd, x, .3)}"></i>`).join('')}</div>
+          <div class="k-row"><div class="k-stat"><span class="k-tiny">Distance</span><span class="k-mono">${c.distText}</span></div><div class="k-stat"><span class="k-tiny">Time</span><span class="k-mono">${c.time}</span></div><div class="k-stat"><span class="k-tiny">${sd.ride ? 'Avg speed' : 'Avg pace'}</span><span class="k-mono">${c.paceVal}</span></div></div>`;
+      },
+      halves: c => {
+        const h = halvesData();
+        if (!h) return noSplits(c);
+        const ride = c.ride, neg = h.second < h.first, even = Math.abs(h.first - h.second) / h.first < .005;
+        const spd = t => (h.total / 2 / t * 3.6).toFixed(1);
+        const delta = ride ? Math.abs(+spd(h.second) - +spd(h.first)).toFixed(1) : paceStr(Math.abs(h.first - h.second));
+        const sign = even ? '' : neg ? (ride ? '+' : '−') : (ride ? '−' : '+');
+        const show = t => ride ? spd(t) : fmtTime(t);
+        const sub = even ? 'even halves' : ride ? `km/h ${neg ? 'quicker' : 'slower'} second half` : `${neg ? 'faster' : 'slower'} second half`;
+        const w = t => (Math.min(h.first, h.second) / t * 100).toFixed(1) + '%';   // faster half fills its bar
+        return `${neg && !even ? '<span class="k-badge">NEGATIVE SPLIT</span>' : `<span class="k-tiny">${even ? 'Even split' : 'Positive split'}</span>`}
+          <div class="k-fill"><span class="k-t">${sign}${delta}</span></div>
+          <span class="k-tiny">${sub}</span>
+          <div class="k-hv">
+            <div class="a${neg ? '' : ' fast'}"><span class="k-tiny">1st half</span><div class="bar" style="width:${w(h.first)}"></div><b>${show(h.first)}</b></div>
+            <div class="b${neg ? ' fast' : ''}"><span class="k-tiny">2nd half</span><div class="bar" style="width:${w(h.second)}"></div><b>${show(h.second)}</b></div>
+          </div>`;
+      },
       hairline: c => `${kHead(c)}
         <div class="k-fill"><span class="k-t">${c.hero.n}<span class="k-dot">.</span></span></div>
         ${c.stats.length ? `<div class="k-row">${c.stats.slice(0, 4).map(kStat).join('')}</div>` : ''}`,
       weightshift: c => {
         const ch = [...c.hero.n], n = ch.length, meta = c.stats.slice(0, 3), mw = [200, 500, 900];
-        return `<div class="k-between k-head"><span class="k-tiny">${c.left}</span><span class="k-tiny">${c.hero.u ? 'Kilometres' : 'Moving time'}</span></div>
+        return `<div class="k-between k-head"><span class="k-tiny">${c.left}</span><span class="k-tiny">${c.hero.u ? (c.hero.u === 'M' ? 'Metres' : 'Kilometres') : 'Moving time'}</span></div>
           <div class="k-fill"><span class="k-t">${ch.map((x, i) => `<span${i === n - 1 ? ' class="k-acc"' : ''} style="font-weight:${Math.round(100 + 800 * i / Math.max(1, n - 1))}">${x}</span>`).join('')}</span></div>
           ${meta.length ? `<div class="k-meta" style="grid-template-columns:repeat(${meta.length},1fr)">${meta.map((s, i) => `<div><span class="k-tiny">${s.k}</span><b style="font-weight:${mw[i + 3 - meta.length]}">${s.v}</b></div>`).join('')}</div>` : ''}`;
       },
       column: c => {
-        const LAB = { Time: 'Moving<br>time', Pace: 'Min<br>per km', Speed: 'Km<br>per hour', Elev: 'Metres<br>climbed', HR: 'Beats<br>per min', Power: 'Average<br>watts' };
-        const rows = [{ v: c.hero.n, lab: c.hero.u ? 'Kilo&shy;metres' : 'Moving<br>time' }].concat(c.stats.slice(0, 2).map(s => ({ v: s.v, lab: LAB[s.k] || s.k })));
+        const LAB = { Time: 'Moving<br>time', Pace: c.swim ? 'Min<br>per 100 m' : 'Min<br>per km', Speed: 'Km<br>per hour', Elev: 'Metres<br>climbed', HR: 'Beats<br>per min', Power: 'Average<br>watts' };
+        const rows = [{ v: c.hero.n, lab: c.hero.u ? (c.hero.u === 'M' ? 'Metres' : 'Kilo&shy;metres') : 'Moving<br>time' }].concat(c.stats.slice(0, 2).map(s => ({ v: s.v, lab: LAB[s.k] || s.k })));
         return `<span class="k-tiny">${c.left}${c.right ? ' · ' + c.right : ''}</span>
           <div class="k-grid">${rows.map((r, i) => `<div class="k-fill${i === rows.length - 1 && i ? ' k-acc' : ''}"><span class="k-t">${r.v}</span></div><div class="k-lab">${r.lab}</div>`).join('')}</div>`;
       },
@@ -2236,11 +2452,11 @@
         const meta = c.stats.slice(0, 3);
         return `${kHead(c)}
           <div class="k-fill big"><span class="k-t">${c.hero.n}</span></div>
-          <div class="k-fill word"><span class="k-t">${c.hero.u ? 'KILOMETRES' : 'MOVING TIME'}</span></div>
+          <div class="k-fill word"><span class="k-t">${c.hero.u ? c.hero.word : 'MOVING TIME'}</span></div>
           ${meta.length ? `<div class="k-uf">${meta.map((s, i) => `<div><span>${s.k}</span><b${i === meta.length - 1 ? ' class="k-acc"' : ''}>${s.v}</b></div>`).join('')}</div>` : ''}`;
       },
       fadestack: c => {
-        const lines = [c.hero.n + (c.hero.u ? ' KM' : '')].concat(c.stats.slice(0, 2).map(s => s.k === 'Time' ? s.v + ' TIME' : s.long));
+        const lines = [c.hero.n + (c.hero.u ? ' ' + c.hero.u : '')].concat(c.stats.slice(0, 2).map(s => s.k === 'Time' ? s.v + ' TIME' : s.long));
         const w = ['w7', 'w3', 'w2'];
         return `${kHead(c)}${lines.map((t, i) => `<div class="k-fill ${w[i]}${i === lines.length - 1 && i ? ' k-acc' : ''}"><span class="k-t">${t}</span></div>`).join('')}`;
       },
@@ -2254,16 +2470,16 @@
           const m = s.long.match(/^(\S+)\s+(.+)$/);
           return `<span class="k-p ${cls[i]}">${m && i ? `${m[1]}<small>${m[2].toLowerCase()}</small>` : s.v}</span>`;
         };
-        return `<div class="k-pw"><span class="k-p k-p1">${c.hero.n}${c.hero.u ? '<small>km</small>' : ''}</span>${c.stats.slice(0, 4).map(pill).join('')}
+        return `<div class="k-pw"><span class="k-p k-p1">${c.hero.n}${c.hero.u ? `<small>${c.hero.u.toLowerCase()}</small>` : ''}</span>${c.stats.slice(0, 4).map(pill).join('')}
           <span class="k-tiny">${c.left}${c.right ? ' — ' + c.right : ''}</span></div>`;
       },
       knockout: c => `${kHead(c)}
         <div class="k-ko"><canvas data-text="${esc(c.hero.n)}" data-unit="${c.hero.u}"></canvas></div>
         ${c.stats.length ? `<div class="k-row">${c.stats.slice(0, 4).map(kStat).join('')}</div>` : ''}`,
-      splits: c => `<span class="k-tiny">${c.ride ? 'Splits' : 'KM splits'} · fastest highlighted</span>
+      splits: c => `<span class="k-tiny">${splitData().label} splits · fastest highlighted</span>
         ${barsHtml(false)}
         <div class="k-big"><span>${c.paceVal}</span><span class="k-tiny">avg ${c.ride ? 'speed' : 'pace'}<br>${c.paceUnit}</span></div>
-        <div class="k-between k-foot"><span class="k-tiny">${c.distance} km</span><span class="k-tiny">${c.time}</span>${c.hr ? `<span class="k-tiny">${c.hr} bpm</span>` : ''}${negSplit() ? '<span class="k-tiny">Neg split</span>' : ''}</div>`
+        <div class="k-between k-foot"><span class="k-tiny">${c.distText}</span><span class="k-tiny">${c.time}</span>${c.hr ? `<span class="k-tiny">${c.hr} bpm</span>` : ''}${negSplit() ? '<span class="k-tiny">Neg split</span>' : ''}</div>`
     };
 
     // Grow .k-fill text to the full width (minus any sibling labels); shrink .k-shrink only if it overflows.
@@ -2275,9 +2491,15 @@
         t.style.fontSize = '100px';
         if (t.offsetWidth) t.style.fontSize = (100 * avail / t.offsetWidth).toFixed(2) + 'px';
       });
+      root.querySelectorAll('.k-quiet').forEach(q => {
+        q.style.fontSize = '20px';
+        const w = Math.max(...[...q.querySelectorAll('.k-ql > span')].map(l => l.offsetWidth), 1);
+        const capPx = (q.closest('.overlay, .weekly-export-stage')?.clientWidth || 300) * .075;
+        q.style.fontSize = Math.min(capPx, 20 * q.clientWidth / w).toFixed(2) + 'px';
+      });
       outlineEcho(root);
       drawKnockouts(root);
-      root.querySelectorAll('.k-fill:not(.k-e) > .k-t, .k-e.solid > .k-t, .k-e canvas, .k-ko canvas, .k-bigunit .k-num, .k-p1, .k-p2, .k-ticket .k-u, .k-s1, .k-s2, .k-splits .k-big > span:first-child, .k-sum').forEach(e => e.classList.add('k-gr'));
+      root.querySelectorAll('.k-fill:not(.k-e) > .k-t, .k-e.solid > .k-t, .k-e canvas, .k-ko canvas, .k-bigunit .k-num, .k-p1, .k-p2, .k-ticket .k-u, .k-s1, .k-s2, .k-splits .k-big > span:first-child, .k-flag b, .k-sb-head b, .k-ladder .k-big, .k-splitline .k-big, .k-sum').forEach(e => e.classList.add('k-gr'));
       root.querySelectorAll('.k-shrink, .k-sum').forEach(el => {
         el.style.fontSize = '';
         const max = el.parentElement.clientWidth * .96 - (parseFloat(getComputedStyle(el).marginLeft) || 0);
@@ -2526,7 +2748,7 @@
 
     function render() {
       const m = state.mods, def = styleDefs.find(s => s.key === state.style) || styleDefs[0];
-      const extras = (m.elevProfile && (!state.activity || state.detail?.streams?.altitude?.data?.length > 1) ? elevationSvg() : '') + (m.splits && def.key !== 'splits' ? barsHtml(true) : '');
+      const extras = (!QUIET_STYLES.has(def.key) && m.elevProfile && (!state.activity || state.detail?.streams?.altitude?.data?.length > 1) ? elevationSvg() : '') + (m.splits && !SPLIT_STYLES.has(def.key) && !QUIET_STYLES.has(def.key) ? barsHtml(true) : '');
       $('#overlay').className = `overlay tone-${state.tone} layout-${state.layout} ${state.bg ? 'with-bg' : ''}`;
       $('#exportStage').querySelectorAll('.grain-img').forEach(e => e.remove());
       $('#overlay').innerHTML = `<div class='template k-card k-${def.key} ${state.bg ? '' : 'nobg'}'>${cardRenderers[def.key](cardData())}${extras}</div>`;
@@ -2636,13 +2858,13 @@
 
     async function importActivity(a) {
       state.activity = a; state.detail = null;
-      applyProfile(kind(a.type) === 'Ride' ? 'ride' : 'run', true);
+      applyProfile(profileFor(a.type), true);
       render();
-      toast((kind(a.type) === 'Ride' ? 'Cycling' : 'Running') + ' profile applied');
+      toast(({ Ride: 'Cycling', Swim: 'Swimming' }[kind(a.type)] || 'Running') + ' profile applied');
       try {
         const activity = await stravaGet('/activities/' + a.id);
         let streams = {};
-        try { streams = await stravaGet(`/activities/${a.id}/streams?keys=latlng,altitude,distance,time,heartrate,watts,velocity_smooth&key_by_type=true`) } catch (e) {}
+        try { streams = await stravaGet(`/activities/${a.id}/streams?keys=latlng,altitude,distance,time,moving,heartrate,watts,velocity_smooth&key_by_type=true`) } catch (e) {}
         const laps = (activity.laps || []).map((lap, i) => ({ ...lap, index: i + 1, pace_sec_per_km: lap.distance ? lap.moving_time / (lap.distance / 1000) : null }));
         state.detail = { activity, streams, laps };
         toast('Activity imported');
@@ -2687,9 +2909,9 @@
     } 
 
     // ─── Studio UI (Style / Data / Colour / Grain tools) ─────────────────────
-    const STYLE_FONTS = { monolith: 'Anton', stack: '"Archivo Black"', ticket: '"Big Shoulders Display"', echo: '"Bricolage Grotesque"', knockout: '"Bowlby One"', sticker: '"Dela Gothic One"', routehero: 'Anton', splits: '"Archivo Black"', hairline: '"Inter Tight"', weightshift: 'Outfit', column: '"Saira Extra Condensed"', onefamily: 'Unbounded', fadestack: 'Oswald', bigunit: 'Rubik', pills: 'Rubik' };
-    const STYLE_WEIGHTS = { hairline: 100, weightshift: 900, column: 900, onefamily: 900, fadestack: 700, bigunit: 900, pills: 800 };
-    const STAT_MAX = { monolith: 4, ticket: 3, echo: 3, knockout: 4, routehero: 4, hairline: 4, weightshift: 3, column: 2, onefamily: 3, fadestack: 2, bigunit: 3, pills: 4 };   // how many stats each card's stat row can show
+    const STYLE_FONTS = { monolith: 'Anton', stack: '"Archivo Black"', ticket: '"Big Shoulders Display"', echo: '"Bricolage Grotesque"', knockout: '"Bowlby One"', sticker: '"Dela Gothic One"', routehero: 'Anton', splits: '"Archivo Black"', hairline: '"Inter Tight"', weightshift: 'Outfit', column: '"Saira Extra Condensed"', onefamily: 'Unbounded', fadestack: 'Oswald', bigunit: 'Rubik', pills: 'Rubik', splitflag: '"Archivo Black"', splitbars: '"Archivo Black"', ladder: '"Inter Tight"', splitline: '"Inter Tight"', fasthero: 'Anton', halves: 'Rubik', caption: '"Hanken Grotesk"', sentence: '"Inter Tight"', label: '"Instrument Sans"' };
+    const STYLE_WEIGHTS = { hairline: 100, weightshift: 900, column: 900, onefamily: 900, fadestack: 700, bigunit: 900, pills: 800, ladder: 100, splitline: 800, halves: 900, caption: 500, sentence: 300, label: 400 };
+    const STAT_MAX = { monolith: 4, ticket: 3, echo: 3, knockout: 4, routehero: 4, caption: 2, sentence: 3, label: 2, hairline: 4, weightshift: 3, column: 2, onefamily: 3, fadestack: 2, bigunit: 3, pills: 4 };   // how many stats each card's stat row can show
     const icon = id => `<svg class="ic"><use href="#i-${id}"/></svg>`;
 
     // Every panel gets the tallest panel's height, so switching tools never resizes the card.
@@ -2749,7 +2971,7 @@
         ]
       };
     }
-    function presetOf() { return { run: 'auto', ride: 'auto', minimal: 'minimal', all: 'all' }[state.profile] || '' }
+    function presetOf() { return { run: 'auto', ride: 'auto', swim: 'auto', minimal: 'minimal', all: 'all' }[state.profile] || '' }
     function renderDataPanel() {
       const { stats, gfx } = dataItems(), m = state.mods;
       const chip = (it, val) => {
@@ -2769,9 +2991,9 @@
       });
     }
     function renderToggles() { renderDataPanel() }
+    function profileFor(t) { return { Ride: 'ride', Swim: 'swim' }[kind(t)] || 'run' }
     function applyPreset(p) {
-      const isRide = kind(state.activity?.type) === 'Ride';
-      applyProfile(p === 'auto' ? (isRide ? 'ride' : 'run') : p, true);
+      applyProfile(p === 'auto' ? profileFor(state.activity?.type) : p, true);
     }
 
     function updateActivityPill() {
