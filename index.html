@@ -1637,6 +1637,24 @@
     .st-chip:active:not(:disabled) { transform: scale(.96); }
     .st-chip .ic { width: 15px; height: 15px; stroke-width: 2; }
 
+    /* Style shelves: one swipeable row of live thumbnails per category */
+    .st-panel[data-panel="style"]:not([hidden]) { display: block; overflow-y: auto; padding-top: 10px; overscroll-behavior: contain; }
+    .st-shelf + .st-shelf { margin-top: 12px; }
+    .st-shelf-h { display: flex; justify-content: space-between; align-items: center; margin: 0 2px 7px; font-size: 12px; font-weight: 600; letter-spacing: .02em; text-transform: uppercase; color: var(--s-label2); }
+    .st-shelf-h small { margin-left: 6px; font-weight: 500; opacity: .7; }
+    .st-shelf-nav { display: flex; gap: 6px; }
+    .st-nb { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; background: var(--s-fill); color: #fff; }
+    .st-nb .ic { width: 15px; height: 15px; stroke-width: 2.4; }
+    .st-nb:disabled { opacity: .3; cursor: default; }
+    .st-thumbs { display: flex; gap: 8px; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; padding: 2px; margin: 0 -2px; overscroll-behavior-x: contain; }
+    .st-thumbs::-webkit-scrollbar { display: none; }
+    .st-th { flex: none; width: 70px; display: flex; flex-direction: column; align-items: center; gap: 5px; scroll-snap-align: start; }
+    .st-th-box { position: relative; width: 70px; height: 86px; border-radius: 12px; overflow: hidden; background: #0e0e10; }
+    .st-thumbs.light .st-th-box { background: #e8e5dc; }
+    .st-th.on .st-th-box { outline: 2px solid #fff; outline-offset: -2px; }
+    .st-th-card { position: absolute; left: 50%; top: 50%; pointer-events: none; }
+    .st-th-name { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 11px; font-weight: 600; color: var(--s-label2); }
+    .st-th.on .st-th-name { color: #fff; }
     .st-styles { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; scroll-snap-type: x proximity; padding: 2px 2px 10px; margin: 0 -2px; }
     .st-styles::-webkit-scrollbar { display: none; }
     .st-style { flex: none; scroll-snap-align: center; padding: 11px 16px 10px; border-radius: 14px; background: var(--s-fill); font-size: 20px; line-height: 1; text-transform: uppercase; transition: background .2s, color .2s; }
@@ -1723,6 +1741,7 @@
     <symbol id="i-reset" viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.4-5.7"/><path d="M4 4v4.5h4.5"/></symbol>
     <symbol id="i-share" viewBox="0 0 24 24"><path d="M12 15V3m0 0L8 7m4-4 4 4"/><path d="M7 10H6a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2h-1"/></symbol>
     <symbol id="i-right" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></symbol>
+    <symbol id="i-left" viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></symbol>
     <symbol id="i-route" viewBox="0 0 24 24"><circle cx="6" cy="18" r="2"/><circle cx="18" cy="6" r="2"/><path d="M8 18h7a3 3 0 0 0 0-6H9a3 3 0 0 1 0-6h7"/></symbol>
     <symbol id="i-bars" viewBox="0 0 24 24"><path d="M5 20v-6M10 20V9M15 20v-8M20 20V4"/></symbol>
     <symbol id="i-mount" viewBox="0 0 24 24"><path d="M3 19l6-9 4 5 3-4 5 8Z"/></symbol>
@@ -1757,8 +1776,7 @@
       </div>
 
       <section class="st-panel" data-panel="style">
-        <div class="st-styles" id="styleStrip"></div>
-        <p class="st-hint">Swipe the card left or right to change style.</p>
+        <div id="styleStrip"></div>
       </section>
 
       <section class="st-panel" data-panel="data" hidden>
@@ -1824,6 +1842,13 @@
     const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)]; 
     const profiles = { swim: { title: 1, distance: 1, time: 1, pace: 1, elevation: 0, heart: 1, power: 0, route: 0, elevProfile: 0, splits: 1, date: 1 }, run: { title: 1, distance: 1, time: 1, pace: 1, elevation: 0, heart: 1, power: 0, route: 0, elevProfile: 0, splits: 1, date: 1 }, ride: { title: 1, distance: 1, time: 1, pace: 1, elevation: 1, heart: 1, power: 1, route: 1, elevProfile: 0, splits: 0, date: 1 }, minimal: { title: 1, distance: 1, time: 1, pace: 1, elevation: 0, heart: 0, power: 0, route: 0, elevProfile: 0, splits: 0, date: 0 }, all: { title: 1, distance: 1, time: 1, pace: 1, elevation: 1, heart: 1, power: 1, route: 1, elevProfile: 1, splits: 1, date: 1 } }; 
     const styleDefs = [{ key: 'monolith', name: 'Monolith' }, { key: 'stack', name: 'Stack' }, { key: 'ticket', name: 'Ticket' }, { key: 'echo', name: 'Echo' }, { key: 'knockout', name: 'Knockout' }, { key: 'sticker', name: 'Sticker' }, { key: 'routehero', name: 'Route Hero' }, { key: 'splits', name: 'Splits Wall' }, { key: 'hairline', name: 'Hairline' }, { key: 'weightshift', name: 'Weight Shift' }, { key: 'column', name: 'Column' }, { key: 'onefamily', name: 'One Family' }, { key: 'fadestack', name: 'Fade Stack' }, { key: 'bigunit', name: 'Big Unit' }, { key: 'pills', name: 'Pills' }, { key: 'splitflag', name: 'Fastest Split' }, { key: 'splitbars', name: 'Split Bars' }, { key: 'ladder', name: 'Ladder' }, { key: 'splitline', name: 'Split Line' }, { key: 'fasthero', name: 'Fastest Hero' }, { key: 'halves', name: 'Halves' }, { key: 'caption', name: 'Caption' }, { key: 'sentence', name: 'Sentence' }, { key: 'label', name: 'Label' }];
+    const STYLE_CATEGORIES = [
+      ['Bold', ['monolith', 'stack', 'ticket', 'echo', 'knockout', 'sticker', 'bigunit', 'pills']],
+      ['Type', ['hairline', 'weightshift', 'column', 'onefamily', 'fadestack']],
+      ['Splits', ['splitflag', 'splitbars', 'ladder', 'splitline', 'fasthero', 'halves', 'splits', 'routehero']],
+      ['Quiet', ['caption', 'sentence', 'label']]
+    ];
+    { const order = STYLE_CATEGORIES.flatMap(c => c[1]); styleDefs.sort((a, b) => order.indexOf(a.key) - order.indexOf(b.key)) }   // swiping walks category by category
     const QUIET_STYLES = new Set(['caption', 'sentence', 'label']);   // understated: no graphics appended
     const SPLIT_STYLES = new Set(['splits', 'splitflag', 'splitbars', 'ladder', 'splitline', 'fasthero', 'halves']);   // cards that are already all about splits
     const profileLabels = { run: 'Running Default', ride: 'Cycling Default', minimal: 'Minimal Core', all: 'All Data' }; 
@@ -2567,6 +2592,7 @@
     const ACCENT_SWATCHES = ['#ff4d1a', '#c6ff3d', '#2b6bff', '#ff2e88', '#ffd400', '#00e0c6'];
     state.accent = (() => { try { return localStorage.getItem(ACCENT_KEY) || '#ff4d1a' } catch (e) { return '#ff4d1a' } })();
     function setAccent(hex) {
+      if (typeof scheduleThumbs === 'function') scheduleThumbs();
       state.accent = hex;
       try { localStorage.setItem(ACCENT_KEY, hex) } catch (e) {}
       ['#overlay', '#weeklyExportStage'].forEach(s => $(s).style.setProperty('--card-accent', hex));
@@ -2750,7 +2776,7 @@
     }
 
     function statBlock(label, val) { return `<div><div class='label'>${label}</div><div class='val'>${val}</div></div>` } 
-    function applyProfile(name, quiet = false) { state.profile = name; state.mods = { ...profiles[name] }; renderToggles(); render(); if (!quiet) toast(profileLabels[name] + ' applied') } 
+    function applyProfile(name, quiet = false) { state.profile = name; state.mods = { ...profiles[name] }; styleDefaults(); renderToggles(); render(); if (!quiet) toast(profileLabels[name] + ' applied') } 
 
     function render() {
       const m = state.mods, def = styleDefs.find(s => s.key === state.style) || styleDefs[0];
@@ -2761,6 +2787,7 @@
       if (state.bg) applyGlassBg($('#overlay .template'));
       renderDataPanel();
       updateActivityPill();
+      scheduleThumbs();
       sizePanels();
       fitStage();
 
@@ -2923,8 +2950,8 @@
     // Every panel gets the tallest panel's height, so switching tools never resizes the card.
     function sizePanels() {
       const ps = $$('.st-panel'); let max = 0;
-      ps.forEach(p => { const h = p.hidden; p.hidden = false; p.style.minHeight = ''; max = Math.max(max, p.offsetHeight); p.hidden = h });
-      ps.forEach(p => p.style.minHeight = max + 'px');
+      ps.forEach(p => { if (p.dataset.panel === 'style') return; const h = p.hidden; p.hidden = false; p.style.minHeight = ''; max = Math.max(max, p.offsetHeight); p.hidden = h });
+      ps.forEach(p => { if (p.dataset.panel === 'style') p.style.height = max + 'px'; else p.style.minHeight = max + 'px' });
     }
     // Cards size from their width (cqw), so a too-tall card is fixed by narrowing it.
     function fitStage() {
@@ -2940,18 +2967,61 @@
       $$('.st-tool').forEach(b => { const on = b.dataset.tool === t; b.classList.toggle('on', on); b.setAttribute('aria-selected', on) });
       $$('.st-panel').forEach(p => p.hidden = p.dataset.panel !== t);
       if (t === 'grain') { padDial(); syncDial() }
-      if (t === 'style') $('#styleStrip .on')?.scrollIntoView({ inline: 'center', block: 'nearest' });
+      if (t === 'style') { renderThumbs(); revealActiveThumb(false) }
     }
 
     function renderStyles() {
-      $('#styleStrip').innerHTML = styleDefs.map((s, i) => `<button type="button" class="st-style${state.style === s.key ? ' on' : ''}" data-i="${i}" style="font-family:${STYLE_FONTS[s.key]}${STYLE_WEIGHTS[s.key] ? ';font-weight:' + STYLE_WEIGHTS[s.key] : ''}">${s.name}</button>`).join('');
-      $$('#styleStrip .st-style').forEach(b => b.onclick = () => setStyleByIndex(b.dataset.i));
+      const name = k => styleDefs.find(d => d.key === k)?.name || k;
+      $('#styleStrip').innerHTML = STYLE_CATEGORIES.map(([cat, keys]) => `
+        <div class="st-shelf">
+          <div class="st-shelf-h"><span>${cat}<small>${keys.length}</small></span><span class="st-shelf-nav">
+            <button type="button" class="st-nb" data-dir="-1" aria-label="Previous ${cat} styles"><svg class="ic"><use href="#i-left"/></svg></button>
+            <button type="button" class="st-nb" data-dir="1" aria-label="More ${cat} styles"><svg class="ic"><use href="#i-right"/></svg></button></span></div>
+          <div class="st-thumbs">${keys.map(k => `<button type="button" class="st-th${state.style === k ? ' on' : ''}" data-key="${k}" aria-label="${name(k)}"><span class="st-th-box"><span class="st-th-card" data-key="${k}"></span></span><span class="st-th-name">${name(k)}</span></button>`).join('')}</div>
+        </div>`).join('');
+      $$('#styleStrip .st-th').forEach(b => b.onclick = () => setStyleByIndex(styleDefs.findIndex(d => d.key === b.dataset.key)));
+      $$('#styleStrip .st-shelf').forEach(sh => {
+        const row = sh.querySelector('.st-thumbs'), [prev, next] = sh.querySelectorAll('.st-nb');
+        const sync = () => { prev.disabled = row.scrollLeft < 4; next.disabled = row.scrollLeft + row.clientWidth > row.scrollWidth - 4 };
+        sh.querySelectorAll('.st-nb').forEach(b => b.onclick = () => { row.scrollBy({ left: +b.dataset.dir * row.clientWidth * .8, behavior: 'smooth' }); setTimeout(sync, 350) });
+        row.addEventListener('scroll', sync, { passive: true }); sync();
+      });
+      thumbsDirty = true;
+    }
+    function revealActiveThumb(smooth) {
+      const b = $('#styleStrip .st-th.on'); if (!b) return;
+      const row = b.parentElement, sh = b.closest('.st-shelf'), panel = $('[data-panel="style"]');
+      row.scrollTo({ left: Math.max(0, b.offsetLeft - row.offsetLeft - 8), behavior: smooth ? 'smooth' : 'auto' });
+      if (sh.offsetTop < panel.scrollTop || sh.offsetTop + sh.offsetHeight > panel.scrollTop + panel.clientHeight) panel.scrollTo({ top: sh.offsetTop - panel.offsetTop - 6, behavior: smooth ? 'smooth' : 'auto' });
+      setTimeout(() => row.dispatchEvent(new Event('scroll')), smooth ? 400 : 0);
+    }
+    // Live mini renders of every style with the current activity, accent and text colour.
+    let thumbsDirty = true, thumbTimer = 0;
+    function scheduleThumbs() { thumbsDirty = true; clearTimeout(thumbTimer); thumbTimer = setTimeout(() => { if (!$('[data-panel="style"]').hidden) renderThumbs() }, 150) }
+    function renderThumbs() {
+      if (!thumbsDirty) return; thumbsDirty = false;
+      const c = cardData(), W = 220;
+      $$('#styleStrip').forEach(r => r.querySelectorAll('.st-thumbs').forEach(t => t.classList.toggle('light', state.tone === 'black')));
+      $$('#styleStrip .st-th-card').forEach(slot => {
+        const k = slot.dataset.key, box = slot.parentElement;
+        slot.innerHTML = `<div class="overlay tone-${state.tone}" style="width:${W}px;--card-accent:${state.accent}"><div class="template k-card k-${k} nobg">${cardRenderers[k](c)}</div></div>`;
+        const ov = slot.firstElementChild; fitCards(ov);
+        const sc = Math.min((box.clientWidth - 6) / W, (box.clientHeight - 6) / ov.offsetHeight);
+        slot.style.transform = `translate(-50%, -50%) scale(${sc.toFixed(4)})`; slot.style.width = W + 'px';
+      });
+    }
+    // Presets adapt to the style: Bold cards default to no splits strip. A hand-picked chip (profile 'custom') is left alone.
+    function styleDefaults() {
+      if (!profiles[state.profile]) return;
+      state.mods.splits = STYLE_CATEGORIES[0][1].includes(state.style) ? 0 : profiles[state.profile].splits;
     }
     function setStyleByIndex(i) {
       i = ((+i || 0) % styleDefs.length + styleDefs.length) % styleDefs.length;
       state.styleIndex = i; state.style = styleDefs[i].key;
-      renderStyles(); render();
-      $('#styleStrip .on')?.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+      styleDefaults();
+      $$('#styleStrip .st-th').forEach(b => b.classList.toggle('on', b.dataset.key === state.style));
+      render();
+      if (!$('[data-panel="style"]').hidden) revealActiveThumb(true);
     }
 
     // Data: chips show live values; options the activity can't fill are disabled, not hidden.
@@ -3160,6 +3230,7 @@
       }
     });
 
+    styleDefaults();
     renderStyles(); 
     renderToggles(); 
     wireGrainControls();
