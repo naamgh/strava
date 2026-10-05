@@ -53,7 +53,9 @@
     </select>
     <span class="seg" id="bg"><button data-bg="black" class="on">Black</button><button data-bg="photo">Photo</button><button data-bg="check">Transparent</button></span>
     <span class="seg" id="presets"><button data-p="poster" class="on">Poster</button><button data-p="subtle">Subtle</button><button data-p="wild">Wild</button></span>
-    <button class="btn grey" id="dl" type="button">Download PNG</button>
+    <button class="btn" id="share" type="button">Share</button>
+    <button class="btn grey" id="copy" type="button">Copy</button>
+    <span id="note" style="font-size:13px;color:var(--label2)" role="status"></span>
   </div>
 
   <div class="controls" id="controls"></div>
@@ -84,7 +86,21 @@
   document.querySelectorAll('#bg button').forEach(b => b.onclick = () => { document.getElementById('stage').className = 'stage' + (b.dataset.bg === 'black' ? '' : ' ' + b.dataset.bg); document.querySelectorAll('#bg button').forEach(x => x.classList.toggle('on', x === b)) });
   document.getElementById('txt').addEventListener('input', schedule);
   document.getElementById('font').addEventListener('change', schedule);
-  document.getElementById('dl').onclick = () => { const a = document.createElement('a'); a.download = 'prism-glow.png'; a.href = document.getElementById('out').toDataURL('image/png'); a.click() };
+  // Always share/copy the full-quality render (a half-res draft may be on screen mid-drag).
+  async function pngBlob() { if (document.getElementById('out').width !== FW) await draw(false); return new Promise(r => document.getElementById('out').toBlob(r, 'image/png')) }
+  const note = t => { const n = document.getElementById('note'); n.textContent = t; clearTimeout(note.t); note.t = setTimeout(() => n.textContent = '', 4000) };
+  // Share: the system share sheet with a transparent PNG (Save Image, Copy, Instagram…). Falls back to a download.
+  document.getElementById('share').onclick = async () => {
+    const file = new File([await pngBlob()], 'prism-glow.png', { type: 'image/png' });
+    if (navigator.canShare?.({ files: [file] })) { try { await navigator.share({ files: [file] }) } catch (e) {} return }
+    const a = document.createElement('a'); a.download = file.name; a.href = URL.createObjectURL(file); a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+    note("Sharing isn't available in this browser, so it downloaded instead.");
+  };
+  // Copy: puts the transparent PNG on the clipboard; paste it into an Instagram Story to keep transparency.
+  document.getElementById('copy').onclick = async () => {
+    try { await navigator.clipboard.write([new ClipboardItem({ 'image/png': pngBlob() })]); note('Copied. In your Story, tap and choose Paste.') }
+    catch (e) { note("Copy isn't supported here. Use Share instead.") }
+  };
 
   // ── Effect ───────────────────────────────────────────────────────────────
   const FW = 1400, FH = 560; let W = FW, H = FH, N = W * H, TMP = new Float32Array(N);
