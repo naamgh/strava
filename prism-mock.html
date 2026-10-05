@@ -38,7 +38,7 @@
 <body>
 <div class="page">
   <h1>Prism glow</h1>
-  <p class="lede">A white core with rainbow fringes split along one direction (Direction 90 puts red on top), then broken into grain. Every slider redraws live. The output has a real transparent background, so it will work as an overlay; switch the backdrop to check.</p>
+  <p class="lede">A white core with rainbow fringes split along one direction (Direction 90 puts red on top), then broken into grain or halftone dots. Every slider redraws live. The output has a real transparent background, so it will work as an overlay; switch the backdrop to check.</p>
 
   <div class="stage" id="stage"><canvas id="out" width="1400" height="560"></canvas><span class="ms" id="ms"></span></div>
 
@@ -52,7 +52,8 @@
       <option value="900 1px 'Big Shoulders Display'">Big Shoulders</option>
     </select>
     <span class="seg" id="bg"><button data-bg="black" class="on">Black</button><button data-bg="photo">Photo</button><button data-bg="check">Transparent</button></span>
-    <span class="seg" id="presets"><button data-p="poster" class="on">Poster</button><button data-p="subtle">Subtle</button><button data-p="wild">Wild</button></span>
+    <span class="seg" id="tex"><button data-t="grain" class="on">Grain</button><button data-t="halftone">Halftone</button><button data-t="none">Smooth</button></span>
+    <span class="seg" id="presets"><button data-p="poster" class="on">Poster</button><button data-p="subtle">Subtle</button><button data-p="wild">Wild</button><button data-p="print">Print</button></span>
     <button class="btn" id="share" type="button">Share</button>
     <button class="btn grey" id="copy" type="button">Copy</button>
     <span id="note" style="font-size:13px;color:var(--label2)" role="status"></span>
@@ -70,20 +71,28 @@
     ['core', 'White core', 0, 150, 100],
     ['grain', 'Grain', 0, 100, 80],
     ['size', 'Grain size', 1, 5, 2],
-    ['density', 'Clumping', 0, 100, 45]
+    ['density', 'Clumping', 0, 100, 45],
+    ['dot', 'Dot size', 3, 28, 9],        // halftone grid spacing
+    ['dotAngle', 'Dot angle', 0, 90, 45]
   ];
   const PRESETS = {
-    poster: { spread: 38, angle: 90, blur: 11, colour: 110, core: 100, grain: 80, size: 2, density: 45 },
-    subtle: { spread: 12, angle: 90, blur: 7, colour: 60, core: 120, grain: 55, size: 1, density: 25 },
-    wild:   { spread: 58, angle: 115, blur: 13, colour: 130, core: 95, grain: 92, size: 3, density: 65 }
+    poster: { tex: 'grain', spread: 38, angle: 90, blur: 11, colour: 110, core: 100, grain: 80, size: 2, density: 45 },
+    subtle: { tex: 'grain', spread: 12, angle: 90, blur: 7, colour: 60, core: 120, grain: 55, size: 1, density: 25 },
+    wild:   { tex: 'grain', spread: 58, angle: 115, blur: 13, colour: 130, core: 95, grain: 92, size: 3, density: 65 },
+    print:  { tex: 'halftone', spread: 30, angle: 90, blur: 14, colour: 115, core: 105, dot: 10, dotAngle: 45 }
   };
-  const V = {};
+  const V = { tex: 'grain' };
   document.getElementById('controls').innerHTML = SLIDERS.map(([k, l, mn, mx, d]) => { V[k] = d; return `<label class="r"><span>${l}</span><input type="range" id="s-${k}" min="${mn}" max="${mx}" value="${d}"><span id="v-${k}">${d}</span></label>` }).join('');
   SLIDERS.forEach(([k]) => document.getElementById('s-' + k).addEventListener('input', e => { V[k] = +e.target.value; document.getElementById('v-' + k).textContent = V[k]; clearPreset(); schedule(true) }));
   SLIDERS.forEach(([k]) => document.getElementById('s-' + k).addEventListener('change', () => schedule(false)));
   function clearPreset() { document.querySelectorAll('#presets button').forEach(b => b.classList.remove('on')) }
-  document.querySelectorAll('#presets button').forEach(b => b.onclick = () => { Object.assign(V, PRESETS[b.dataset.p]); SLIDERS.forEach(([k]) => { document.getElementById('s-' + k).value = V[k]; document.getElementById('v-' + k).textContent = V[k] }); document.querySelectorAll('#presets button').forEach(x => x.classList.toggle('on', x === b)); schedule() });
+  function setTex(t) { V.tex = t; document.querySelectorAll('#tex button').forEach(x => x.classList.toggle('on', x.dataset.t === t)); syncTexSliders() }
+  // Grain sliders only matter for Grain; dot sliders only for Halftone.
+  function syncTexSliders() { ['grain', 'size', 'density'].forEach(k => document.getElementById('s-' + k).closest('label').style.opacity = V.tex === 'grain' ? 1 : .35); ['dot', 'dotAngle'].forEach(k => document.getElementById('s-' + k).closest('label').style.opacity = V.tex === 'halftone' ? 1 : .35) }
+  document.querySelectorAll('#tex button').forEach(b => b.onclick = () => { setTex(b.dataset.t); clearPreset(); schedule() });
+  document.querySelectorAll('#presets button').forEach(b => b.onclick = () => { Object.assign(V, PRESETS[b.dataset.p]); setTex(V.tex); SLIDERS.forEach(([k]) => { document.getElementById('s-' + k).value = V[k]; document.getElementById('v-' + k).textContent = V[k] }); document.querySelectorAll('#presets button').forEach(x => x.classList.toggle('on', x === b)); schedule() });
   document.querySelectorAll('#bg button').forEach(b => b.onclick = () => { document.getElementById('stage').className = 'stage' + (b.dataset.bg === 'black' ? '' : ' ' + b.dataset.bg); document.querySelectorAll('#bg button').forEach(x => x.classList.toggle('on', x === b)) });
+  syncTexSliders();
   document.getElementById('txt').addEventListener('input', schedule);
   document.getElementById('font').addEventListener('change', schedule);
   // Always share/copy the full-quality render (a half-res draft may be on screen mid-drag).
@@ -129,7 +138,7 @@
     const t0 = performance.now(), k = draft ? .5 : 1;
     W = Math.round(FW * k); H = Math.round(FH * k); N = W * H; if (TMP.length !== N) TMP = new Float32Array(N);
     textCv.width = W; textCv.height = H; const outCv = document.getElementById('out'); if (outCv.width !== W) { outCv.width = W; outCv.height = H }
-    const S = { spread: V.spread * k, blur: V.blur * k, size: Math.max(1, Math.round(V.size * k)) };
+    const S = { spread: V.spread * k, blur: V.blur * k, size: Math.max(1, Math.round(V.size * k)), dot: V.dot * k };
     const text = document.getElementById('txt').value || ' ', fontSpec = document.getElementById('font').value;
     const font = n => fontSpec.replace('1px', n + 'px');
     await document.fonts.load(font(100), text);
@@ -157,8 +166,8 @@
     // 3. White core
     if (kc > 0) for (let i = 0; i < N; i++) { const a = C[i] * kc; R[i] += a; G[i] += a; B[i] += a }
 
-    // 4. Light → colour + alpha (so it composites over anything), then grain
-    const g = V.grain / 100, cell = S.size, cw = Math.ceil(W / cell), noise = new Float32Array(cw * Math.ceil(H / cell)).map(Math.random);
+    // 4. Light → colour + alpha (so it composites over anything), then the chosen texture
+    const g = V.tex === 'grain' ? V.grain / 100 : 0, cell = S.size, cw = Math.ceil(W / cell), noise = new Float32Array(cw * Math.ceil(H / cell)).map(Math.random);
     const dens = V.density > 0 ? valueNoise(40 * k) : null, dAmt = V.density / 100;
     const out = new ImageData(W, H), o = out.data, A = new Float32Array(N), oR = new Float32Array(N), oG = new Float32Array(N), oB = new Float32Array(N);
     for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
@@ -168,6 +177,20 @@
       if (dens) n *= 1 + dAmt * (dens[i] - .5) * 1.6;                       // clumpy: grains thicker in some patches
       const dither = a * 1.35 > n ? 1 : 0, alpha = a * (1 - g) + dither * g;
       A[i] = alpha; oR[i] = r / a * alpha; oG[i] = gg / a * alpha; oB[i] = b / a * alpha;   // premultiplied
+    }
+    // Halftone: a rotated grid of round dots. Each dot is sized by the glow's brightness at its centre
+    // and takes that spot's colour, so fringes become coloured dots and solid areas close up.
+    if (V.tex === 'halftone') {
+      const cs = S.dot, th = V.dotAngle * Math.PI / 180, co = Math.cos(th), si = Math.sin(th);
+      for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+        const i = y * W + x, u = (x * co + y * si) / cs, v = (-x * si + y * co) / cs, iu = Math.round(u), iv = Math.round(v);
+        const cx = Math.round((iu * co - iv * si) * cs), cy = Math.round((iu * si + iv * co) * cs);
+        if (cx < 0 || cy < 0 || cx >= W || cy >= H) { A[i] = oR[i] = oG[i] = oB[i] = 0; continue }
+        const j = cy * W + cx, r = Math.min(1, R[j]), gg = Math.min(1, G[j]), b = Math.min(1, B[j]), a = Math.max(r, gg, b);
+        if (a < .02) { A[i] = oR[i] = oG[i] = oB[i] = 0; continue }
+        const rad = .74 * Math.sqrt(a), d = Math.hypot(u - iu, v - iv), cov = Math.max(0, Math.min(1, (rad - d) * cs + .5));   // ~1px anti-aliased edge
+        A[i] = cov; oR[i] = r / a * cov; oG[i] = gg / a * cov; oB[i] = b / a * cov;
+      }
     }
     // 5. Very light soften so the sand isn't jaggy
     if (g > 0) [oR, oG, oB, A].forEach(c => gauss(c, .7 * k));
