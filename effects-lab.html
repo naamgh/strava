@@ -30,6 +30,9 @@
   .row2 { display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin-top:12px; }
   .row2 input[type=text], .row2 select { font:inherit; font-size:15px; color:#fff; background:var(--fill); border:0; border-radius:10px; padding:9px 12px; }
   .row2 input[type=text] { flex:1; min-width:150px; }
+  .row2 textarea { font:inherit; font-size:15px; line-height:1.35; color:#fff; background:var(--fill); border:0; border-radius:10px; padding:9px 12px; flex:1 1 100%; min-width:150px; resize:none; overflow:hidden; }
+  label.mini { display:inline-flex; align-items:center; gap:8px; font-size:13px; color:var(--label2); }
+  label.mini input { width:110px; }
   .seg { display:inline-grid; grid-auto-flow:column; background:var(--fill); border-radius:9px; padding:2px; }
   .seg button { font:inherit; font-size:13px; font-weight:600; color:#fff; background:transparent; border:0; border-radius:7px; padding:7px 11px; cursor:pointer; }
   .seg button.on { background:#636366; }
@@ -54,7 +57,9 @@
   <p class="desc" id="desc"></p>
 
   <div class="row2">
-    <input type="text" id="txt" value="10.2 KM" aria-label="Text" maxlength="14">
+    <textarea id="txt" rows="1" aria-label="Text (Return for a new line)" maxlength="80">10.2 KM</textarea>
+    <span class="seg" id="align"><button data-a="left">Left</button><button data-a="center" class="on">Centre</button><button data-a="right">Right</button></span>
+    <label class="mini">Line spacing <input type="range" id="lh" min="0.8" max="1.6" step="0.02" value="1.15"></label>
     <select id="font" aria-label="Font">
       <option value="900 1px Rubik">Rubik Black</option>
       <option value="1px Anton">Anton</option>
@@ -98,17 +103,31 @@ function toImage(R, G, B, A) { const img = new ImageData(W, H), o = img.data; fo
 
 // Text layout + mask (shared by all effects)
 let T = {};
-function layout(ctx) {
-  ctx.font = T.font(100); const m = ctx.measureText(T.text);
-  const asc = m.actualBoundingBoxAscent || 72, fs = Math.min(100 * W * .8 / m.width, 100 * H * .52 / asc);
-  ctx.font = T.font(fs); const m2 = ctx.measureText(T.text);
-  const a2 = m2.actualBoundingBoxAscent || fs * .72, d2 = m2.actualBoundingBoxDescent || 0;
-  T.fs = fs; T.tx = W / 2; T.ty = H / 2 + (a2 - d2) / 2; T.top = T.ty - a2; T.bot = T.ty + d2; T.left = W / 2 - m2.width / 2; T.right = W / 2 + m2.width / 2;
+// Size the block so the widest line fills ~80% of the width; extra lines make the image taller, not the text smaller.
+function measureBlock(ctx, Wt) {
+  ctx.font = T.font(100); const ms = T.lines.map(l => ctx.measureText(l));
+  const maxW = Math.max(...ms.map(m => m.width), 1), asc = Math.max(...ms.map(m => m.actualBoundingBoxAscent || 72)), desc = Math.max(...ms.map(m => m.actualBoundingBoxDescent || 0));
+  const fs = Math.min(100 * Wt * .8 / maxW, 100 * FH * (Wt / FW) * .52 / asc), k = fs / 100, step = asc * k * T.lh;
+  return { fs, asc: asc * k, desc: desc * k, step, maxW: maxW * k, widths: ms.map(m => m.width * k), contentH: asc * k + (T.lines.length - 1) * step + desc * k };
 }
-function setText(ctx, size = T.fs) { ctx.font = T.font(size); ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic' }
-function maskArray(dx = 0, dy = 0) { const c = mk(W, H), x = c.getContext('2d'); setText(x); x.fillStyle = '#fff'; x.fillText(T.text, T.tx + dx, T.ty + dy); const p = x.getImageData(0, 0, W, H).data, M = new Float32Array(N); for (let i = 0; i < N; i++) M[i] = p[i * 4 + 3] / 255; return M }
+function layout(ctx) {
+  const m = measureBlock(ctx, W);
+  T.fs = m.fs; T.top = (H - m.contentH) / 2; T.bot = T.top + m.contentH; T.left = (W - m.maxW) / 2; T.right = T.left + m.maxW;
+  T.ys = T.lines.map((_, i) => T.top + m.asc + i * m.step); T.ty = T.ys[0]; T.widths = m.widths;
+  T.tx = T.align === 'left' ? T.left : T.align === 'right' ? T.right : W / 2;
+}
+function drawLines(ctx, method, dx = 0, dy = 0) { T.lines.forEach((l, i) => ctx[method](l, T.tx + dx, T.ys[i] + dy)) }
+function setText(ctx, size = T.fs) { ctx.font = T.font(size); ctx.textAlign = T.align || 'center'; ctx.textBaseline = 'alphabetic' }
+function maskArray(dx = 0, dy = 0) { const c = mk(W, H), x = c.getContext('2d'); setText(x); x.fillStyle = '#fff'; drawLines(x, 'fillText', dx, dy); const p = x.getImageData(0, 0, W, H).data, M = new Float32Array(N); for (let i = 0; i < N; i++) M[i] = p[i * 4 + 3] / 255; return M }
 // Left edges of each character so effects can treat letters separately
-function charBoxes(ctx) { setText(ctx); const total = ctx.measureText(T.text).width; let x = T.tx - total / 2; return [...T.text].map((ch, i) => { const w = ctx.measureText(ch).width, adv = ctx.measureText(T.text.slice(0, i + 1)).width - ctx.measureText(T.text.slice(0, i)).width, b = { ch, x, cx: x + adv / 2, w }; x += adv; return b }) }
+function charBoxes(ctx) {
+  setText(ctx); const out = [];
+  T.lines.forEach((line, li) => {
+    const lw = ctx.measureText(line).width; let x = T.align === 'left' ? T.left : T.align === 'right' ? T.right - lw : W / 2 - lw / 2;
+    [...line].forEach((ch, i) => { const adv = ctx.measureText(line.slice(0, i + 1)).width - ctx.measureText(line.slice(0, i)).width; out.push({ ch, x, y: T.ys[li], cx: x + adv / 2, w: ctx.measureText(ch).width }); x += adv });
+  });
+  return out;
+}
 
 // Sample workout data for the data-driven effects
 const HR = (() => { const a = []; for (let i = 0; i < 240; i++) { const t = i / 240; let v = 128 + 26 * Math.min(1, t * 5); if (t > .35 && t < .8) v += (Math.floor((t - .35) * 22) % 2 ? 6 : 22); if (t >= .8) v += 30 * (t - .8) / .2 + 8; a.push(v + Math.sin(i * .7) * 2) } return a })();
@@ -152,9 +171,9 @@ const FX = [
       setText(ctx); ctx.lineJoin = 'round'; ctx.miterLimit = 2;
       ctx.shadowColor = 'rgba(0,0,0,.45)'; ctx.shadowBlur = P.shadow; ctx.shadowOffsetY = P.drop;
       ctx.fillStyle = '#fff'; ctx.strokeStyle = '#fff';
-      if (P.border > 0) { ctx.lineWidth = P.border * 2; ctx.strokeText(T.text, T.tx, T.ty) }
-      ctx.fillText(T.text, T.tx, T.ty);
-      ctx.shadowColor = 'transparent'; ctx.fillStyle = rgbStr(hsl(P.hue, P.sat, 8 + P.sat * .42)); ctx.fillText(T.text, T.tx, T.ty);
+      if (P.border > 0) { ctx.lineWidth = P.border * 2; drawLines(ctx, 'strokeText') }
+      drawLines(ctx, 'fillText');
+      ctx.shadowColor = 'transparent'; ctx.fillStyle = rgbStr(hsl(P.hue, P.sat, 8 + P.sat * .42)); drawLines(ctx, 'fillText');
       ctx.restore();
     } },
   { key: 'neon', group: 'Light', name: 'Neon tube', desc: '<b>Neon tube.</b> The letters become glowing glass tubes: a hot white core, a coloured tube and a wide halo. Flicker dims a few letters like a sign on its way out.',
@@ -165,9 +184,9 @@ const FX = [
       boxes.forEach(b => {
         if (b.ch === ' ') return;
         const on = R() < P.flicker / 100 * .45 ? .3 + R() * .3 : 1;
-        ctx.shadowColor = rgbStr(c, on); ctx.shadowBlur = P.glow * 2; ctx.strokeStyle = rgbStr(c, .85 * on); ctx.lineWidth = P.tube * 1.7; ctx.strokeText(b.ch, b.x, T.ty);
-        ctx.shadowBlur = P.glow * .6; ctx.strokeStyle = rgbStr(cHot, on); ctx.lineWidth = P.tube; ctx.strokeText(b.ch, b.x, T.ty);
-        ctx.shadowBlur = 0; ctx.strokeStyle = `rgba(255,255,255,${.92 * on})`; ctx.lineWidth = Math.max(1, P.tube * .35); ctx.strokeText(b.ch, b.x, T.ty);
+        ctx.shadowColor = rgbStr(c, on); ctx.shadowBlur = P.glow * 2; ctx.strokeStyle = rgbStr(c, .85 * on); ctx.lineWidth = P.tube * 1.7; ctx.strokeText(b.ch, b.x, b.y);
+        ctx.shadowBlur = P.glow * .6; ctx.strokeStyle = rgbStr(cHot, on); ctx.lineWidth = P.tube; ctx.strokeText(b.ch, b.x, b.y);
+        ctx.shadowBlur = 0; ctx.strokeStyle = `rgba(255,255,255,${.92 * on})`; ctx.lineWidth = Math.max(1, P.tube * .35); ctx.strokeText(b.ch, b.x, b.y);
       });
     } },
   { key: 'chrome', group: 'Light', name: 'Liquid chrome', desc: '<b>Liquid chrome.</b> Shiny metal letters: a bevelled edge catching the light, a reflected sky-and-horizon gradient, and a hard highlight. Tint warms or cools the metal.',
@@ -211,7 +230,7 @@ const FX = [
   { key: 'vhs', group: 'Retro', name: 'VHS glitch', desc: '<b>VHS glitch.</b> Horizontal slices of the text slip sideways, the red and blue channels pull apart, and faint tracking lines run across. New pattern reshuffles the slices.',
     controls: [['shift', 'Slice shift', 0, 90, 26, 1], ['count', 'Glitchiness', 0, 100, 35], ['split', 'Colour split', 0, 24, 6, 1], ['lines', 'Tracking lines', 0, 100, 40], ['seed', 'Pattern', 1, 40, 9]],
     render(ctx, P) {
-      const base = mk(W, H), bx = base.getContext('2d'); setText(bx); bx.fillStyle = '#fff'; bx.fillText(T.text, T.tx, T.ty);
+      const base = mk(W, H), bx = base.getContext('2d'); setText(bx); bx.fillStyle = '#fff'; drawLines(bx, 'fillText');
       const sl = mk(W, H), sx = sl.getContext('2d'), R = rng(P.seed);
       for (let y = 0; y < H;) { const h = Math.max(2, Math.round((3 + R() * 34) * SC)), off = R() < P.count / 100 ? (R() - .5) * 2 * P.shift : (R() - .5) * P.shift * .08; sx.drawImage(base, 0, y, W, h, off, y, W, h); y += h }
       const px = sx.getImageData(0, 0, W, H).data, s = Math.round(P.split), oR = new Float32Array(N), oG = new Float32Array(N), oB = new Float32Array(N), oA = new Float32Array(N);
@@ -246,8 +265,8 @@ const FX = [
       const grad = ctx.createLinearGradient(T.left, 0, T.right, 0);
       for (let s = 0; s <= 40; s++) { const v = sm[Math.round(s / 40 * (sm.length - 1))]; grad.addColorStop(s / 40, rgbStr(hsl(hueAt(v / P.maxhr), P.sat, 55))) }
       setText(ctx); ctx.fillStyle = grad;
-      if (P.glow > 0) { ctx.save(); ctx.filter = `blur(${P.glow}px)`; ctx.globalAlpha = .8; ctx.fillText(T.text, T.tx, T.ty); ctx.restore() }
-      ctx.fillText(T.text, T.tx, T.ty);
+      if (P.glow > 0) { ctx.save(); ctx.filter = `blur(${P.glow}px)`; ctx.globalAlpha = .8; drawLines(ctx, 'fillText'); ctx.restore() }
+      drawLines(ctx, 'fillText');
     } },
   { key: 'splitcol', group: 'Data', name: 'Split-coloured', desc: '<b>Split-coloured.</b> Each character takes the colour of one of your kilometre splits (sample run shown): the fastest at full accent colour, slower ones fading toward grey. A number like 10.2 becomes a tiny splits chart.',
     controls: [['hue', 'Accent', 0, 360, 15], ['contrast', 'Contrast', 0, 100, 75], ['dim', 'Slowest tone', 0, 100, 40], ['glow', 'Glow', 0, 30, 0, 1]],
@@ -257,7 +276,7 @@ const FX = [
       boxes.forEach((b, i) => {
         const s = sp[Math.round(i * (sp.length - 1) / Math.max(1, boxes.length - 1))], t = Math.pow((s - mn) / (mx - mn || 1), 1 + P.contrast / 30);
         const c = [lerp(dim[0], acc[0], t), lerp(dim[1], acc[1], t), lerp(dim[2], acc[2], t)];
-        ctx.fillStyle = rgbStr(c); ctx.shadowColor = rgbStr(c); ctx.shadowBlur = P.glow * t; ctx.fillText(b.ch, b.x, T.ty);
+        ctx.fillStyle = rgbStr(c); ctx.shadowColor = rgbStr(c); ctx.shadowBlur = P.glow * t; ctx.fillText(b.ch, b.x, b.y);
       });
     } },
   { key: 'horizon', group: 'Data', name: 'Elevation horizon', desc: '<b>Elevation horizon.</b> The route\'s elevation profile (sample shown) cuts through the letters: solid above the line, accent or outline below, with the profile drawn as a fine line across.',
@@ -268,10 +287,10 @@ const FX = [
       const above = new Path2D(path); above.lineTo(x1, 0); above.lineTo(x0, 0); above.closePath();
       const below = new Path2D(path); below.lineTo(x1, H); below.lineTo(x0, H); below.closePath();
       setText(ctx);
-      ctx.save(); ctx.clip(above); ctx.fillStyle = '#fff'; ctx.fillText(T.text, T.tx, T.ty); ctx.restore();
+      ctx.save(); ctx.clip(above); ctx.fillStyle = '#fff'; drawLines(ctx, 'fillText'); ctx.restore();
       ctx.save(); ctx.clip(below); const st = Math.round(P.style);
-      if (st === 1) { ctx.strokeStyle = acc; ctx.lineWidth = Math.max(1.5, T.fs * .025); ctx.lineJoin = 'round'; ctx.strokeText(T.text, T.tx, T.ty) }
-      else { ctx.fillStyle = st === 2 ? 'rgba(255,255,255,.35)' : acc; ctx.fillText(T.text, T.tx, T.ty) }
+      if (st === 1) { ctx.strokeStyle = acc; ctx.lineWidth = Math.max(1.5, T.fs * .025); ctx.lineJoin = 'round'; drawLines(ctx, 'strokeText') }
+      else { ctx.fillStyle = st === 2 ? 'rgba(255,255,255,.35)' : acc; drawLines(ctx, 'fillText') }
       ctx.restore();
       if (P.line > 0) { ctx.strokeStyle = '#fff'; ctx.lineWidth = P.line; ctx.lineJoin = 'round'; ctx.stroke(path) }
     } }
@@ -293,16 +312,24 @@ function buildControls() {
 }
 document.getElementById('reset').onclick = () => { cur.controls.forEach(c => VALS[cur.key][c[0]] = c[4]); buildControls(); schedule() };
 document.querySelectorAll('#bg button').forEach(b => b.onclick = () => { document.getElementById('stage').className = 'stage' + (b.dataset.bg === 'black' ? '' : ' ' + b.dataset.bg); document.querySelectorAll('#bg button').forEach(x => x.classList.toggle('on', x === b)) });
-document.getElementById('txt').addEventListener('input', () => schedule());
+let ALIGN = 'center';
+const txt = document.getElementById('txt'), grow = () => { txt.rows = Math.max(1, txt.value.split('\n').length) };
+txt.addEventListener('input', () => { grow(); schedule() }); grow();
+document.querySelectorAll('#align button').forEach(b => b.onclick = () => { ALIGN = b.dataset.a; document.querySelectorAll('#align button').forEach(x => x.classList.toggle('on', x === b)); schedule() });
+document.getElementById('lh').addEventListener('input', () => schedule(true));
+document.getElementById('lh').addEventListener('change', () => schedule(false));
 document.getElementById('font').addEventListener('change', () => schedule());
 
 async function draw(draft = false) {
   const t0 = performance.now(), d = draft ? .5 : 1;
-  W = Math.round(FW * d); H = Math.round(FH * d); N = W * H; SC = d; if (TMP.length !== N) TMP = new Float32Array(N);
-  const cv = document.getElementById('out'); if (cv.width !== W) { cv.width = W; cv.height = H }
-  const fontSpec = document.getElementById('font').value;
-  T = { text: document.getElementById('txt').value || ' ', font: n => fontSpec.replace('1px', n + 'px') };
+  const fontSpec = document.getElementById('font').value, raw = document.getElementById('txt').value.replace(/\s+$/, '');
+  const lines = (raw || ' ').split('\n').map(l => l.trimEnd() || ' ');
+  T = { text: lines.join(' '), lines, align: ALIGN, lh: +document.getElementById('lh').value, font: n => fontSpec.replace('1px', n + 'px') };
   await document.fonts.load(T.font(100), T.text);
+  // Height grows with the number of lines (room around the block for glows and shadows)
+  const fullH = Math.max(FH, Math.ceil(measureBlock(document.createElement('canvas').getContext('2d'), FW).contentH + FH * .5));
+  W = Math.round(FW * d); H = Math.round(fullH * d); N = W * H; SC = d; if (TMP.length !== N) TMP = new Float32Array(N);
+  const cv = document.getElementById('out'); if (cv.width !== W || cv.height !== H) { cv.width = W; cv.height = H }
   const ctx = cv.getContext('2d'); ctx.clearRect(0, 0, W, H); ctx.save(); layout(ctx);
   const P = {}; cur.controls.forEach(([k, , , , , px]) => P[k] = VALS[cur.key][k] * (px ? d : 1));
   cur.render(ctx, P); ctx.restore();
