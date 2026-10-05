@@ -1,0 +1,334 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Effects Lab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo+Black&family=Big+Shoulders+Display:wght@900&family=Bowlby+One&family=Inter:wght@500;600&family=Rubik:wght@900&display=swap" rel="stylesheet">
+<style>
+  :root { --panel:#1c1c1e; --fill:rgba(118,118,128,.24); --label2:rgba(235,235,245,.6); --tint:#0a84ff; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:#000; color:#fff; font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",Inter,system-ui,sans-serif; -webkit-font-smoothing:antialiased; }
+  .page { max-width:1100px; margin:auto; padding:28px 16px 60px; }
+  h1 { font-size:28px; margin:0 0 4px; letter-spacing:-.02em; }
+  .lede { color:var(--label2); font-size:14px; margin:0 0 16px; max-width:70ch; line-height:1.5; }
+  .fx { display:flex; gap:6px; overflow-x:auto; scrollbar-width:none; padding-bottom:4px; margin-bottom:12px; }
+  .fx::-webkit-scrollbar { display:none; }
+  .fx button { flex:none; font:inherit; font-size:14px; font-weight:600; color:#fff; background:var(--fill); border:0; border-radius:16px; padding:8px 14px; cursor:pointer; }
+  .fx button.on { background:#fff; color:#000; }
+  .fx .grp { flex:none; align-self:center; font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.04em; color:var(--label2); margin:0 2px 0 8px; }
+  .stage { position:relative; border-radius:20px; overflow:hidden; background:#000; }
+  .stage.photo { background: radial-gradient(120% 70% at 30% 80%, #3d4a3a 0%, transparent 60%), radial-gradient(90% 60% at 80% 20%, #4c5868 0%, transparent 60%), linear-gradient(170deg,#28303a,#151a16 70%); }
+  .stage.light { background: radial-gradient(120% 70% at 30% 80%, #c9c2a8 0%, transparent 60%), radial-gradient(90% 60% at 80% 20%, #dfe6ec 0%, transparent 60%), linear-gradient(170deg,#e9e6dd,#bfb9a5 70%); }
+  .stage.check { background-color:#1d1d20; background-image:linear-gradient(45deg,#2a2a2e 25%,transparent 25%),linear-gradient(-45deg,#2a2a2e 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#2a2a2e 75%),linear-gradient(-45deg,transparent 75%,#2a2a2e 75%); background-size:20px 20px; background-position:0 0,0 10px,10px -10px,-10px 0; }
+  canvas { display:block; width:100%; height:auto; }
+  .ms { position:absolute; right:12px; bottom:10px; font-size:11px; color:var(--label2); font-variant-numeric:tabular-nums; }
+  .desc { color:var(--label2); font-size:14px; line-height:1.5; margin:12px 2px 0; min-height:42px; }
+  .desc b { color:#fff; font-weight:600; }
+  .row2 { display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin-top:12px; }
+  .row2 input[type=text], .row2 select { font:inherit; font-size:15px; color:#fff; background:var(--fill); border:0; border-radius:10px; padding:9px 12px; }
+  .row2 input[type=text] { flex:1; min-width:150px; }
+  .seg { display:inline-grid; grid-auto-flow:column; background:var(--fill); border-radius:9px; padding:2px; }
+  .seg button { font:inherit; font-size:13px; font-weight:600; color:#fff; background:transparent; border:0; border-radius:7px; padding:7px 11px; cursor:pointer; }
+  .seg button.on { background:#636366; }
+  .btn { font:inherit; font-size:15px; font-weight:600; color:#fff; background:var(--tint); border:0; border-radius:12px; padding:10px 16px; cursor:pointer; }
+  .btn.grey { background:var(--fill); }
+  .controls { display:grid; grid-template-columns:repeat(auto-fill,minmax(250px,1fr)); gap:10px 18px; margin-top:14px; background:var(--panel); border-radius:18px; padding:16px; }
+  label.r { display:grid; grid-template-columns:96px 1fr 40px; align-items:center; gap:10px; font-size:14px; }
+  label.r span:last-child { text-align:right; color:var(--label2); font-variant-numeric:tabular-nums; }
+  input[type=range] { -webkit-appearance:none; appearance:none; height:4px; border-radius:2px; background:var(--fill); outline-offset:6px; }
+  input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; width:24px; height:24px; border-radius:50%; background:#fff; box-shadow:0 2px 6px rgba(0,0,0,.35); cursor:pointer; }
+  input[type=range]::-moz-range-thumb { width:24px; height:24px; border:0; border-radius:50%; background:#fff; cursor:pointer; }
+  #note { font-size:13px; color:var(--label2); }
+</style>
+</head>
+<body>
+<div class="page">
+  <h1>Effects lab</h1>
+  <p class="lede">Twelve text effects, all drawn from scratch with a real transparent background, so any of them can sit on a photo or go on the big type in a card. Pick one, type your own text, and play with the sliders. Share saves a 1,200 px PNG.</p>
+
+  <div class="fx" id="fx"></div>
+  <div class="stage" id="stage"><canvas id="out" width="1200" height="480"></canvas><span class="ms" id="ms"></span></div>
+  <p class="desc" id="desc"></p>
+
+  <div class="row2">
+    <input type="text" id="txt" value="10.2 KM" aria-label="Text" maxlength="14">
+    <select id="font" aria-label="Font">
+      <option value="900 1px Rubik">Rubik Black</option>
+      <option value="1px Anton">Anton</option>
+      <option value="1px 'Archivo Black'">Archivo Black</option>
+      <option value="1px 'Bowlby One'">Bowlby One</option>
+      <option value="900 1px 'Big Shoulders Display'">Big Shoulders</option>
+    </select>
+    <span class="seg" id="bg"><button data-bg="photo" class="on">Photo</button><button data-bg="light">Light</button><button data-bg="black">Black</button><button data-bg="check">Transparent</button></span>
+    <button class="btn grey" id="reset" type="button">Reset</button>
+    <button class="btn" id="share" type="button">Share</button>
+    <button class="btn grey" id="copy" type="button">Copy</button>
+    <span id="note" role="status"></span>
+  </div>
+
+  <div class="controls" id="controls"></div>
+</div>
+<script>
+// ─── Canvas + helpers ────────────────────────────────────────────────────────
+const FW = 1200, FH = 480;
+let W = FW, H = FH, N = W * H, TMP = new Float32Array(N), SC = 1;   // SC: px scale (0.5 for drafts)
+const mk = (w, h) => { const c = document.createElement('canvas'); c.width = w; c.height = h; return c };
+const clamp = (v, a = 0, b = 1) => v < a ? a : v > b ? b : v;
+const lerp = (a, b, t) => a + (b - a) * t;
+function rng(seed) { let s = seed >>> 0 || 1; return () => { s += 0x6D2B79F5; let t = s; t = Math.imul(t ^ t >>> 15, t | 1); t ^= t + Math.imul(t ^ t >>> 7, t | 61); return ((t ^ t >>> 14) >>> 0) / 4294967296 } }
+function boxSizes(sigma, n) { const wl0 = Math.floor(Math.sqrt(12 * sigma * sigma / n + 1)), wl = wl0 % 2 ? wl0 : wl0 - 1, wu = wl + 2, m = Math.round((12 * sigma * sigma - n * wl * wl - 4 * n * wl - 3 * n) / (-4 * wl - 4)); return Array.from({ length: n }, (_, i) => ((i < m ? wl : wu) - 1) / 2) }
+function boxBlur(src, r) {
+  const k = 1 / (r + r + 1), cx = v => v < 0 ? 0 : v >= W ? W - 1 : v, cy = v => v < 0 ? 0 : v >= H ? H - 1 : v, tmp = TMP;
+  for (let y = 0; y < H; y++) { const row = y * W; let acc = src[row] * (r + 1); for (let i = 1; i <= r; i++) acc += src[row + cx(i)]; for (let x = 0; x < W; x++) { tmp[row + x] = acc * k; acc += src[row + cx(x + r + 1)] - src[row + cx(x - r)] } }
+  for (let x = 0; x < W; x++) { let acc = tmp[x] * (r + 1); for (let i = 1; i <= r; i++) acc += tmp[cy(i) * W + x]; for (let y = 0; y < H; y++) { src[y * W + x] = acc * k; acc += tmp[cy(y + r + 1) * W + x] - tmp[cy(y - r) * W + x] } }
+}
+function gauss(a, sigma) { if (sigma >= .6) boxSizes(sigma, 3).forEach(r => r >= 1 && boxBlur(a, Math.round(r))); return a }
+function valueNoise(grid, seed) {
+  const R = rng(seed), gw = Math.ceil(W / grid) + 2, gh = Math.ceil(H / grid) + 2, lat = new Float32Array(gw * gh).map(() => R()), out = new Float32Array(N), s = t => t * t * (3 - 2 * t);
+  for (let y = 0; y < H; y++) { const gy = y / grid, y0 = gy | 0, ty = s(gy - y0); for (let x = 0; x < W; x++) { const gx = x / grid, x0 = gx | 0, tx = s(gx - x0), i = y0 * gw + x0, a = lat[i] + (lat[i + 1] - lat[i]) * tx, b = lat[i + gw] + (lat[i + gw + 1] - lat[i + gw]) * tx; out[y * W + x] = a + (b - a) * ty } }
+  return out;
+}
+function hsl(h, s, l) { s /= 100; l /= 100; const k = n => (n + h / 30) % 12, a = s * Math.min(l, 1 - l), f = n => l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1))); return [f(0) * 255, f(8) * 255, f(4) * 255] }
+const rgbStr = (c, a = 1) => `rgba(${c[0] | 0},${c[1] | 0},${c[2] | 0},${a})`;
+// Straight RGBA float buffers → ImageData
+function toImage(R, G, B, A) { const img = new ImageData(W, H), o = img.data; for (let i = 0; i < N; i++) { const a = A[i]; if (a <= .002) continue; o[i * 4] = R[i]; o[i * 4 + 1] = G[i]; o[i * 4 + 2] = B[i]; o[i * 4 + 3] = clamp(a) * 255 } return img }
+
+// Text layout + mask (shared by all effects)
+let T = {};
+function layout(ctx) {
+  ctx.font = T.font(100); const m = ctx.measureText(T.text);
+  const asc = m.actualBoundingBoxAscent || 72, fs = Math.min(100 * W * .8 / m.width, 100 * H * .52 / asc);
+  ctx.font = T.font(fs); const m2 = ctx.measureText(T.text);
+  const a2 = m2.actualBoundingBoxAscent || fs * .72, d2 = m2.actualBoundingBoxDescent || 0;
+  T.fs = fs; T.tx = W / 2; T.ty = H / 2 + (a2 - d2) / 2; T.top = T.ty - a2; T.bot = T.ty + d2; T.left = W / 2 - m2.width / 2; T.right = W / 2 + m2.width / 2;
+}
+function setText(ctx, size = T.fs) { ctx.font = T.font(size); ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic' }
+function maskArray(dx = 0, dy = 0) { const c = mk(W, H), x = c.getContext('2d'); setText(x); x.fillStyle = '#fff'; x.fillText(T.text, T.tx + dx, T.ty + dy); const p = x.getImageData(0, 0, W, H).data, M = new Float32Array(N); for (let i = 0; i < N; i++) M[i] = p[i * 4 + 3] / 255; return M }
+// Left edges of each character so effects can treat letters separately
+function charBoxes(ctx) { setText(ctx); const total = ctx.measureText(T.text).width; let x = T.tx - total / 2; return [...T.text].map((ch, i) => { const w = ctx.measureText(ch).width, adv = ctx.measureText(T.text.slice(0, i + 1)).width - ctx.measureText(T.text.slice(0, i)).width, b = { ch, x, cx: x + adv / 2, w }; x += adv; return b }) }
+
+// Sample workout data for the data-driven effects
+const HR = (() => { const a = []; for (let i = 0; i < 240; i++) { const t = i / 240; let v = 128 + 26 * Math.min(1, t * 5); if (t > .35 && t < .8) v += (Math.floor((t - .35) * 22) % 2 ? 6 : 22); if (t >= .8) v += 30 * (t - .8) / .2 + 8; a.push(v + Math.sin(i * .7) * 2) } return a })();
+const SPLITS = [298, 292, 290, 295, 288, 286, 284, 289, 281, 272];
+const ELEV = Array.from({ length: 120 }, (_, i) => { const t = i / 119; return Math.sin(t * 6.2) * .35 + Math.sin(t * 2.1 + 1) * .45 + Math.sin(t * 13) * .08 });
+
+// ─── Effects ─────────────────────────────────────────────────────────────────
+// controls: [key, label, min, max, default, isPixels]
+const FX = [
+  { key: 'riso', group: 'Print', name: 'Riso misprint', desc: '<b>Riso misprint.</b> Two or three spot inks (pink, blue, yellow) printed slightly out of line, overlapping like real ink, with speckled gaps where the ink didn\'t take.',
+    controls: [['mis', 'Misregister', 0, 40, 16, 1], ['inks', 'Inks', 2, 3, 2], ['grain', 'Ink grain', 0, 100, 45], ['fade', 'Patchiness', 0, 100, 40], ['seed', 'Pattern', 1, 40, 7]],
+    render(ctx, P) {
+      const inks = [[255, 72, 176], [0, 120, 191], [255, 232, 0]].slice(0, P.inks), R = rng(P.seed), vn = valueNoise(60 * SC, P.seed + 3);
+      const layers = inks.map((ink, i) => { const a = P.seed * 1.7 + i * 2.2; return { ink, M: maskArray(Math.cos(a) * P.mis * (i ? 1 : .3), Math.sin(a) * P.mis * (i ? 1 : .3)) } });
+      const oR = new Float32Array(N), oG = new Float32Array(N), oB = new Float32Array(N), oA = new Float32Array(N), g = P.grain / 100 * .6, f = P.fade / 100;
+      for (let i = 0; i < N; i++) {
+        let pr = 1, pg = 1, pb = 1, inv = 1;
+        for (const L of layers) { let c = L.M[i]; if (!c) continue; if (R() < g) c *= .15; c *= 1 - f * .55 * vn[i]; pr *= 1 - c * (1 - L.ink[0] / 255); pg *= 1 - c * (1 - L.ink[1] / 255); pb *= 1 - c * (1 - L.ink[2] / 255); inv *= 1 - c }
+        const a = 1 - inv; if (a < .004) continue;
+        oA[i] = a; oR[i] = clamp((pr - inv) / a) * 255; oG[i] = clamp((pg - inv) / a) * 255; oB[i] = clamp((pb - inv) / a) * 255;   // remove the paper, keep the ink
+      }
+      ctx.putImageData(toImage(oR, oG, oB, oA), 0, 0);
+    } },
+  { key: 'xerox', group: 'Print', name: 'Photocopy', desc: '<b>Photocopy.</b> Rough, bleeding edges, toner specks around the letters and worn-out holes inside, like the tenth copy of a copy.',
+    controls: [['rough', 'Roughness', 0, 100, 45], ['bleed', 'Bleed', 0, 20, 4, 1], ['speck', 'Specks', 0, 100, 40], ['ink', 'Darkness', 0, 100, 0], ['seed', 'Pattern', 1, 40, 5]],
+    render(ctx, P) {
+      const M = maskArray(), B = gauss(Float32Array.from(M), .6 + P.bleed * .6), near = gauss(Float32Array.from(M), 22 * SC), vn = valueNoise(6 * SC, P.seed), R = rng(P.seed + 9);
+      const v = 255 * (1 - P.ink / 100), A = new Float32Array(N), C = new Float32Array(N).fill(v), r = P.rough / 100, sp = P.speck / 100;
+      for (let i = 0; i < N; i++) {
+        let on = B[i] + (vn[i] - .5) * r * .7 + (R() - .5) * r * .25 > .5;
+        if (!on && near[i] > .02 && R() < sp * .012) on = true;     // stray toner
+        else if (on && R() < sp * .02) on = false;                   // worn spots
+        if (on) A[i] = 1;
+      }
+      ctx.putImageData(toImage(C, C, C, A), 0, 0);
+    } },
+  { key: 'sticker', group: 'Print', name: 'Die-cut sticker', desc: '<b>Die-cut sticker.</b> A thick white border around the whole word with a soft shadow, so it looks like a real sticker slapped on the photo. Turn Saturation down for black text.',
+    controls: [['border', 'Border', 0, 40, 16, 1], ['shadow', 'Shadow blur', 0, 50, 16, 1], ['drop', 'Shadow drop', 0, 30, 8, 1], ['tilt', 'Tilt', -12, 12, -4], ['hue', 'Text colour', 0, 360, 15], ['sat', 'Saturation', 0, 100, 90]],
+    render(ctx, P) {
+      ctx.save(); ctx.translate(W / 2, H / 2); ctx.rotate(P.tilt * Math.PI / 180); ctx.translate(-W / 2, -H / 2);
+      setText(ctx); ctx.lineJoin = 'round'; ctx.miterLimit = 2;
+      ctx.shadowColor = 'rgba(0,0,0,.45)'; ctx.shadowBlur = P.shadow; ctx.shadowOffsetY = P.drop;
+      ctx.fillStyle = '#fff'; ctx.strokeStyle = '#fff';
+      if (P.border > 0) { ctx.lineWidth = P.border * 2; ctx.strokeText(T.text, T.tx, T.ty) }
+      ctx.fillText(T.text, T.tx, T.ty);
+      ctx.shadowColor = 'transparent'; ctx.fillStyle = rgbStr(hsl(P.hue, P.sat, 8 + P.sat * .42)); ctx.fillText(T.text, T.tx, T.ty);
+      ctx.restore();
+    } },
+  { key: 'neon', group: 'Light', name: 'Neon tube', desc: '<b>Neon tube.</b> The letters become glowing glass tubes: a hot white core, a coloured tube and a wide halo. Flicker dims a few letters like a sign on its way out.',
+    controls: [['tube', 'Tube width', 1, 16, 5, 1], ['glow', 'Glow', 0, 70, 32, 1], ['hue', 'Colour', 0, 360, 320], ['flicker', 'Flicker', 0, 100, 25], ['seed', 'Pattern', 1, 40, 4]],
+    render(ctx, P) {
+      const R = rng(P.seed), boxes = charBoxes(ctx); ctx.lineJoin = 'round'; ctx.textAlign = 'left';
+      const c = hsl(P.hue, 100, 60), cHot = hsl(P.hue, 100, 72);
+      boxes.forEach(b => {
+        if (b.ch === ' ') return;
+        const on = R() < P.flicker / 100 * .45 ? .3 + R() * .3 : 1;
+        ctx.shadowColor = rgbStr(c, on); ctx.shadowBlur = P.glow * 2; ctx.strokeStyle = rgbStr(c, .85 * on); ctx.lineWidth = P.tube * 1.7; ctx.strokeText(b.ch, b.x, T.ty);
+        ctx.shadowBlur = P.glow * .6; ctx.strokeStyle = rgbStr(cHot, on); ctx.lineWidth = P.tube; ctx.strokeText(b.ch, b.x, T.ty);
+        ctx.shadowBlur = 0; ctx.strokeStyle = `rgba(255,255,255,${.92 * on})`; ctx.lineWidth = Math.max(1, P.tube * .35); ctx.strokeText(b.ch, b.x, T.ty);
+      });
+    } },
+  { key: 'chrome', group: 'Light', name: 'Liquid chrome', desc: '<b>Liquid chrome.</b> Shiny metal letters: a bevelled edge catching the light, a reflected sky-and-horizon gradient, and a hard highlight. Tint warms or cools the metal.',
+    controls: [['bevel', 'Bevel', 1, 24, 9, 1], ['refl', 'Reflection', 0, 100, 55], ['shine', 'Highlight', 0, 100, 65], ['tint', 'Tint colour', 0, 360, 210], ['tintAmt', 'Tint amount', 0, 100, 15]],
+    render(ctx, P) {
+      const M = maskArray(), Hm = gauss(Float32Array.from(M), P.bevel), A = M, oR = new Float32Array(N), oG = new Float32Array(N), oB = new Float32Array(N);
+      const stops = [[0, [210, 236, 255]], [.42, [250, 252, 255]], [.5, [40, 48, 62]], [.6, [96, 84, 70]], [.8, [200, 190, 172]], [1, [250, 246, 238]]];
+      const env = t => { t = clamp(t); for (let s = 1; s < stops.length; s++) if (t <= stops[s][0]) { const [t0, c0] = stops[s - 1], [t1, c1] = stops[s], u = (t - t0) / (t1 - t0); return [lerp(c0[0], c1[0], u), lerp(c0[1], c1[1], u), lerp(c0[2], c1[2], u)] } return stops[stops.length - 1][1] };
+      const tint = hsl(P.tint, 80, 55), ta = P.tintAmt / 100, h = T.bot - T.top || 1, str = 6 / (P.bevel * .15 + .4), L = [-.4, -.6, .7], ll = Math.hypot(...L);
+      for (let y = 1; y < H - 1; y++) for (let x = 1; x < W - 1; x++) {
+        const i = y * W + x; if (A[i] < .004) continue;
+        let nx = -(Hm[i + 1] - Hm[i - 1]) * str, ny = -(Hm[i + W] - Hm[i - W]) * str, nz = 1; const nl = Math.hypot(nx, ny, nz); nx /= nl; ny /= nl; nz /= nl;
+        let c = env((y - T.top) / h + ny * P.refl / 100 * 1.6);
+        const spec = Math.pow(Math.max(0, (nx * L[0] + ny * L[1] + nz * L[2]) / ll), 30) * P.shine / 100 * 255;
+        oR[i] = clamp(lerp(c[0], c[0] * tint[0] / 255, ta) + spec, 0, 255); oG[i] = clamp(lerp(c[1], c[1] * tint[1] / 255, ta) + spec, 0, 255); oB[i] = clamp(lerp(c[2], c[2] * tint[2] / 255, ta) + spec, 0, 255);
+      }
+      ctx.putImageData(toImage(oR, oG, oB, A), 0, 0);
+    } },
+  { key: 'aurora', group: 'Light', name: 'Aurora fill', desc: '<b>Aurora fill.</b> The inside of the letters filled with a slow, blurry wash of three related colours, like an iPhone wallpaper, with a fine grain on top. Calm rather than loud.',
+    controls: [['hue', 'Colour', 0, 360, 265], ['soft', 'Softness', 20, 220, 110, 1], ['grain', 'Grain', 0, 100, 35], ['seed', 'Pattern', 1, 40, 3]],
+    render(ctx, P) {
+      const M = maskArray(), n1 = valueNoise(P.soft, P.seed), n2 = valueNoise(P.soft * 1.6, P.seed + 11), R = rng(P.seed + 2);
+      const c1 = hsl(P.hue, 90, 58), c2 = hsl(P.hue + 55, 95, 62), c3 = hsl(P.hue - 150, 85, 55), g = P.grain / 100 * 40;
+      const oR = new Float32Array(N), oG = new Float32Array(N), oB = new Float32Array(N);
+      for (let i = 0; i < N; i++) { if (M[i] < .004) continue; const a = n1[i], b = Math.pow(n2[i], 1.6), e = (R() - .5) * g; for (const [o, k] of [[oR, 0], [oG, 1], [oB, 2]]) o[i] = clamp(lerp(lerp(c1[k], c2[k], a), c3[k], b) + e, 0, 255) }
+      ctx.putImageData(toImage(oR, oG, oB, M), 0, 0);
+    } },
+  { key: 'dither', group: 'Retro', name: '1-bit dither', desc: '<b>1-bit dither.</b> The text and its glow turned into a crisp on/off pixel pattern, like an old Mac or Game Boy screen. Bigger pixels look more retro.',
+    controls: [['px', 'Pixel size', 1, 10, 3, 1], ['glow', 'Glow', 0, 50, 16, 1], ['amt', 'Glow strength', 0, 100, 60], ['hue', 'Colour', 0, 360, 140], ['sat', 'Saturation', 0, 100, 0]],
+    render(ctx, P) {
+      const BY = [0, 32, 8, 40, 2, 34, 10, 42, 48, 16, 56, 24, 50, 18, 58, 26, 12, 44, 4, 36, 14, 46, 6, 38, 60, 28, 52, 20, 62, 30, 54, 22, 3, 35, 11, 43, 1, 33, 9, 41, 51, 19, 59, 27, 49, 17, 57, 25, 15, 47, 7, 39, 13, 45, 5, 37, 63, 31, 55, 23, 61, 29, 53, 21];
+      const M = maskArray(), G = gauss(Float32Array.from(M), P.glow), p = Math.max(1, Math.round(P.px)), col = hsl(P.hue, P.sat, 50 + (100 - P.sat) * .5);
+      const A = new Float32Array(N), C0 = new Float32Array(N).fill(col[0]), C1 = new Float32Array(N).fill(col[1]), C2 = new Float32Array(N).fill(col[2]);
+      for (let cy = 0; cy < H; cy += p) for (let cx = 0; cx < W; cx += p) {
+        const j = Math.min(H - 1, cy + (p >> 1)) * W + Math.min(W - 1, cx + (p >> 1)), lum = Math.min(1, M[j] + G[j] * P.amt / 100 * 1.4);
+        if (lum <= (BY[((cy / p) % 8) * 8 + (cx / p) % 8] + .5) / 64) continue;
+        for (let y = cy; y < Math.min(H, cy + p); y++) for (let x = cx; x < Math.min(W, cx + p); x++) A[y * W + x] = 1;
+      }
+      ctx.putImageData(toImage(C0, C1, C2, A), 0, 0);
+    } },
+  { key: 'vhs', group: 'Retro', name: 'VHS glitch', desc: '<b>VHS glitch.</b> Horizontal slices of the text slip sideways, the red and blue channels pull apart, and faint tracking lines run across. New pattern reshuffles the slices.',
+    controls: [['shift', 'Slice shift', 0, 90, 26, 1], ['count', 'Glitchiness', 0, 100, 35], ['split', 'Colour split', 0, 24, 6, 1], ['lines', 'Tracking lines', 0, 100, 40], ['seed', 'Pattern', 1, 40, 9]],
+    render(ctx, P) {
+      const base = mk(W, H), bx = base.getContext('2d'); setText(bx); bx.fillStyle = '#fff'; bx.fillText(T.text, T.tx, T.ty);
+      const sl = mk(W, H), sx = sl.getContext('2d'), R = rng(P.seed);
+      for (let y = 0; y < H;) { const h = Math.max(2, Math.round((3 + R() * 34) * SC)), off = R() < P.count / 100 ? (R() - .5) * 2 * P.shift : (R() - .5) * P.shift * .08; sx.drawImage(base, 0, y, W, h, off, y, W, h); y += h }
+      const px = sx.getImageData(0, 0, W, H).data, s = Math.round(P.split), oR = new Float32Array(N), oG = new Float32Array(N), oB = new Float32Array(N), oA = new Float32Array(N);
+      const lineRows = new Set(); const Rl = rng(P.seed + 5); for (let n = 0; n < P.lines / 100 * 14; n++) { const y = Math.floor(Rl() * H), t = Math.max(1, Math.round((1 + Rl() * 3) * SC)); for (let k = 0; k < t; k++) lineRows.add(y + k) }
+      for (let y = 0; y < H; y++) { const tl = lineRows.has(y); for (let x = 0; x < W; x++) {
+        const i = y * W + x, ar = x - s >= 0 ? px[(i - s) * 4 + 3] / 255 : 0, ag = px[i * 4 + 3] / 255, ab = x + s < W ? px[(i + s) * 4 + 3] / 255 : 0;
+        let a = Math.max(ar, ag, ab); if (tl && a > 0) { const n = .55 + R() * .45; oA[i] = a; oR[i] = 255 * n; oG[i] = 255 * n; oB[i] = 255 * n; continue }
+        if (a < .004) continue; oA[i] = a; oR[i] = ar / a * 255; oG[i] = ag / a * 255; oB[i] = ab / a * 255;
+      } }
+      ctx.putImageData(toImage(oR, oG, oB, oA), 0, 0);
+    } },
+  { key: 'led', group: 'Retro', name: 'LED board', desc: '<b>LED board.</b> The text rebuilt from round glowing lights on a grid, like a stadium scoreboard. Unlit bulbs show faintly around it; set Unlit to 0 for just the lit ones.',
+    controls: [['pitch', 'Bulb spacing', 5, 32, 12, 1], ['size', 'Bulb size', 30, 100, 82], ['glow', 'Glow', 0, 40, 12, 1], ['hue', 'Colour', 0, 360, 38], ['unlit', 'Unlit bulbs', 0, 100, 12]],
+    render(ctx, P) {
+      const M = maskArray(), p = P.pitch, r = p * P.size / 200, col = hsl(P.hue, 100, 58), hot = hsl(P.hue, 100, 82);
+      const x0 = T.left - p * 2, x1 = T.right + p * 2, y0 = T.top - p * 2, y1 = T.bot + p * 2, lit = [];
+      for (let y = y0; y < y1; y += p) for (let x = x0; x < x1; x += p) {
+        const xi = Math.round(x), yi = Math.round(y); if (xi < 0 || yi < 0 || xi >= W || yi >= H) continue;
+        if (M[yi * W + xi] > .45) lit.push([x, y]); else if (P.unlit > 0) { ctx.fillStyle = `rgba(255,255,255,${P.unlit / 100 * .14})`; ctx.beginPath(); ctx.arc(x, y, r, 0, 7); ctx.fill() }
+      }
+      ctx.shadowColor = rgbStr(col); ctx.shadowBlur = P.glow; ctx.fillStyle = rgbStr(col);
+      lit.forEach(([x, y]) => { ctx.beginPath(); ctx.arc(x, y, r, 0, 7); ctx.fill() });
+      ctx.shadowBlur = 0; ctx.fillStyle = rgbStr(hot);
+      lit.forEach(([x, y]) => { ctx.beginPath(); ctx.arc(x - r * .15, y - r * .15, r * .45, 0, 7); ctx.fill() });
+    } },
+  { key: 'heat', group: 'Data', name: 'Heart-rate heat', desc: '<b>Heart-rate heat.</b> The letters are coloured by your heart rate through the session (sample run shown), from calm blue through green and yellow to red at the hardest efforts. The word becomes a chart of the effort.',
+    controls: [['maxhr', 'Max HR', 160, 205, 188], ['smooth', 'Smoothing', 1, 40, 10], ['glow', 'Glow', 0, 40, 14, 1], ['sat', 'Intensity', 0, 100, 100]],
+    render(ctx, P) {
+      const sm = HR.map((_, i) => { let s = 0, n = 0; for (let j = Math.max(0, i - P.smooth); j <= Math.min(HR.length - 1, i + P.smooth); j++) { s += HR[j]; n++ } return s / n });
+      const zone = [[.5, 210], [.6, 200], [.7, 130], [.8, 52], [.9, 25], [1, 0]];
+      const hueAt = f => { if (f <= zone[0][0]) return zone[0][1]; for (let z = 1; z < zone.length; z++) if (f <= zone[z][0]) return lerp(zone[z - 1][1], zone[z][1], (f - zone[z - 1][0]) / (zone[z][0] - zone[z - 1][0])); return 0 };
+      const grad = ctx.createLinearGradient(T.left, 0, T.right, 0);
+      for (let s = 0; s <= 40; s++) { const v = sm[Math.round(s / 40 * (sm.length - 1))]; grad.addColorStop(s / 40, rgbStr(hsl(hueAt(v / P.maxhr), P.sat, 55))) }
+      setText(ctx); ctx.fillStyle = grad;
+      if (P.glow > 0) { ctx.save(); ctx.filter = `blur(${P.glow}px)`; ctx.globalAlpha = .8; ctx.fillText(T.text, T.tx, T.ty); ctx.restore() }
+      ctx.fillText(T.text, T.tx, T.ty);
+    } },
+  { key: 'splitcol', group: 'Data', name: 'Split-coloured', desc: '<b>Split-coloured.</b> Each character takes the colour of one of your kilometre splits (sample run shown): the fastest at full accent colour, slower ones fading toward grey. A number like 10.2 becomes a tiny splits chart.',
+    controls: [['hue', 'Accent', 0, 360, 15], ['contrast', 'Contrast', 0, 100, 75], ['dim', 'Slowest tone', 0, 100, 40], ['glow', 'Glow', 0, 30, 0, 1]],
+    render(ctx, P) {
+      const boxes = charBoxes(ctx).filter(b => b.ch !== ' '), sp = SPLITS.map(v => 1 / v), mn = Math.min(...sp), mx = Math.max(...sp), acc = hsl(P.hue, 95, 55), dim = [P.dim * 2.55, P.dim * 2.55, P.dim * 2.55];
+      ctx.textAlign = 'left';
+      boxes.forEach((b, i) => {
+        const s = sp[Math.round(i * (sp.length - 1) / Math.max(1, boxes.length - 1))], t = Math.pow((s - mn) / (mx - mn || 1), 1 + P.contrast / 30);
+        const c = [lerp(dim[0], acc[0], t), lerp(dim[1], acc[1], t), lerp(dim[2], acc[2], t)];
+        ctx.fillStyle = rgbStr(c); ctx.shadowColor = rgbStr(c); ctx.shadowBlur = P.glow * t; ctx.fillText(b.ch, b.x, T.ty);
+      });
+    } },
+  { key: 'horizon', group: 'Data', name: 'Elevation horizon', desc: '<b>Elevation horizon.</b> The route\'s elevation profile (sample shown) cuts through the letters: solid above the line, accent or outline below, with the profile drawn as a fine line across.',
+    controls: [['pos', 'Line height', 0, 100, 55], ['amp', 'Hill size', 0, 160, 70, 1], ['line', 'Line weight', 0, 10, 2.5, 1], ['hue', 'Accent', 0, 360, 15], ['style', 'Lower style', 0, 2, 0]],
+    render(ctx, P) {
+      const x0 = T.left - 20 * SC, x1 = T.right + 20 * SC, base = T.top + (T.bot - T.top) * (1 - P.pos / 100), acc = rgbStr(hsl(P.hue, 95, 55));
+      const path = new Path2D(); ELEV.forEach((e, i) => { const x = lerp(x0, x1, i / (ELEV.length - 1)), y = base - e * P.amp; i ? path.lineTo(x, y) : path.moveTo(x, y) });
+      const above = new Path2D(path); above.lineTo(x1, 0); above.lineTo(x0, 0); above.closePath();
+      const below = new Path2D(path); below.lineTo(x1, H); below.lineTo(x0, H); below.closePath();
+      setText(ctx);
+      ctx.save(); ctx.clip(above); ctx.fillStyle = '#fff'; ctx.fillText(T.text, T.tx, T.ty); ctx.restore();
+      ctx.save(); ctx.clip(below); const st = Math.round(P.style);
+      if (st === 1) { ctx.strokeStyle = acc; ctx.lineWidth = Math.max(1.5, T.fs * .025); ctx.lineJoin = 'round'; ctx.strokeText(T.text, T.tx, T.ty) }
+      else { ctx.fillStyle = st === 2 ? 'rgba(255,255,255,.35)' : acc; ctx.fillText(T.text, T.tx, T.ty) }
+      ctx.restore();
+      if (P.line > 0) { ctx.strokeStyle = '#fff'; ctx.lineWidth = P.line; ctx.lineJoin = 'round'; ctx.stroke(path) }
+    } }
+];
+
+// ─── UI ──────────────────────────────────────────────────────────────────────
+const VALS = Object.fromEntries(FX.map(f => [f.key, Object.fromEntries(f.controls.map(c => [c[0], c[4]]))]));
+let cur = FX[0];
+function buildFxBar() {
+  let g = '';
+  document.getElementById('fx').innerHTML = FX.map(f => { const head = f.group !== g ? `<span class="grp">${(g = f.group)}</span>` : ''; return `${head}<button data-k="${f.key}" class="${f === cur ? 'on' : ''}">${f.name}</button>` }).join('');
+  document.querySelectorAll('#fx button').forEach(b => b.onclick = () => { cur = FX.find(f => f.key === b.dataset.k); buildFxBar(); buildControls(); schedule() });
+}
+function buildControls() {
+  const V = VALS[cur.key];
+  document.getElementById('controls').innerHTML = cur.controls.map(([k, l, mn, mx]) => `<label class="r"><span>${l}</span><input type="range" id="s-${k}" min="${mn}" max="${mx}" step="${mx - mn <= 3 ? 1 : (mx - mn > 20 ? 1 : .5)}" value="${V[k]}"><span id="v-${k}">${V[k]}</span></label>`).join('');
+  cur.controls.forEach(([k]) => { const s = document.getElementById('s-' + k); s.addEventListener('input', () => { V[k] = +s.value; document.getElementById('v-' + k).textContent = V[k]; schedule(true) }); s.addEventListener('change', () => schedule(false)) });
+  document.getElementById('desc').innerHTML = cur.desc;
+}
+document.getElementById('reset').onclick = () => { cur.controls.forEach(c => VALS[cur.key][c[0]] = c[4]); buildControls(); schedule() };
+document.querySelectorAll('#bg button').forEach(b => b.onclick = () => { document.getElementById('stage').className = 'stage' + (b.dataset.bg === 'black' ? '' : ' ' + b.dataset.bg); document.querySelectorAll('#bg button').forEach(x => x.classList.toggle('on', x === b)) });
+document.getElementById('txt').addEventListener('input', () => schedule());
+document.getElementById('font').addEventListener('change', () => schedule());
+
+async function draw(draft = false) {
+  const t0 = performance.now(), d = draft ? .5 : 1;
+  W = Math.round(FW * d); H = Math.round(FH * d); N = W * H; SC = d; if (TMP.length !== N) TMP = new Float32Array(N);
+  const cv = document.getElementById('out'); if (cv.width !== W) { cv.width = W; cv.height = H }
+  const fontSpec = document.getElementById('font').value;
+  T = { text: document.getElementById('txt').value || ' ', font: n => fontSpec.replace('1px', n + 'px') };
+  await document.fonts.load(T.font(100), T.text);
+  const ctx = cv.getContext('2d'); ctx.clearRect(0, 0, W, H); ctx.save(); layout(ctx);
+  const P = {}; cur.controls.forEach(([k, , , , , px]) => P[k] = VALS[cur.key][k] * (px ? d : 1));
+  cur.render(ctx, P); ctx.restore();
+  document.getElementById('ms').textContent = (draft ? 'preview ' : '') + Math.round(performance.now() - t0) + ' ms';
+}
+// Quick half-res drafts while a slider is held; full quality otherwise.
+let timer = 0, busy = false, pending = null;
+function schedule(draft = false) { clearTimeout(timer); timer = setTimeout(() => run(draft), draft ? 0 : 60) }
+async function run(draft) { if (busy) { pending = pending === false ? false : draft; return } busy = true; try { await draw(draft) } finally { busy = false } if (pending !== null) { const p = pending; pending = null; run(p) } }
+
+// Share / Copy the full-quality PNG
+async function pngBlob() { if (document.getElementById('out').width !== FW) await draw(false); return new Promise(r => document.getElementById('out').toBlob(r, 'image/png')) }
+const note = t => { const n = document.getElementById('note'); n.textContent = t; clearTimeout(note.t); note.t = setTimeout(() => n.textContent = '', 4000) };
+document.getElementById('share').onclick = async () => {
+  const file = new File([await pngBlob()], cur.key + '.png', { type: 'image/png' });
+  if (navigator.canShare?.({ files: [file] })) { try { await navigator.share({ files: [file] }) } catch (e) {} return }
+  const a = document.createElement('a'); a.download = file.name; a.href = URL.createObjectURL(file); a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+  note("Sharing isn't available in this browser, so it downloaded instead.");
+};
+document.getElementById('copy').onclick = async () => {
+  try { await navigator.clipboard.write([new ClipboardItem({ 'image/png': pngBlob() })]); note('Copied. In your Story, tap and choose Paste.') }
+  catch (e) { note("Copy isn't supported here. Use Share instead.") }
+};
+
+buildFxBar(); buildControls();
+document.fonts.ready.then(() => schedule());
+</script>
+</body>
+</html>
