@@ -50,7 +50,7 @@
 <body>
 <div class="page">
   <h1>Effects lab</h1>
-  <p class="lede">Twelve text effects, all drawn from scratch with a real transparent background, so any of them can sit on a photo or go on the big type in a card. Pick one, type your own text, and play with the sliders. Share saves a 1,200 px PNG.</p>
+  <p class="lede">Text effects, all drawn from scratch with a real transparent background, so any of them can sit on a photo or go on the big type in a card. Pick one, type your own text, and play with the sliders. Share saves a 1,200 px PNG.</p>
 
   <div class="fx" id="fx"></div>
   <div class="stage" id="stage"><canvas id="out" width="1200" height="480"></canvas><span class="ms" id="ms"></span></div>
@@ -60,6 +60,10 @@
     <textarea id="txt" rows="1" aria-label="Text (Return for a new line)" maxlength="80">10.2 KM</textarea>
     <span class="seg" id="align"><button data-a="left">Left</button><button data-a="center" class="on">Centre</button><button data-a="right">Right</button></span>
     <label class="mini">Line spacing <input type="range" id="lh" min="0.8" max="1.6" step="0.02" value="1.15"></label>
+    <label class="mini">Letter spacing <input type="range" id="ls" min="-0.15" max="0.6" step="0.01" value="0"></label>
+    <label class="mini">Wave <input type="range" id="wave" min="0" max="80" step="1" value="0"></label>
+    <label class="mini">Wave size <input type="range" id="waveLen" min="80" max="800" step="10" value="320"></label>
+    <label class="mini">Bulge <input type="range" id="bulge" min="0" max="100" step="1" value="0"></label>
     <select id="font" aria-label="Font">
       <option value="900 1px Rubik">Rubik Black</option>
       <option value="1px Anton">Anton</option>
@@ -105,20 +109,51 @@ function toImage(R, G, B, A) { const img = new ImageData(W, H), o = img.data; fo
 let T = {};
 // Size the block so the widest line fills ~80% of the width; extra lines make the image taller, not the text smaller.
 function measureBlock(ctx, Wt) {
-  ctx.font = T.font(100); const ms = T.lines.map(l => ctx.measureText(l));
-  const maxW = Math.max(...ms.map(m => m.width), 1), asc = Math.max(...ms.map(m => m.actualBoundingBoxAscent || 72)), desc = Math.max(...ms.map(m => m.actualBoundingBoxDescent || 0));
-  const fs = Math.min(100 * Wt * .8 / maxW, 100 * FH * (Wt / FW) * .52 / asc), k = fs / 100, step = asc * k * T.lh;
-  return { fs, asc: asc * k, desc: desc * k, step, maxW: maxW * k, widths: ms.map(m => m.width * k), contentH: asc * k + (T.lines.length - 1) * step + desc * k };
+  ctx.font = T.font(100); const ms = T.lines.map(l => ctx.measureText(l)), lw = ms.map((m, i) => m.width + T.ls * 100 * Math.max(0, [...T.lines[i]].length - 1));
+  const maxW = Math.max(...lw, 1), asc = Math.max(...ms.map(m => m.actualBoundingBoxAscent || 72)), desc = Math.max(...ms.map(m => m.actualBoundingBoxDescent || 0));
+  const room = Wt - 2 * (T.padX || 0) * Wt / FW, fs = Math.min(100 * Math.min(Wt * .8, room * .92) / maxW, 100 * FH * (Wt / FW) * .52 / asc), k = fs / 100, step = asc * k * T.lh;
+  return { fs, asc: asc * k, desc: desc * k, step, maxW: maxW * k, widths: lw.map(w => w * k), contentH: asc * k + (T.lines.length - 1) * step + desc * k };
 }
 function layout(ctx) {
   const m = measureBlock(ctx, W);
-  T.fs = m.fs; T.top = (H - m.contentH) / 2; T.bot = T.top + m.contentH; T.left = (W - m.maxW) / 2; T.right = T.left + m.maxW;
+  T.fs = m.fs; T.lsPx = T.ls * m.fs; T.top = (H - m.contentH) / 2; T.bot = T.top + m.contentH; T.left = (W - m.maxW) / 2; T.right = T.left + m.maxW;
   T.ys = T.lines.map((_, i) => T.top + m.asc + i * m.step); T.ty = T.ys[0]; T.widths = m.widths;
   T.tx = T.align === 'left' ? T.left : T.align === 'right' ? T.right : W / 2;
 }
-function drawLines(ctx, method, dx = 0, dy = 0) { T.lines.forEach((l, i) => ctx[method](l, T.tx + dx, T.ys[i] + dy)) }
+function drawLines(ctx, method, dx = 0, dy = 0) {
+  if (!T.lsPx) { T.lines.forEach((l, i) => ctx[method](l, T.tx + dx, T.ys[i] + dy)); return }
+  const align = ctx.textAlign; ctx.textAlign = 'left';
+  T.lines.forEach((l, li) => {
+    const chars = [...l], w = T.widths[li];
+    let x = (T.align === 'left' ? T.left : T.align === 'right' ? T.right - w : W / 2 - w / 2) + dx;
+    chars.forEach((ch, i) => {
+      ctx[method](ch, x, T.ys[li] + dy);
+      const pre = chars.slice(0, i).join(''), adv = ctx.measureText(pre + ch).width - ctx.measureText(pre).width;   // keeps the font's kerning
+      x += adv + T.lsPx;
+    });
+  });
+  ctx.textAlign = align;
+}
 function setText(ctx, size = T.fs) { ctx.font = T.font(size); ctx.textAlign = T.align || 'center'; ctx.textBaseline = 'alphabetic' }
-function maskArray(dx = 0, dy = 0) { const c = mk(W, H), x = c.getContext('2d'); setText(x); x.fillStyle = '#fff'; drawLines(x, 'fillText', dx, dy); const p = x.getImageData(0, 0, W, H).data, M = new Float32Array(N); for (let i = 0; i < N; i++) M[i] = p[i * 4 + 3] / 255; return M }
+// Global text warp (Wave, Wave size, Bulge). Output pixels sample the flat text through an inverse mapping.
+let WARP = { wave: 0, waveLen: 320, bulge: 0 };
+function warpCanvas(c) {
+  const x = c.getContext('2d'), s = x.getImageData(0, 0, W, H).data, out = x.createImageData(W, H), o = out.data;
+  const A = WARP.wave * SC, L = Math.max(20, WARP.waveLen * SC), B = WARP.bulge / 100 * .55;
+  const cx = (T.left + T.right) / 2, cy = (T.top + T.bot) / 2, Rb = Math.max(1, (T.right - T.left) / 2 * 1.05);
+  const al = (X, Y) => (X < 0 || Y < 0 || X >= W || Y >= H) ? 0 : s[(Y * W + X) * 4 + 3];
+  for (let y = 0; y < H; y++) for (let xx = 0; xx < W; xx++) {
+    let sx = xx, sy = y;
+    if (B) { const nx = (xx - cx) / Rb, ny = (y - cy) / Rb, r2 = nx * nx + ny * ny; if (r2 < 1) { const f = 1 - B * (1 - r2) * (1 - r2); sx = cx + (xx - cx) * f; sy = cy + (y - cy) * f } }   // magnify the middle
+    if (A) sy -= A * Math.sin((sx - T.left) / L * 2 * Math.PI);                                                                                                // vertical wave along the line
+    const x0 = Math.floor(sx), y0 = Math.floor(sy), fx = sx - x0, fy = sy - y0;
+    const v = (al(x0, y0) * (1 - fx) + al(x0 + 1, y0) * fx) * (1 - fy) + (al(x0, y0 + 1) * (1 - fx) + al(x0 + 1, y0 + 1) * fx) * fy;
+    if (v > 0) { const i = (y * W + xx) * 4; o[i] = o[i + 1] = o[i + 2] = 255; o[i + 3] = v }
+  }
+  x.putImageData(out, 0, 0);
+}
+function textCanvas(dx = 0, dy = 0) { const c = mk(W, H), x = c.getContext('2d'); setText(x); x.fillStyle = '#fff'; drawLines(x, 'fillText', dx, dy); if (WARP.wave || WARP.bulge) warpCanvas(c); return c }
+function maskArray(dx = 0, dy = 0) { const p = textCanvas(dx, dy).getContext('2d').getImageData(0, 0, W, H).data, M = new Float32Array(N); for (let i = 0; i < N; i++) M[i] = p[i * 4 + 3] / 255; return M }
 // Left edges of each character so effects can treat letters separately
 function charBoxes(ctx) {
   setText(ctx); const out = [];
@@ -129,15 +164,121 @@ function charBoxes(ctx) {
   return out;
 }
 
-// Sample workout data for the data-driven effects
-const HR = (() => { const a = []; for (let i = 0; i < 240; i++) { const t = i / 240; let v = 128 + 26 * Math.min(1, t * 5); if (t > .35 && t < .8) v += (Math.floor((t - .35) * 22) % 2 ? 6 : 22); if (t >= .8) v += 30 * (t - .8) / .2 + 8; a.push(v + Math.sin(i * .7) * 2) } return a })();
-const SPLITS = [298, 292, 290, 295, 288, 286, 284, 289, 281, 272];
-const ELEV = Array.from({ length: 120 }, (_, i) => { const t = i / 119; return Math.sin(t * 6.2) * .35 + Math.sin(t * 2.1 + 1) * .45 + Math.sin(t * 13) * .08 });
 
 // ─── Effects ─────────────────────────────────────────────────────────────────
 // controls: [key, label, min, max, default, isPixels]
 const FX = [
-  { key: 'riso', group: 'Print', name: 'Riso misprint', desc: '<b>Riso misprint.</b> Two or three spot inks (pink, blue, yellow) printed slightly out of line, overlapping like real ink, with speckled gaps where the ink didn\'t take.',
+  { key: 'ghost', group: 'Light', pad: P => { const a = P.angle * Math.PI / 180, e = P.blur * (1 + P.decay / 100 * 5) * 2 + P.glow * 2; return { x: Math.abs(Math.cos(a)) * P.len + e, y: Math.abs(Math.sin(a)) * P.len + e } }, name: 'Ghost', desc: '<b>Ghost.</b> A cream face with a long, soft trail of fading copies behind it, pink near the letters and deep purple at the far end, with a pink glow and grain. Decay makes the tail fall apart: further copies get blurrier, fainter and grainier.',
+    controls: [['len', 'Trail length', 0, 300, 170, 1], ['copies', 'Copies', 2, 60, 16], ['angle', 'Angle', 0, 360, 318], ['blur', 'Trail blur', 0, 30, 3, 1], ['decay', 'Decay', 0, 100, 70], ['hue', 'Trail colour', 0, 360, 300], ['glow', 'Glow', 0, 40, 14, 1], ['grain', 'Grain', 0, 100, 45]],
+    render(ctx, P) {
+      const M = maskArray(), ang = P.angle * Math.PI / 180, dx = Math.cos(ang), dy = -Math.sin(ang);
+      const steps = Math.max(1, Math.round(P.copies)), dec = P.decay / 100, BANDS = 4;
+      // The trail is built in bands along its length; each band further from the letters is fainter and blurrier.
+      const bA = Array.from({ length: BANDS }, () => new Float32Array(N)), bT = Array.from({ length: BANDS }, () => new Float32Array(N));
+      for (let s = steps; s >= 1 && P.len > 0; s--) {
+        const t = s / steps, ox = Math.round(dx * P.len * t), oy = Math.round(dy * P.len * t), b = Math.min(BANDS - 1, Math.floor(t * BANDS));
+        const w = (Math.pow(1 - t, .35) * .8 + .2) * (1 - dec * .7 * t), Ba = bA[b], Bt = bT[b];
+        for (let y = Math.max(0, oy); y < Math.min(H, H + oy); y++) {
+          const row = y * W, srow = (y - oy) * W;
+          for (let x = Math.max(0, ox); x < Math.min(W, W + ox); x++) { const a = M[srow + x - ox] * w; if (a > Ba[row + x]) { Ba[row + x] = a; Bt[row + x] = t } }
+        }
+      }
+      // Blur each band (more blur toward the tail), then stack them far → near so nearer copies sit on top
+      const Ta = new Float32Array(N), TtA = new Float32Array(N);
+      for (let b = BANDS - 1; b >= 0; b--) {
+        const Ba = bA[b], Bt = bT[b], sig = P.blur * (1 + dec * 5 * (b + .5) / BANDS);
+        for (let i = 0; i < N; i++) Bt[i] *= Ba[i];
+        gauss(Ba, sig); gauss(Bt, sig);
+        for (let i = 0; i < N; i++) { const a = Math.min(1, Ba[i]); if (a <= 0) continue; const keep = 1 - a; TtA[i] = Bt[i] + TtA[i] * keep; Ta[i] = a + Ta[i] * keep }
+      }
+      const G = P.glow > 0 ? gauss(Float32Array.from(M), P.glow) : null;
+      const near = hsl(P.hue, 95, 70), far = hsl(P.hue - 35, 85, 34), gc = hsl(P.hue, 100, 78), face = [255, 243, 226], R = rng(11), g = P.grain / 100;
+      const oR = new Float32Array(N), oG = new Float32Array(N), oB = new Float32Array(N), oA = new Float32Array(N);
+      for (let i = 0; i < N; i++) {
+        const ta = Math.min(1, Ta[i]), tt = ta > .001 ? TtA[i] / Ta[i] : 0, ga = G ? Math.min(1, G[i] * .9) : 0, fa = M[i];
+        // trail, then glow over it
+        let r = lerp(near[0], far[0], tt), gr = lerp(near[1], far[1], tt), b = lerp(near[2], far[2], tt), a = ta;
+        if (ga > 0) { const na = ga + a * (1 - ga); r = (gc[0] * ga + r * a * (1 - ga)) / (na || 1); gr = (gc[1] * ga + gr * a * (1 - ga)) / (na || 1); b = (gc[2] * ga + b * a * (1 - ga)) / (na || 1); a = na }
+        const lg = Math.min(1, g + (1 - g) * dec * tt * .9);                    // more dissolve further down the tail
+        if (lg > 0 && a > 0) a = a * (1 - lg) + (a * 1.3 > R() ? 1 : 0) * lg;   // grain in the trail and glow, not the face
+        const oa = fa + a * (1 - fa); if (oa < .004) continue;
+        oA[i] = oa; oR[i] = (face[0] * fa + r * a * (1 - fa)) / oa; oG[i] = (face[1] * fa + gr * a * (1 - fa)) / oa; oB[i] = (face[2] * fa + b * a * (1 - fa)) / oa;
+      }
+      ctx.putImageData(toImage(oR, oG, oB, oA), 0, 0);
+    } },
+  { key: 'spectrum', group: 'Light', pad: P => ({ x: P.glow * 2, y: P.len * 1.15 + P.glow * 2 }), name: 'Spectrum', desc: '<b>Spectrum.</b> Every letter drips into a streak of light that fades away, coloured in a rainbow across the word, with uneven streaks and grain. Turn on Upwards to send the streaks the other way.',
+    controls: [['len', 'Streak length', 0, 500, 260, 1], ['hue', 'Start colour', 0, 360, 0], ['range', 'Rainbow width', 0, 360, 150], ['texture', 'Streakiness', 0, 100, 55], ['glow', 'Glow', 0, 30, 8, 1], ['grain', 'Grain', 0, 100, 35], ['up', 'Upwards', 0, 1, 0]],
+    render(ctx, P) {
+      const M = maskArray(), S = new Float32Array(N), dec = P.len > 0 ? Math.exp(-3 / Math.max(1, P.len)) : 0, up = P.up >= .5;
+      for (let x = 0; x < W; x++) {   // each column carries the letter's light along, fading as it goes
+        let c = 0;
+        if (!up) for (let y = 0; y < H; y++) { const i = y * W + x; c = Math.max(M[i], c * dec); if (c < .04) c = 0; S[i] = c }   // end the streak cleanly
+        else for (let y = H - 1; y >= 0; y--) { const i = y * W + x; c = Math.max(M[i], c * dec); if (c < .04) c = 0; S[i] = c }   // end the streak cleanly
+      }
+      // Uneven streaks: a smooth random brightness per column
+      const R1 = rng(17), step = Math.max(2, Math.round(7 * SC)), lat = Array.from({ length: Math.ceil(W / step) + 2 }, () => R1()), tex = P.texture / 100;
+      const colF = new Float32Array(W); for (let x = 0; x < W; x++) { const u = x / step, k = u | 0, f = u - k, s = f * f * (3 - 2 * f); colF[x] = 1 - tex * .8 * lerp(lat[k], lat[k + 1], s) }
+      const G = P.glow > 0 ? gauss(Float32Array.from(S), P.glow) : null, span = (T.right - T.left) || 1;
+      const base = [], bright = []; for (let x = 0; x < W; x++) { const h = P.hue + P.range * clamp((x - T.left) / span); base.push(hsl(h, 95, 55)); bright.push(hsl(h, 100, 70)) }
+      const R = rng(23), g = P.grain / 100, oR = new Float32Array(N), oG = new Float32Array(N), oB = new Float32Array(N), oA = new Float32Array(N);
+      for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+        const i = y * W + x, m = M[i];
+        let a = Math.max(S[i] * colF[x] * .9, G ? G[i] * .45 : 0);
+        if (g > 0 && a > 0) a = a * (1 - g) + (a * 1.3 > R() ? 1 : 0) * g;
+        const oa = m + a * (1 - m); if (oa < .004) continue;
+        const c = base[x], f = bright[x];
+        oA[i] = oa; oR[i] = (f[0] * m + c[0] * a * (1 - m)) / oa; oG[i] = (f[1] * m + c[1] * a * (1 - m)) / oa; oB[i] = (f[2] * m + c[2] * a * (1 - m)) / oa;
+      }
+      ctx.putImageData(toImage(oR, oG, oB, oA), 0, 0);
+    } },
+  { key: 'prism', group: 'Light', pad: P => ({ x: P.spread + P.blur * 2.5, y: P.spread + P.blur * 2.5 }), name: 'Prism', desc: '<b>Prism.</b> A white core with rainbow fringes split along one direction (90 puts red on top, blue below), broken into grain. Set Grain to 0 for a smooth glow.',
+    controls: [['spread', 'Spread', 0, 70, 33, 1], ['angle', 'Direction', 0, 360, 90], ['blur', 'Blur', 0, 35, 10, 1], ['colour', 'Colour', 0, 150, 110], ['core', 'White core', 0, 150, 100], ['grain', 'Grain', 0, 100, 80], ['size', 'Grain size', 1, 5, 2, 1], ['density', 'Clumping', 0, 100, 45]],
+    render(ctx, P) {
+      const HUES = [[1, .08, .06], [1, .45, 0], [1, .9, .1], [.35, 1, .45], [0, .85, 1], [.15, .35, 1], [.6, .2, 1]];
+      const M = maskArray(), C = gauss(Float32Array.from(M), Math.max(.6, P.blur * .25)), kc = P.core / 100;
+      const ang = P.angle * Math.PI / 180, dx = Math.cos(ang), dy = -Math.sin(ang), cAmt = P.colour / 100 * .42;
+      const R = new Float32Array(N), G = new Float32Array(N), B = new Float32Array(N), L = new Float32Array(N);
+      HUES.forEach((hue, li) => {   // red leads in the chosen direction, violet trails
+        const t = 1 - li / (HUES.length - 1) * 2, ox = Math.round(dx * P.spread * t), oy = Math.round(dy * P.spread * t);
+        L.fill(0);
+        for (let y = Math.max(0, oy); y < Math.min(H, H + oy); y++) { const row = y * W, srow = (y - oy) * W; for (let x = Math.max(0, ox); x < Math.min(W, W + ox); x++) L[row + x] = M[srow + x - ox] }
+        gauss(L, P.blur * (.55 + .7 * Math.abs(t)));
+        // colours stay mostly outside the white core so the letters read
+        for (let i = 0; i < N; i++) { const a = L[i] * cAmt * (1 - .82 * Math.min(1, C[i] * kc)); if (a > 0) { R[i] += hue[0] * a; G[i] += hue[1] * a; B[i] += hue[2] * a } }
+      });
+      if (kc > 0) for (let i = 0; i < N; i++) { const a = C[i] * kc; R[i] += a; G[i] += a; B[i] += a }
+      // light → colour + alpha, then clumpy grain
+      const g = P.grain / 100, cell = Math.max(1, Math.round(P.size)), cw = Math.ceil(W / cell), Rn = rng(31), noise = new Float32Array(cw * Math.ceil(H / cell)).map(() => Rn());
+      const dens = P.density > 0 ? valueNoise(40 * SC, 13) : null, dAmt = P.density / 100;
+      const A = new Float32Array(N), oR = new Float32Array(N), oG = new Float32Array(N), oB = new Float32Array(N);
+      for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+        const i = y * W + x, r = Math.min(1, R[i]), gg = Math.min(1, G[i]), b = Math.min(1, B[i]), a = Math.max(r, gg, b);
+        if (a < .003) continue;
+        let n = noise[((y / cell) | 0) * cw + ((x / cell) | 0)]; if (dens) n *= 1 + dAmt * (dens[i] - .5) * 1.6;
+        const alpha = a * (1 - g) + (a * 1.35 > n ? 1 : 0) * g;
+        A[i] = alpha; oR[i] = r / a * alpha; oG[i] = gg / a * alpha; oB[i] = b / a * alpha;   // premultiplied
+      }
+      if (g > 0) [oR, oG, oB, A].forEach(c => gauss(c, .7 * SC));   // take the edge off the grain
+      for (let i = 0; i < N; i++) { const a = A[i]; if (a > 0) { oR[i] = oR[i] / a * 255; oG[i] = oG[i] / a * 255; oB[i] = oB[i] / a * 255 } }
+      ctx.putImageData(toImage(oR, oG, oB, A), 0, 0);
+    } },
+  { key: 'chrome', group: 'Light', name: 'Liquid chrome', desc: '<b>Liquid chrome.</b> Shiny metal letters: a bevelled edge catching the light, a reflected sky-and-horizon gradient, and a hard highlight. Tint warms or cools the metal.',
+    controls: [['bevel', 'Bevel', 1, 24, 9, 1], ['refl', 'Reflection', 0, 100, 55], ['shine', 'Highlight', 0, 100, 65], ['tint', 'Tint colour', 0, 360, 210], ['tintAmt', 'Tint amount', 0, 100, 15]],
+    render(ctx, P) {
+      const M = maskArray(), Hm = gauss(Float32Array.from(M), P.bevel), A = M, oR = new Float32Array(N), oG = new Float32Array(N), oB = new Float32Array(N);
+      const stops = [[0, [210, 236, 255]], [.42, [250, 252, 255]], [.5, [40, 48, 62]], [.6, [96, 84, 70]], [.8, [200, 190, 172]], [1, [250, 246, 238]]];
+      const env = t => { t = clamp(t); for (let s = 1; s < stops.length; s++) if (t <= stops[s][0]) { const [t0, c0] = stops[s - 1], [t1, c1] = stops[s], u = (t - t0) / (t1 - t0); return [lerp(c0[0], c1[0], u), lerp(c0[1], c1[1], u), lerp(c0[2], c1[2], u)] } return stops[stops.length - 1][1] };
+      const tint = hsl(P.tint, 80, 55), ta = P.tintAmt / 100, h = T.bot - T.top || 1, str = 6 / (P.bevel * .15 + .4), L = [-.4, -.6, .7], ll = Math.hypot(...L);
+      for (let y = 1; y < H - 1; y++) for (let x = 1; x < W - 1; x++) {
+        const i = y * W + x; if (A[i] < .004) continue;
+        let nx = -(Hm[i + 1] - Hm[i - 1]) * str, ny = -(Hm[i + W] - Hm[i - W]) * str, nz = 1; const nl = Math.hypot(nx, ny, nz); nx /= nl; ny /= nl; nz /= nl;
+        let c = env((y - T.top) / h + ny * P.refl / 100 * 1.6);
+        const spec = Math.pow(Math.max(0, (nx * L[0] + ny * L[1] + nz * L[2]) / ll), 30) * P.shine / 100 * 255;
+        oR[i] = clamp(lerp(c[0], c[0] * tint[0] / 255, ta) + spec, 0, 255); oG[i] = clamp(lerp(c[1], c[1] * tint[1] / 255, ta) + spec, 0, 255); oB[i] = clamp(lerp(c[2], c[2] * tint[2] / 255, ta) + spec, 0, 255);
+      }
+      ctx.putImageData(toImage(oR, oG, oB, A), 0, 0);
+    } },
+  { key: 'riso', group: 'Print', pad: P => ({ x: P.mis, y: P.mis }), name: 'Riso misprint', desc: '<b>Riso misprint.</b> Two or three spot inks (pink, blue, yellow) printed slightly out of line, overlapping like real ink, with speckled gaps where the ink didn\'t take.',
     controls: [['mis', 'Misregister', 0, 40, 16, 1], ['inks', 'Inks', 2, 3, 2], ['grain', 'Ink grain', 0, 100, 45], ['fade', 'Patchiness', 0, 100, 40], ['seed', 'Pattern', 1, 40, 7]],
     render(ctx, P) {
       const inks = [[255, 72, 176], [0, 120, 191], [255, 232, 0]].slice(0, P.inks), R = rng(P.seed), vn = valueNoise(60 * SC, P.seed + 3);
@@ -164,56 +305,6 @@ const FX = [
       }
       ctx.putImageData(toImage(C, C, C, A), 0, 0);
     } },
-  { key: 'sticker', group: 'Print', name: 'Die-cut sticker', desc: '<b>Die-cut sticker.</b> A thick white border around the whole word with a soft shadow, so it looks like a real sticker slapped on the photo. Turn Saturation down for black text.',
-    controls: [['border', 'Border', 0, 40, 16, 1], ['shadow', 'Shadow blur', 0, 50, 16, 1], ['drop', 'Shadow drop', 0, 30, 8, 1], ['tilt', 'Tilt', -12, 12, -4], ['hue', 'Text colour', 0, 360, 15], ['sat', 'Saturation', 0, 100, 90]],
-    render(ctx, P) {
-      ctx.save(); ctx.translate(W / 2, H / 2); ctx.rotate(P.tilt * Math.PI / 180); ctx.translate(-W / 2, -H / 2);
-      setText(ctx); ctx.lineJoin = 'round'; ctx.miterLimit = 2;
-      ctx.shadowColor = 'rgba(0,0,0,.45)'; ctx.shadowBlur = P.shadow; ctx.shadowOffsetY = P.drop;
-      ctx.fillStyle = '#fff'; ctx.strokeStyle = '#fff';
-      if (P.border > 0) { ctx.lineWidth = P.border * 2; drawLines(ctx, 'strokeText') }
-      drawLines(ctx, 'fillText');
-      ctx.shadowColor = 'transparent'; ctx.fillStyle = rgbStr(hsl(P.hue, P.sat, 8 + P.sat * .42)); drawLines(ctx, 'fillText');
-      ctx.restore();
-    } },
-  { key: 'neon', group: 'Light', name: 'Neon tube', desc: '<b>Neon tube.</b> The letters become glowing glass tubes: a hot white core, a coloured tube and a wide halo. Flicker dims a few letters like a sign on its way out.',
-    controls: [['tube', 'Tube width', 1, 16, 5, 1], ['glow', 'Glow', 0, 70, 32, 1], ['hue', 'Colour', 0, 360, 320], ['flicker', 'Flicker', 0, 100, 25], ['seed', 'Pattern', 1, 40, 4]],
-    render(ctx, P) {
-      const R = rng(P.seed), boxes = charBoxes(ctx); ctx.lineJoin = 'round'; ctx.textAlign = 'left';
-      const c = hsl(P.hue, 100, 60), cHot = hsl(P.hue, 100, 72);
-      boxes.forEach(b => {
-        if (b.ch === ' ') return;
-        const on = R() < P.flicker / 100 * .45 ? .3 + R() * .3 : 1;
-        ctx.shadowColor = rgbStr(c, on); ctx.shadowBlur = P.glow * 2; ctx.strokeStyle = rgbStr(c, .85 * on); ctx.lineWidth = P.tube * 1.7; ctx.strokeText(b.ch, b.x, b.y);
-        ctx.shadowBlur = P.glow * .6; ctx.strokeStyle = rgbStr(cHot, on); ctx.lineWidth = P.tube; ctx.strokeText(b.ch, b.x, b.y);
-        ctx.shadowBlur = 0; ctx.strokeStyle = `rgba(255,255,255,${.92 * on})`; ctx.lineWidth = Math.max(1, P.tube * .35); ctx.strokeText(b.ch, b.x, b.y);
-      });
-    } },
-  { key: 'chrome', group: 'Light', name: 'Liquid chrome', desc: '<b>Liquid chrome.</b> Shiny metal letters: a bevelled edge catching the light, a reflected sky-and-horizon gradient, and a hard highlight. Tint warms or cools the metal.',
-    controls: [['bevel', 'Bevel', 1, 24, 9, 1], ['refl', 'Reflection', 0, 100, 55], ['shine', 'Highlight', 0, 100, 65], ['tint', 'Tint colour', 0, 360, 210], ['tintAmt', 'Tint amount', 0, 100, 15]],
-    render(ctx, P) {
-      const M = maskArray(), Hm = gauss(Float32Array.from(M), P.bevel), A = M, oR = new Float32Array(N), oG = new Float32Array(N), oB = new Float32Array(N);
-      const stops = [[0, [210, 236, 255]], [.42, [250, 252, 255]], [.5, [40, 48, 62]], [.6, [96, 84, 70]], [.8, [200, 190, 172]], [1, [250, 246, 238]]];
-      const env = t => { t = clamp(t); for (let s = 1; s < stops.length; s++) if (t <= stops[s][0]) { const [t0, c0] = stops[s - 1], [t1, c1] = stops[s], u = (t - t0) / (t1 - t0); return [lerp(c0[0], c1[0], u), lerp(c0[1], c1[1], u), lerp(c0[2], c1[2], u)] } return stops[stops.length - 1][1] };
-      const tint = hsl(P.tint, 80, 55), ta = P.tintAmt / 100, h = T.bot - T.top || 1, str = 6 / (P.bevel * .15 + .4), L = [-.4, -.6, .7], ll = Math.hypot(...L);
-      for (let y = 1; y < H - 1; y++) for (let x = 1; x < W - 1; x++) {
-        const i = y * W + x; if (A[i] < .004) continue;
-        let nx = -(Hm[i + 1] - Hm[i - 1]) * str, ny = -(Hm[i + W] - Hm[i - W]) * str, nz = 1; const nl = Math.hypot(nx, ny, nz); nx /= nl; ny /= nl; nz /= nl;
-        let c = env((y - T.top) / h + ny * P.refl / 100 * 1.6);
-        const spec = Math.pow(Math.max(0, (nx * L[0] + ny * L[1] + nz * L[2]) / ll), 30) * P.shine / 100 * 255;
-        oR[i] = clamp(lerp(c[0], c[0] * tint[0] / 255, ta) + spec, 0, 255); oG[i] = clamp(lerp(c[1], c[1] * tint[1] / 255, ta) + spec, 0, 255); oB[i] = clamp(lerp(c[2], c[2] * tint[2] / 255, ta) + spec, 0, 255);
-      }
-      ctx.putImageData(toImage(oR, oG, oB, A), 0, 0);
-    } },
-  { key: 'aurora', group: 'Light', name: 'Aurora fill', desc: '<b>Aurora fill.</b> The inside of the letters filled with a slow, blurry wash of three related colours, like an iPhone wallpaper, with a fine grain on top. Calm rather than loud.',
-    controls: [['hue', 'Colour', 0, 360, 265], ['soft', 'Softness', 20, 220, 110, 1], ['grain', 'Grain', 0, 100, 35], ['seed', 'Pattern', 1, 40, 3]],
-    render(ctx, P) {
-      const M = maskArray(), n1 = valueNoise(P.soft, P.seed), n2 = valueNoise(P.soft * 1.6, P.seed + 11), R = rng(P.seed + 2);
-      const c1 = hsl(P.hue, 90, 58), c2 = hsl(P.hue + 55, 95, 62), c3 = hsl(P.hue - 150, 85, 55), g = P.grain / 100 * 40;
-      const oR = new Float32Array(N), oG = new Float32Array(N), oB = new Float32Array(N);
-      for (let i = 0; i < N; i++) { if (M[i] < .004) continue; const a = n1[i], b = Math.pow(n2[i], 1.6), e = (R() - .5) * g; for (const [o, k] of [[oR, 0], [oG, 1], [oB, 2]]) o[i] = clamp(lerp(lerp(c1[k], c2[k], a), c3[k], b) + e, 0, 255) }
-      ctx.putImageData(toImage(oR, oG, oB, M), 0, 0);
-    } },
   { key: 'dither', group: 'Retro', name: '1-bit dither', desc: '<b>1-bit dither.</b> The text and its glow turned into a crisp on/off pixel pattern, like an old Mac or Game Boy screen. Bigger pixels look more retro.',
     controls: [['px', 'Pixel size', 1, 10, 3, 1], ['glow', 'Glow', 0, 50, 16, 1], ['amt', 'Glow strength', 0, 100, 60], ['hue', 'Colour', 0, 360, 140], ['sat', 'Saturation', 0, 100, 0]],
     render(ctx, P) {
@@ -230,7 +321,7 @@ const FX = [
   { key: 'vhs', group: 'Retro', name: 'VHS glitch', desc: '<b>VHS glitch.</b> Horizontal slices of the text slip sideways, the red and blue channels pull apart, and faint tracking lines run across. New pattern reshuffles the slices.',
     controls: [['shift', 'Slice shift', 0, 90, 26, 1], ['count', 'Glitchiness', 0, 100, 35], ['split', 'Colour split', 0, 24, 6, 1], ['lines', 'Tracking lines', 0, 100, 40], ['seed', 'Pattern', 1, 40, 9]],
     render(ctx, P) {
-      const base = mk(W, H), bx = base.getContext('2d'); setText(bx); bx.fillStyle = '#fff'; drawLines(bx, 'fillText');
+      const base = textCanvas();
       const sl = mk(W, H), sx = sl.getContext('2d'), R = rng(P.seed);
       for (let y = 0; y < H;) { const h = Math.max(2, Math.round((3 + R() * 34) * SC)), off = R() < P.count / 100 ? (R() - .5) * 2 * P.shift : (R() - .5) * P.shift * .08; sx.drawImage(base, 0, y, W, h, off, y, W, h); y += h }
       const px = sx.getImageData(0, 0, W, H).data, s = Math.round(P.split), oR = new Float32Array(N), oG = new Float32Array(N), oB = new Float32Array(N), oA = new Float32Array(N);
@@ -241,58 +332,6 @@ const FX = [
         if (a < .004) continue; oA[i] = a; oR[i] = ar / a * 255; oG[i] = ag / a * 255; oB[i] = ab / a * 255;
       } }
       ctx.putImageData(toImage(oR, oG, oB, oA), 0, 0);
-    } },
-  { key: 'led', group: 'Retro', name: 'LED board', desc: '<b>LED board.</b> The text rebuilt from round glowing lights on a grid, like a stadium scoreboard. Unlit bulbs show faintly around it; set Unlit to 0 for just the lit ones.',
-    controls: [['pitch', 'Bulb spacing', 5, 32, 12, 1], ['size', 'Bulb size', 30, 100, 82], ['glow', 'Glow', 0, 40, 12, 1], ['hue', 'Colour', 0, 360, 38], ['unlit', 'Unlit bulbs', 0, 100, 12]],
-    render(ctx, P) {
-      const M = maskArray(), p = P.pitch, r = p * P.size / 200, col = hsl(P.hue, 100, 58), hot = hsl(P.hue, 100, 82);
-      const x0 = T.left - p * 2, x1 = T.right + p * 2, y0 = T.top - p * 2, y1 = T.bot + p * 2, lit = [];
-      for (let y = y0; y < y1; y += p) for (let x = x0; x < x1; x += p) {
-        const xi = Math.round(x), yi = Math.round(y); if (xi < 0 || yi < 0 || xi >= W || yi >= H) continue;
-        if (M[yi * W + xi] > .45) lit.push([x, y]); else if (P.unlit > 0) { ctx.fillStyle = `rgba(255,255,255,${P.unlit / 100 * .14})`; ctx.beginPath(); ctx.arc(x, y, r, 0, 7); ctx.fill() }
-      }
-      ctx.shadowColor = rgbStr(col); ctx.shadowBlur = P.glow; ctx.fillStyle = rgbStr(col);
-      lit.forEach(([x, y]) => { ctx.beginPath(); ctx.arc(x, y, r, 0, 7); ctx.fill() });
-      ctx.shadowBlur = 0; ctx.fillStyle = rgbStr(hot);
-      lit.forEach(([x, y]) => { ctx.beginPath(); ctx.arc(x - r * .15, y - r * .15, r * .45, 0, 7); ctx.fill() });
-    } },
-  { key: 'heat', group: 'Data', name: 'Heart-rate heat', desc: '<b>Heart-rate heat.</b> The letters are coloured by your heart rate through the session (sample run shown), from calm blue through green and yellow to red at the hardest efforts. The word becomes a chart of the effort.',
-    controls: [['maxhr', 'Max HR', 160, 205, 188], ['smooth', 'Smoothing', 1, 40, 10], ['glow', 'Glow', 0, 40, 14, 1], ['sat', 'Intensity', 0, 100, 100]],
-    render(ctx, P) {
-      const sm = HR.map((_, i) => { let s = 0, n = 0; for (let j = Math.max(0, i - P.smooth); j <= Math.min(HR.length - 1, i + P.smooth); j++) { s += HR[j]; n++ } return s / n });
-      const zone = [[.5, 210], [.6, 200], [.7, 130], [.8, 52], [.9, 25], [1, 0]];
-      const hueAt = f => { if (f <= zone[0][0]) return zone[0][1]; for (let z = 1; z < zone.length; z++) if (f <= zone[z][0]) return lerp(zone[z - 1][1], zone[z][1], (f - zone[z - 1][0]) / (zone[z][0] - zone[z - 1][0])); return 0 };
-      const grad = ctx.createLinearGradient(T.left, 0, T.right, 0);
-      for (let s = 0; s <= 40; s++) { const v = sm[Math.round(s / 40 * (sm.length - 1))]; grad.addColorStop(s / 40, rgbStr(hsl(hueAt(v / P.maxhr), P.sat, 55))) }
-      setText(ctx); ctx.fillStyle = grad;
-      if (P.glow > 0) { ctx.save(); ctx.filter = `blur(${P.glow}px)`; ctx.globalAlpha = .8; drawLines(ctx, 'fillText'); ctx.restore() }
-      drawLines(ctx, 'fillText');
-    } },
-  { key: 'splitcol', group: 'Data', name: 'Split-coloured', desc: '<b>Split-coloured.</b> Each character takes the colour of one of your kilometre splits (sample run shown): the fastest at full accent colour, slower ones fading toward grey. A number like 10.2 becomes a tiny splits chart.',
-    controls: [['hue', 'Accent', 0, 360, 15], ['contrast', 'Contrast', 0, 100, 75], ['dim', 'Slowest tone', 0, 100, 40], ['glow', 'Glow', 0, 30, 0, 1]],
-    render(ctx, P) {
-      const boxes = charBoxes(ctx).filter(b => b.ch !== ' '), sp = SPLITS.map(v => 1 / v), mn = Math.min(...sp), mx = Math.max(...sp), acc = hsl(P.hue, 95, 55), dim = [P.dim * 2.55, P.dim * 2.55, P.dim * 2.55];
-      ctx.textAlign = 'left';
-      boxes.forEach((b, i) => {
-        const s = sp[Math.round(i * (sp.length - 1) / Math.max(1, boxes.length - 1))], t = Math.pow((s - mn) / (mx - mn || 1), 1 + P.contrast / 30);
-        const c = [lerp(dim[0], acc[0], t), lerp(dim[1], acc[1], t), lerp(dim[2], acc[2], t)];
-        ctx.fillStyle = rgbStr(c); ctx.shadowColor = rgbStr(c); ctx.shadowBlur = P.glow * t; ctx.fillText(b.ch, b.x, b.y);
-      });
-    } },
-  { key: 'horizon', group: 'Data', name: 'Elevation horizon', desc: '<b>Elevation horizon.</b> The route\'s elevation profile (sample shown) cuts through the letters: solid above the line, accent or outline below, with the profile drawn as a fine line across.',
-    controls: [['pos', 'Line height', 0, 100, 55], ['amp', 'Hill size', 0, 160, 70, 1], ['line', 'Line weight', 0, 10, 2.5, 1], ['hue', 'Accent', 0, 360, 15], ['style', 'Lower style', 0, 2, 0]],
-    render(ctx, P) {
-      const x0 = T.left - 20 * SC, x1 = T.right + 20 * SC, base = T.top + (T.bot - T.top) * (1 - P.pos / 100), acc = rgbStr(hsl(P.hue, 95, 55));
-      const path = new Path2D(); ELEV.forEach((e, i) => { const x = lerp(x0, x1, i / (ELEV.length - 1)), y = base - e * P.amp; i ? path.lineTo(x, y) : path.moveTo(x, y) });
-      const above = new Path2D(path); above.lineTo(x1, 0); above.lineTo(x0, 0); above.closePath();
-      const below = new Path2D(path); below.lineTo(x1, H); below.lineTo(x0, H); below.closePath();
-      setText(ctx);
-      ctx.save(); ctx.clip(above); ctx.fillStyle = '#fff'; drawLines(ctx, 'fillText'); ctx.restore();
-      ctx.save(); ctx.clip(below); const st = Math.round(P.style);
-      if (st === 1) { ctx.strokeStyle = acc; ctx.lineWidth = Math.max(1.5, T.fs * .025); ctx.lineJoin = 'round'; drawLines(ctx, 'strokeText') }
-      else { ctx.fillStyle = st === 2 ? 'rgba(255,255,255,.35)' : acc; drawLines(ctx, 'fillText') }
-      ctx.restore();
-      if (P.line > 0) { ctx.strokeStyle = '#fff'; ctx.lineWidth = P.line; ctx.lineJoin = 'round'; ctx.stroke(path) }
     } }
 ];
 
@@ -318,16 +357,21 @@ txt.addEventListener('input', () => { grow(); schedule() }); grow();
 document.querySelectorAll('#align button').forEach(b => b.onclick = () => { ALIGN = b.dataset.a; document.querySelectorAll('#align button').forEach(x => x.classList.toggle('on', x === b)); schedule() });
 document.getElementById('lh').addEventListener('input', () => schedule(true));
 document.getElementById('lh').addEventListener('change', () => schedule(false));
+document.getElementById('ls').addEventListener('input', () => schedule(true));
+document.getElementById('ls').addEventListener('change', () => schedule(false));
+['wave', 'waveLen', 'bulge'].forEach(k => { const el = document.getElementById(k); el.addEventListener('input', () => { WARP[k] = +el.value; schedule(true) }); el.addEventListener('change', () => schedule(false)) });
 document.getElementById('font').addEventListener('change', () => schedule());
 
 async function draw(draft = false) {
   const t0 = performance.now(), d = draft ? .5 : 1;
   const fontSpec = document.getElementById('font').value, raw = document.getElementById('txt').value.replace(/\s+$/, '');
   const lines = (raw || ' ').split('\n').map(l => l.trimEnd() || ' ');
-  T = { text: lines.join(' '), lines, align: ALIGN, lh: +document.getElementById('lh').value, font: n => fontSpec.replace('1px', n + 'px') };
+  T = { text: lines.join(' '), lines, align: ALIGN, lh: +document.getElementById('lh').value, ls: +document.getElementById('ls').value, font: n => fontSpec.replace('1px', n + 'px') };
   await document.fonts.load(T.font(100), T.text);
   // Height grows with the number of lines (room around the block for glows and shadows)
-  const fullH = Math.max(FH, Math.ceil(measureBlock(document.createElement('canvas').getContext('2d'), FW).contentH + FH * .5));
+  const pad = cur.pad ? cur.pad(VALS[cur.key]) : { x: 0, y: 0 }; T.padX = pad.x;
+  const blockH = measureBlock(document.createElement('canvas').getContext('2d'), FW).contentH;
+  const fullH = Math.max(FH, Math.ceil(blockH + FH * .5 + WARP.wave * 2 + WARP.bulge / 100 * blockH * 1.1 + pad.y * 2));
   W = Math.round(FW * d); H = Math.round(fullH * d); N = W * H; SC = d; if (TMP.length !== N) TMP = new Float32Array(N);
   const cv = document.getElementById('out'); if (cv.width !== W || cv.height !== H) { cv.width = W; cv.height = H }
   const ctx = cv.getContext('2d'); ctx.clearRect(0, 0, W, H); ctx.save(); layout(ctx);
