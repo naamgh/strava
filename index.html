@@ -1581,19 +1581,20 @@
     .k-miniglow .k-mgd { font-size: 12.5cqw; line-height: 1; text-shadow: 0 0 3cqw var(--glow), 0 0 8cqw var(--glow); }
     .k-miniglow .k-mgn { font-size: 24cqw; line-height: .85; text-shadow: 0 0 3cqw var(--glow), 0 0 9cqw var(--glow); }
     .k-miniglow .k-mrow + .k-mrow { margin-top: 2.5cqw; }
+    .k-miniglow .k-mgn small { font-size: .3em; margin-left: .12em; }
     .k-miniroute svg { display: block; width: 100%; height: auto; max-height: 60cqw; overflow: visible; margin-bottom: 5cqw; }
     .k-miniroute .k-route { stroke-width: 2.4; }
     .k-miniroute .k-ml { gap: .07em; font-family: Bungee, sans-serif; font-size: 21cqw; line-height: 1; }
     .k-miniroute .k-ml small { font-size: .38em; color: var(--acc); margin-left: .12em; }
-    .k-miniroute .k-mp { margin-top: 2.5cqw; font-family: "Space Grotesk", sans-serif; font-weight: 500; font-size: 6.6cqw; opacity: .85; }
-    .k-minimono .k-mday { display: inline-block; font-family: "Rubik Mono One", sans-serif; font-size: 34cqw; line-height: .8; letter-spacing: -.07em; white-space: nowrap; }
-    .k-minimono .k-ml { gap: .12em; font-family: "Rubik Mono One", sans-serif; font-size: 17cqw; line-height: 1; letter-spacing: -.07em; color: var(--acc); }
-    .k-minimono .k-ml small { font-size: .38em; }
-    .k-minimono .k-dp { margin: 0 -.24em; }   /* the mono dot sits in a full-width cell; pull the digits in so they touch */
-    .k-minimono .k-mp { margin-top: 2cqw; font-family: Manrope, sans-serif; font-weight: 700; font-size: 6.6cqw; opacity: .9; }
+    .k-miniroute .k-mp { display: flex; justify-content: space-between; gap: 3cqw; margin-top: 2.5cqw; font-family: "Space Grotesk", sans-serif; font-weight: 500; font-size: 6.6cqw; opacity: .85; }
+    .k-minimono .k-fill { font-family: "Rubik Mono One", sans-serif; letter-spacing: -.07em; line-height: .85; }   /* k-fill grows each line to the full width, so the two lines justify into a stack */
+    .k-minimono .k-fill + .k-fill { color: var(--acc); margin-top: 2cqw; }
+    .k-minimono .k-fill small { font-size: .38em; margin-left: .12em; }
+    .k-minimono .k-dp, .k-miniscript .k-dp { margin: 0 -.24em; }   /* the mono dot sits in a full-width cell; pull the digits in so they touch */
     .k-miniscript { text-align: center; }
     .k-miniscript .k-msw { position: relative; padding: 11cqw 0; }
-    .k-miniscript .k-ml { font-family: "Rubik Mono One", sans-serif; font-size: 20cqw; line-height: .85; color: var(--acc); }
+    .k-miniscript .k-ml { font-family: "Rubik Mono One", sans-serif; font-size: 30cqw; line-height: .85; color: var(--acc); letter-spacing: -.07em; }
+    .k-miniscript .k-ml small { font-size: .45em; margin-left: .04em; }
     .k-miniscript .k-msc { position: absolute; left: 50%; top: 50%; font-family: "Mrs Saint Delafield", cursive; font-size: 26cqw; line-height: 1; white-space: nowrap; transform: translate(-50%, -50%) rotate(-5deg); }
 
     /* Grain Glow — only .k-gr (big display type) is grained; see captureWithGrain(). */
@@ -2465,13 +2466,13 @@
       minireadout: c => { const d = miniDist(c), p = miniPace(c);
         return `<div class="k-fill"><span class="k-t">${d.n} ${d.u}</span></div><div class="k-mr"><span>${c.day}</span>${p ? `<span>${p}</span>` : ''}</div>`; },
       miniglow: c => { const d = miniDist(c);
-        return `<div class="k-mrow"><span class="k-mgd k-shrink kg">${c.day.toUpperCase()}</span></div><div class="k-mrow"><span class="k-mgn k-shrink kg">${d.n}</span></div>`; },
+        return `<div class="k-mrow"><span class="k-mgd k-shrink kg">${c.day.toUpperCase()}</span></div><div class="k-mrow"><span class="k-mgn k-shrink kg">${d.n}<small>${d.u}</small></span></div>`; },
       miniroute: c => { const d = miniDist(c), p = miniPace(c);
-        return `${routeSvgK(true)}${miniLine(d.n, d.u)}${p ? `<div class="k-mp">${p}</div>` : ''}`; },
-      minimono: c => { const d = miniDist(c), p = miniPace(c);
-        return `<div class="k-mrow"><span class="k-mday k-shrink kg">${c.day.slice(0, 3).toUpperCase()}</span></div>${miniLine(d.n.replace('.', '<span class="k-dp">.</span>'), d.u)}${p ? `<div class="k-mp">${p}</div>` : ''}`; },
+        return `${routeSvgK(true)}${miniLine(d.n, d.u)}<div class="k-mp"><span>${c.day.slice(0, 3)}</span>${p ? `<span>${p}</span>` : ''}</div>`; },
+      minimono: c => { const d = miniDist(c);
+        return `<div class="k-fill"><span class="k-t">${c.day.slice(0, 3).toUpperCase()}</span></div><div class="k-fill"><span class="k-t">${d.n.replace('.', '<span class="k-dp">.</span>')}<small>${d.u}</small></span></div>`; },
       miniscript: c => { const d = miniDist(c);
-        return `<div class="k-msw"><div class="k-mrow"><span class="k-ml k-shrink kg">${d.n}${d.u}</span></div><span class="k-msc k-shrink kg">${c.day}</span></div>`; },
+        return `<div class="k-msw"><div class="k-mrow"><span class="k-ml k-shrink kg"><span>${d.n.replace('.', '<span class="k-dp">.</span>')}</span><small>${d.u}</small></span></div><span class="k-msc k-shrink kg">${c.day}</span></div>`; },
 
       // ── Dedicated splits cards ──
       splitflag: c => {
@@ -2883,6 +2884,7 @@
 
       // Re-apply active effects to live stage view immediately
       prepareEffectStage($('#exportStage'), false);
+      queueSharePrep();
     }
 
     // ─── Strava: GitHub Pages + Cloudflare Worker (no Vercel /api) ───────────
@@ -3005,7 +3007,7 @@
       if(stage.id === 'exportStage' && !isExporting) scheduleGrainPreview();
     }
 
-    async function exportImage() { 
+    async function exportImageModal() { 
       try { 
         toast('Exporting high-res PNG…'); 
         await document.fonts.ready;
@@ -3031,6 +3033,58 @@
         toast('Export failed: ' + e.message) 
       } 
     } 
+
+    // One-tap share: the PNG is rendered in the background after every change, so the tap can open the share sheet at once.
+    let renderCount = 0, shareCache = null, shareTimer = null, shareBusy = null;
+    const shareSig = () => renderCount + JSON.stringify([state.effects, state.tone, state.bg, state.bgOpacity, state.style]);
+    function queueSharePrep() { renderCount++; shareCache = null; clearTimeout(shareTimer); shareTimer = setTimeout(() => { buildExportBlob().catch(() => {}) }, 900) }
+    async function buildExportBlob() {
+      if (shareCache && shareCache.sig === shareSig()) return shareCache;
+      if (shareBusy) { try { await shareBusy } catch (e) {} if (shareCache && shareCache.sig === shareSig()) return shareCache }
+      const sig = shareSig();
+      shareBusy = (async () => {
+        await document.fonts.ready;
+        await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+        const ov = $('#overlay'), cw = ov.offsetWidth || 300, chh = ov.offsetHeight || 300;
+        const scale = Math.max(3, Math.min(EXPORT_CARD_PX / cw, Math.sqrt(14e6 / (cw * chh)), 16));
+        canvasRes = Math.ceil(scale); fitCards(ov);
+        let canvas;
+        try { canvas = await captureWithGrain(ov, scale) } finally { canvasRes = 3; fitCards(ov) }
+        const blob = await new Promise(r => canvas.toBlob(r, 'image/png'));
+        if (!blob) throw new Error('Could not create image');
+        shareCache = { sig, blob, dataUrl: null };
+      })();
+      try { await shareBusy } finally { shareBusy = null }
+      return shareCache;
+    }
+    function showExportModal(blob) {
+      const r = new FileReader();
+      r.onload = () => {
+        $('#saveImg').src = r.result; $('#saveImg').classList.add('clean-preview');
+        const card = $('.save-card'); card.classList.remove('white-mode', 'black-mode'); card.classList.add(state.tone === 'white' ? 'black-mode' : 'white-mode');
+        $('#saveModal').classList.add('show');
+      };
+      r.readAsDataURL(blob);
+    }
+    // Effects sliders do not call render(), so also pre-render once the card has been still for a moment.
+    let lastTick = '';
+    setInterval(() => { const sg = shareSig(); if (sg === lastTick && !shareBusy && !(shareCache && shareCache.sig === sg)) buildExportBlob().catch(() => {}); lastTick = sg }, 1000);
+    async function exportImage() {
+      const btn = $('#exportBtn'); btn.disabled = true;
+      try {
+        const ready = shareCache && shareCache.sig === shareSig();
+        if (!ready) toast('Preparing image…');
+        const { blob } = await buildExportBlob();
+        const file = new File([blob], 'overlay.png', { type: 'image/png' });
+        if (navigator.canShare?.({ files: [file] })) {
+          try { await navigator.share({ files: [file] }); return }
+          catch (e) { if (e.name === 'AbortError') return }   // closed the sheet: done. Other errors fall through to the preview
+        }
+        showExportModal(blob);
+        toast('Long-press to save');
+      } catch (e) { toast('Export failed: ' + e.message) }
+      finally { btn.disabled = false }
+    }
 
     // ─── Studio UI (Style / Data / Colour / Grain tools) ─────────────────────
     const STYLE_FONTS = { monolith: 'Anton', stack: '"Archivo Black"', ticket: '"Big Shoulders Display"', echo: '"Bricolage Grotesque"', knockout: '"Bowlby One"', sticker: '"Dela Gothic One"', routehero: 'Anton', splits: '"Archivo Black"', hairline: '"Inter Tight"', weightshift: 'Outfit', column: '"Saira Extra Condensed"', onefamily: 'Unbounded', fadestack: 'Oswald', bigunit: 'Rubik', pills: 'Rubik', splitflag: '"Archivo Black"', splitbars: '"Archivo Black"', ladder: '"Inter Tight"', splitline: '"Inter Tight"', fasthero: 'Anton', halves: 'Rubik', caption: '"Hanken Grotesk"', sentence: '"Inter Tight"', label: '"Instrument Sans"', log: '"JetBrains Mono"', ministack: '"Anybody Wide"', minireadout: '"Archivo Black"', miniglow: '"Anybody Wide"', miniroute: 'Bungee', minimono: '"Rubik Mono One"', miniscript: '"Rubik Mono One"' };
