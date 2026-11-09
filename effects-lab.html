@@ -29,13 +29,28 @@
   canvas { display:block; max-width:100%; max-height:100%; width:auto; height:auto; }
   .editbtn { position:absolute; right:10px; top:10px; width:36px; height:36px; border-radius:50%; border:0; display:grid; place-items:center; color:#fff; background:rgba(28,28,30,.72); -webkit-backdrop-filter:blur(12px); backdrop-filter:blur(12px); cursor:pointer; }
   .editbtn svg { width:18px; height:18px; }
-  #out { cursor:text; }
+  #out { cursor:text; transform-origin:center; transition:transform .15s, opacity .25s; }
+  .stage.zoomed #out { cursor:grab; }
+  .zoom { position:absolute; left:10px; bottom:10px; display:flex; flex-direction:column; align-items:center; padding:2px; border-radius:18px; background:rgba(28,28,30,.72); -webkit-backdrop-filter:blur(12px); backdrop-filter:blur(12px); }
+  .zoom button { border:0; background:none; color:#fff; font:inherit; font-size:20px; font-weight:600; width:32px; height:32px; cursor:pointer; line-height:1; }
+  .zoom button:disabled { opacity:.35; cursor:default; }
+  .toast { position:fixed; left:50%; bottom:calc(80px + env(safe-area-inset-bottom)); z-index:7; max-width:calc(100vw - 32px); padding:10px 16px; border-radius:14px; background:rgba(44,44,46,.96); color:#fff; font-size:14px; font-weight:600; text-align:center; box-shadow:0 8px 24px rgba(0,0,0,.45); opacity:0; transform:translate(-50%, 8px); transition:opacity .2s, transform .2s; pointer-events:none; }
+  .toast.show { opacity:1; transform:translate(-50%, 0); }
+  @keyframes pop { 0% { transform:scale(1) } 40% { transform:scale(.9) } 100% { transform:scale(1) } }
+  .btn.pop { animation:pop .25s; }
+  .actions .btn.done { background:#30d158; color:#000; }
   .tedit { display:flex; gap:8px; align-items:flex-start; margin-top:10px; }
   .tedit[hidden] { display:none; }
   .tedit textarea { flex:1; }
   .tedit .btn { flex:none; }
-  .bgseg { position:absolute; left:10px; top:10px; background:rgba(28,28,30,.72); -webkit-backdrop-filter:blur(12px); backdrop-filter:blur(12px); }
-  .bgseg button { padding:5px 9px; font-size:12px; }
+  .bgbtn { position:absolute; left:10px; top:10px; width:36px; height:36px; border-radius:50%; border:0; padding:0; display:grid; place-items:center; background:rgba(28,28,30,.72); -webkit-backdrop-filter:blur(12px); backdrop-filter:blur(12px); cursor:pointer; }
+  .bgbtn i { width:18px; height:18px; border-radius:50%; box-shadow:0 0 0 1.5px #fff; }
+  .bgbtn[data-bg="photo"] i { background:linear-gradient(160deg,#4c5868,#3d4a3a); }
+  .bgbtn[data-bg="light"] i { background:#e9e6dd; }
+  .bgbtn[data-bg="black"] i { background:#000; }
+  .bgbtn[data-bg="check"] i { background:repeating-conic-gradient(#fff 0% 25%, #8e8e93 0% 50%) 0 0/9px 9px; }
+  .bgname { position:absolute; left:52px; top:18px; font-size:12px; font-weight:600; color:#fff; text-shadow:0 1px 3px rgba(0,0,0,.6); opacity:0; transition:opacity .25s; pointer-events:none; }
+  .bgname.show { opacity:1; }
   .ms { position:absolute; right:12px; bottom:10px; font-size:11px; color:var(--label2); font-variant-numeric:tabular-nums; }
   /* Grouped control cards */
   .sections { display:grid; grid-template-columns:repeat(auto-fit, minmax(300px, 1fr)); gap:12px; margin-top:4px; }
@@ -71,8 +86,10 @@
   <div class="top">
     <div class="stage photo" id="stage">
       <canvas id="out" width="1200" height="480"></canvas>
-      <span class="seg bgseg" id="bg" aria-label="Preview backdrop"><button data-bg="photo" class="on">Photo</button><button data-bg="light">Light</button><button data-bg="black">Black</button><button data-bg="check">Clear</button></span>
+      <button class="bgbtn" id="bgBtn" type="button" data-bg="photo" aria-label="Preview backdrop: Photo. Tap to change" title="Change preview backdrop"><i></i></button>
+      <span class="bgname" id="bgName" aria-hidden="true"></span>
       <span class="ms" id="ms"></span>
+      <div class="zoom" role="group" aria-label="Zoom"><button id="zIn" type="button" aria-label="Zoom in">+</button><button id="zOut" type="button" aria-label="Zoom out">&minus;</button></div>
       <button class="editbtn" id="editBtn" type="button" aria-label="Edit text" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16v4Z"/><path d="m13.5 6.5 4 4"/></svg></button>
     </div>
     <div class="tedit" id="tedit" hidden>
@@ -123,6 +140,7 @@
 
   <div class="actions">
     <span id="note" role="status"></span>
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
     <button class="btn grey" id="rand" type="button">Randomise</button>
     <button class="btn grey" id="copy" type="button">Copy</button>
     <button class="btn" id="share" type="button">Share</button>
@@ -395,10 +413,10 @@ const FX = [
       const k = P.heat / 100, R = rng(41), g = P.grain / 100;
       const oR = new Float32Array(N), oG = new Float32Array(N), oB = new Float32Array(N), oA = new Float32Array(N);
       for (let i = 0; i < N; i++) {
-        let h = clamp(Math.max((G1[i] * .55 + G2[i] * .75) * k, FL ? FL[i] * .8 * k : 0));   // flames burn a little cooler than the letters if (h < .015) continue;
+        let h = clamp(Math.max((G1[i] * .55 + G2[i] * .75) * k, FL ? FL[i] * .8 * k : 0)); if (h < .04) continue;   // flames burn a little cooler than the letters
         if (g > 0) h = clamp(h + (R() - .5) * g * .12);
         const c = ramp(h); let a = clamp(h * 4);
-        if (g > 0 && h < .3) a = a * (1 - g) + (a * 1.3 > R() ? 1 : 0) * g;
+        if (g > 0 && h < .3) a = (a * (1 - g) + (a * 1.3 > R() ? 1 : 0) * g) * clamp((h - .04) / .1);   // grain fades out with the heat, so it stays around the letters
         oA[i] = a; oR[i] = c[0]; oG[i] = c[1]; oB[i] = c[2];
       }
       ctx.putImageData(toImage(oR, oG, oB, oA), 0, 0);
@@ -457,14 +475,42 @@ function buildControls() {
   document.getElementById('fxTitle').textContent = cur.name;
 }
 document.getElementById('reset').onclick = () => { cur.controls.forEach(c => VALS[cur.key][c[0]] = c[4]); buildControls(); schedule() };
-document.querySelectorAll('#bg button').forEach(b => b.onclick = () => { document.getElementById('stage').className = 'stage' + (b.dataset.bg === 'black' ? '' : ' ' + b.dataset.bg); document.querySelectorAll('#bg button').forEach(x => x.classList.toggle('on', x === b)) });
+// Backdrop: one swatch button cycles Photo, Light, Black, Clear and briefly shows the name
+const BGS = [['photo', 'Photo'], ['light', 'Light'], ['black', 'Black'], ['check', 'Clear']];
+document.getElementById('bgBtn').onclick = function () {
+  const n = BGS[(BGS.findIndex(b => b[0] === this.dataset.bg) + 1) % BGS.length];
+  this.dataset.bg = n[0]; this.setAttribute('aria-label', `Preview backdrop: ${n[1]}. Tap to change`);
+  document.getElementById('stage').className = 'stage' + (n[0] === 'black' ? '' : ' ' + n[0]);
+  const lab = document.getElementById('bgName'); lab.textContent = n[1]; lab.classList.add('show'); clearTimeout(lab.t); lab.t = setTimeout(() => lab.classList.remove('show'), 1100);
+};
 let ALIGN = 'center';
 const txt = document.getElementById('txt'), grow = () => { txt.rows = Math.max(1, txt.value.split('\n').length) };
 // Text is edited on the preview: the pencil (or a tap on the image) opens the field under it, Done closes it.
 const tedit = document.getElementById('tedit'), editBtn = document.getElementById('editBtn');
 function setEditing(on) { tedit.hidden = !on; editBtn.setAttribute('aria-expanded', on); if (on) { grow(); txt.focus(); txt.setSelectionRange(txt.value.length, txt.value.length) } }
 editBtn.onclick = () => setEditing(tedit.hidden);
-document.getElementById('out').addEventListener('click', () => setEditing(true));
+document.getElementById('out').addEventListener('click', () => { if (!dragged) setEditing(true) });
+
+// Zoom: + and - step through the levels (back to 100% resets), drag to look around while zoomed in
+const ZL = [1, 1.5, 2, 3, 4], outEl = document.getElementById('out'), stageEl = document.getElementById('stage');
+let Z = 1, PX = 0, PY = 0, dragged = false;
+function applyZoom() {
+  const mx = outEl.offsetWidth * (Z - 1) / 2, my = outEl.offsetHeight * (Z - 1) / 2;
+  PX = clamp(PX, -mx, mx); PY = clamp(PY, -my, my);
+  outEl.style.transform = Z === 1 ? '' : `translate(${PX}px, ${PY}px) scale(${Z})`;
+  document.getElementById('zOut').disabled = Z === ZL[0]; document.getElementById('zIn').disabled = Z === ZL[ZL.length - 1];
+  stageEl.classList.toggle('zoomed', Z > 1); stageEl.style.touchAction = Z > 1 ? 'none' : '';
+}
+document.getElementById('zIn').onclick = () => { Z = ZL[Math.min(ZL.length - 1, ZL.indexOf(Z) + 1)]; applyZoom() };
+document.getElementById('zOut').onclick = () => { Z = ZL[Math.max(0, ZL.indexOf(Z) - 1)]; if (Z === 1) PX = PY = 0; applyZoom() };
+outEl.addEventListener('pointerdown', e => {
+  dragged = false; if (Z === 1) return;
+  const x0 = e.clientX, y0 = e.clientY, px0 = PX, py0 = PY; outEl.setPointerCapture(e.pointerId); outEl.style.transition = 'opacity .25s';
+  const move = ev => { const dx = ev.clientX - x0, dy = ev.clientY - y0; if (Math.abs(dx) + Math.abs(dy) > 4) dragged = true; PX = px0 + dx; PY = py0 + dy; applyZoom() };
+  const up = () => { outEl.removeEventListener('pointermove', move); outEl.removeEventListener('pointerup', up); outEl.removeEventListener('pointercancel', up); outEl.style.transition = '' };
+  outEl.addEventListener('pointermove', move); outEl.addEventListener('pointerup', up); outEl.addEventListener('pointercancel', up);
+});
+applyZoom();
 document.getElementById('tdone').onclick = () => setEditing(false);
 txt.addEventListener('input', () => { grow(); schedule() }); grow();
 document.querySelectorAll('#align button').forEach(b => b.onclick = () => { ALIGN = b.dataset.a; document.querySelectorAll('#align button').forEach(x => x.classList.toggle('on', x === b)); schedule() });
@@ -491,6 +537,7 @@ async function draw(draft = false) {
   const P = {}; cur.controls.forEach(([k, , , , , px]) => P[k] = VALS[cur.key][k] * (px ? d : 1));
   cur.render(ctx, P); ctx.restore();
   document.getElementById('ms').textContent = (draft ? 'preview ' : '') + Math.round(performance.now() - t0) + ' ms';
+  cv.style.opacity = '';   // undo the Randomise dim once the new look is drawn
 }
 // Quick half-res drafts while a slider is held; full quality otherwise.
 let timer = 0, busy = false, pending = null;
@@ -499,7 +546,12 @@ async function run(draft) { if (busy) { pending = pending === false ? false : dr
 
 // Share / Copy the full-quality PNG
 async function pngBlob() { if (document.getElementById('out').width !== FW) await draw(false); return new Promise(r => document.getElementById('out').toBlob(r, 'image/png')) }
-const note = t => { const n = document.getElementById('note'); n.textContent = t; clearTimeout(note.t); note.t = setTimeout(() => n.textContent = '', 4000) };
+// Feedback: a toast above the buttons, plus a quick press animation on the button
+const note = (t, ms = 2400) => { const n = document.getElementById('toast'); n.textContent = t; n.classList.add('show'); clearTimeout(note.t); note.t = setTimeout(() => n.classList.remove('show'), ms) };
+function pop(btn, doneLabel) {
+  btn.classList.remove('pop'); void btn.offsetWidth; btn.classList.add('pop');
+  if (doneLabel) { const was = btn.dataset.label || (btn.dataset.label = btn.textContent); btn.textContent = doneLabel; btn.classList.add('done'); clearTimeout(btn.t); btn.t = setTimeout(() => { btn.textContent = was; btn.classList.remove('done') }, 1600) }
+}
 document.getElementById('share').onclick = async () => {
   const file = new File([await pngBlob()], cur.key + '.png', { type: 'image/png' });
   if (navigator.canShare?.({ files: [file] })) { try { await navigator.share({ files: [file] }) } catch (e) {} return }
@@ -507,7 +559,8 @@ document.getElementById('share').onclick = async () => {
   note("Sharing isn't available in this browser, so it downloaded instead.");
 };
 document.getElementById('copy').onclick = async () => {
-  try { await navigator.clipboard.write([new ClipboardItem({ 'image/png': pngBlob() })]); note('Copied. In your Story, tap and choose Paste.') }
+  const btn = document.getElementById('copy'); pop(btn);
+  try { await navigator.clipboard.write([new ClipboardItem({ 'image/png': pngBlob() })]); pop(btn, 'Copied'); note('Copied. In your Story, tap and choose Paste.') }
   catch (e) { note("Copy isn't supported here. Use Share instead.") }
 };
 
@@ -527,6 +580,8 @@ document.getElementById('rand').onclick = () => {
   WARP.waveLen = setRange('waveLen', Math.round(rnd(160, 700) / 10) * 10);
   WARP.bulge = setRange('bulge', Math.random() < .5 ? 0 : Math.round(rnd(15, 80)));
   buildFxBar(); buildControls(); schedule();
+  pop(document.getElementById('rand')); document.getElementById('out').style.opacity = '.35';
+  note(`${cur.name} · ${f.selectedOptions[0].text.replace(/ \(.*\)$/, '')}`, 1600);
 };
 
 buildFxBar(); buildControls();
