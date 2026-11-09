@@ -6,7 +6,7 @@
 <title>Effects Lab</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo+Black&family=Big+Shoulders+Display:wght@900&family=Bowlby+One&family=Inter:wght@500;600&family=Rubik:wght@900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo+Black&family=Big+Shoulders+Display:wght@900&family=Bowlby+One&family=Dela+Gothic+One&family=Gasoek+One&family=Rammetto+One&family=Titan+One&family=Rubik+Mono+One&family=Inter:wght@500;600&family=Rubik:wght@900&display=swap" rel="stylesheet">
 <style>
   :root { --panel:#1c1c1e; --fill:rgba(118,118,128,.24); --label2:rgba(235,235,245,.6); --tint:#0a84ff; }
   * { box-sizing:border-box; }
@@ -14,7 +14,7 @@
   .page { max-width:1100px; margin:auto; padding:0 16px calc(96px + env(safe-area-inset-bottom)); }
   /* Effect picker + preview stay pinned while the controls scroll underneath */
   .top { position:sticky; top:0; z-index:5; background:#000; padding:12px 0 12px; }
-  .fx { display:flex; gap:6px; overflow-x:auto; scrollbar-width:none; padding-bottom:10px; }
+  .fx { display:flex; gap:6px; overflow-x:auto; scrollbar-width:none; padding-top:10px; }
   .fx::-webkit-scrollbar { display:none; }
   .fx button { flex:none; font:inherit; font-size:14px; font-weight:600; color:#fff; background:var(--fill); border:0; border-radius:16px; padding:8px 14px; cursor:pointer; }
   .fx button.on { background:#fff; color:#000; }
@@ -24,9 +24,16 @@
   .stage.photo { background: radial-gradient(120% 70% at 30% 80%, #3d4a3a 0%, transparent 60%), radial-gradient(90% 60% at 80% 20%, #4c5868 0%, transparent 60%), linear-gradient(170deg,#28303a,#151a16 70%); }
   .stage.light { background: radial-gradient(120% 70% at 30% 80%, #c9c2a8 0%, transparent 60%), radial-gradient(90% 60% at 80% 20%, #dfe6ec 0%, transparent 60%), linear-gradient(170deg,#e9e6dd,#bfb9a5 70%); }
   .stage.check { background-color:#1d1d20; background-image:linear-gradient(45deg,#2a2a2e 25%,transparent 25%),linear-gradient(-45deg,#2a2a2e 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#2a2a2e 75%),linear-gradient(-45deg,transparent 75%,#2a2a2e 75%); background-size:20px 20px; background-position:0 0,0 10px,10px -10px,-10px 0; }
-  .stage { display:flex; align-items:center; justify-content:center; height:clamp(200px, 32vh, 300px); }
+  .stage { display:flex; align-items:center; justify-content:center; height:clamp(180px, 28vh, 280px); }
   @media (min-width:700px) { .stage { height:min(46vh, 460px); } }   /* phones keep room for the controls */
   canvas { display:block; max-width:100%; max-height:100%; width:auto; height:auto; }
+  .editbtn { position:absolute; right:10px; top:10px; width:36px; height:36px; border-radius:50%; border:0; display:grid; place-items:center; color:#fff; background:rgba(28,28,30,.72); -webkit-backdrop-filter:blur(12px); backdrop-filter:blur(12px); cursor:pointer; }
+  .editbtn svg { width:18px; height:18px; }
+  #out { cursor:text; }
+  .tedit { display:flex; gap:8px; align-items:flex-start; margin-top:10px; }
+  .tedit[hidden] { display:none; }
+  .tedit textarea { flex:1; }
+  .tedit .btn { flex:none; }
   .bgseg { position:absolute; left:10px; top:10px; background:rgba(28,28,30,.72); -webkit-backdrop-filter:blur(12px); backdrop-filter:blur(12px); }
   .bgseg button { padding:5px 9px; font-size:12px; }
   .ms { position:absolute; right:12px; bottom:10px; font-size:11px; color:var(--label2); font-variant-numeric:tabular-nums; }
@@ -36,7 +43,7 @@
   .card.wide { grid-column:1 / -1; }
   .card-h { display:flex; justify-content:space-between; align-items:center; min-height:28px; margin-bottom:8px; font-size:12px; font-weight:600; letter-spacing:.04em; text-transform:uppercase; color:var(--label2); }
   .link { font:inherit; font-size:15px; font-weight:600; text-transform:none; letter-spacing:0; color:var(--tint); background:none; border:0; padding:2px 0; cursor:pointer; }
-  .card textarea { display:block; width:100%; font:inherit; font-size:17px; line-height:1.35; color:#fff; background:var(--fill); border:0; border-radius:12px; padding:10px 12px; resize:none; overflow:hidden; }
+  .card textarea, .tedit textarea { display:block; width:100%; font:inherit; font-size:17px; line-height:1.35; color:#fff; background:var(--fill); border:0; border-radius:12px; padding:10px 12px; resize:none; overflow:hidden; }
   .card .row { display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin-top:10px; }
   .card select { font:inherit; font-size:15px; color:#fff; background:var(--fill); border:0; border-radius:10px; padding:8px 12px; flex:1; min-width:150px; }
   .sliders { display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:12px 24px; }
@@ -45,6 +52,7 @@
   .actions { position:fixed; left:0; right:0; bottom:0; z-index:6; display:flex; justify-content:flex-end; align-items:center; gap:10px; padding:12px max(16px, calc((100vw - 1100px) / 2 + 16px)) calc(12px + env(safe-area-inset-bottom)); background:rgba(0,0,0,.82); -webkit-backdrop-filter:blur(18px); backdrop-filter:blur(18px); border-top:.5px solid rgba(84,84,88,.6); }
   .actions .btn { min-width:110px; }
   .actions #note { margin-right:auto; }
+  @media (max-width:420px) { .actions .btn { min-width:0; flex:1; padding:10px 8px; } .actions #note { display:none; } }   /* three buttons fit on small phones */
   .seg { display:inline-grid; grid-auto-flow:column; background:var(--fill); border-radius:9px; padding:2px; }
   .seg button { font:inherit; font-size:13px; font-weight:600; color:#fff; background:transparent; border:0; border-radius:7px; padding:7px 11px; cursor:pointer; }
   .seg button.on { background:#636366; }
@@ -61,37 +69,42 @@
 <body>
 <div class="page">
   <div class="top">
-    <div class="fx" id="fx" role="tablist" aria-label="Effect"></div>
     <div class="stage photo" id="stage">
       <canvas id="out" width="1200" height="480"></canvas>
       <span class="seg bgseg" id="bg" aria-label="Preview backdrop"><button data-bg="photo" class="on">Photo</button><button data-bg="light">Light</button><button data-bg="black">Black</button><button data-bg="check">Clear</button></span>
       <span class="ms" id="ms"></span>
+      <button class="editbtn" id="editBtn" type="button" aria-label="Edit text" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16v4Z"/><path d="m13.5 6.5 4 4"/></svg></button>
     </div>
+    <div class="tedit" id="tedit" hidden>
+      <textarea id="txt" rows="1" aria-label="Text (Return for a new line)" maxlength="80">10.2 KM</textarea>
+      <button class="btn" id="tdone" type="button">Done</button>
+    </div>
+    <div class="fx" id="fx" role="tablist" aria-label="Effect"></div>
   </div>
 
   <div class="sections">
-    <section class="card wide">
-      <div class="card-h"><span>Text</span></div>
-      <textarea id="txt" rows="1" aria-label="Text (Return for a new line)" maxlength="80">10.2 KM</textarea>
-      <div class="row">
-        <select id="font" aria-label="Font">
-          <option value="900 1px Rubik">Rubik Black</option>
-          <option value="1px Anton">Anton</option>
-          <option value="1px 'Archivo Black'">Archivo Black</option>
-          <option value="1px 'Bowlby One'">Bowlby One</option>
-          <option value="900 1px 'Big Shoulders Display'">Big Shoulders</option>
-        </select>
-        <span class="seg" id="align" aria-label="Alignment"><button data-a="left">Left</button><button data-a="center" class="on">Centre</button><button data-a="right">Right</button></span>
-      </div>
-    </section>
-
     <section class="card wide">
       <div class="card-h"><span id="fxTitle">Effect</span><button class="link" id="reset" type="button">Reset</button></div>
       <div class="sliders" id="controls"></div>
     </section>
 
     <section class="card">
-      <div class="card-h"><span>Spacing</span></div>
+      <div class="card-h"><span>Type</span></div>
+      <div class="row" style="margin:0 0 14px">
+        <select id="font" aria-label="Font">
+          <option value="1px 'Rammetto One'">Rammetto One</option>
+          <option value="900 1px Rubik">Rubik Black</option>
+          <option value="1px Anton">Anton</option>
+          <option value="1px 'Archivo Black'">Archivo Black</option>
+          <option value="1px 'Bowlby One'">Bowlby One</option>
+          <option value="900 1px 'Big Shoulders Display'">Big Shoulders</option>
+          <option value="1px 'Dela Gothic One'">Dela Gothic (extra fat)</option>
+          <option value="1px 'Rubik Mono One'">Rubik Mono (blocky)</option>
+          <option value="1px 'Gasoek One'">Gasoek One (ultra heavy)</option>
+          <option value="1px 'Titan One'">Titan One (chunky)</option>
+        </select>
+        <span class="seg" id="align" aria-label="Alignment"><button data-a="left">Left</button><button data-a="center" class="on">Centre</button><button data-a="right">Right</button></span>
+      </div>
       <div class="sliders one">
         <label class="r"><span>Line spacing</span><input type="range" id="lh" min="0.8" max="1.6" step="0.02" value="1.15"><span data-for="lh">1.15</span></label>
         <label class="r"><span>Letter spacing</span><input type="range" id="ls" min="-0.15" max="0.6" step="0.01" value="0"><span data-for="ls">0</span></label>
@@ -103,13 +116,14 @@
       <div class="sliders one">
         <label class="r"><span>Wave</span><input type="range" id="wave" min="0" max="80" step="1" value="0"><span data-for="wave">0</span></label>
         <label class="r"><span>Wave size</span><input type="range" id="waveLen" min="80" max="800" step="10" value="320"><span data-for="waveLen">320</span></label>
-        <label class="r"><span>Bulge</span><input type="range" id="bulge" min="0" max="100" step="1" value="0"><span data-for="bulge">0</span></label>
+        <label class="r"><span>Fisheye</span><input type="range" id="bulge" min="0" max="100" step="1" value="0"><span data-for="bulge">0</span></label>
       </div>
     </section>
   </div>
 
   <div class="actions">
     <span id="note" role="status"></span>
+    <button class="btn grey" id="rand" type="button">Randomise</button>
     <button class="btn grey" id="copy" type="button">Copy</button>
     <button class="btn" id="share" type="button">Share</button>
   </div>
@@ -173,12 +187,12 @@ function setText(ctx, size = T.fs) { ctx.font = T.font(size); ctx.textAlign = T.
 let WARP = { wave: 0, waveLen: 320, bulge: 0 };
 function warpCanvas(c) {
   const x = c.getContext('2d'), s = x.getImageData(0, 0, W, H).data, out = x.createImageData(W, H), o = out.data;
-  const A = WARP.wave * SC, L = Math.max(20, WARP.waveLen * SC), B = WARP.bulge / 100 * .55;
+  const A = WARP.wave * SC, L = Math.max(20, WARP.waveLen * SC), B = WARP.bulge / 100 * .62;
   const cx = (T.left + T.right) / 2, cy = (T.top + T.bot) / 2, Rb = Math.max(1, (T.right - T.left) / 2 * 1.05);
   const al = (X, Y) => (X < 0 || Y < 0 || X >= W || Y >= H) ? 0 : s[(Y * W + X) * 4 + 3];
   for (let y = 0; y < H; y++) for (let xx = 0; xx < W; xx++) {
     let sx = xx, sy = y;
-    if (B) { const nx = (xx - cx) / Rb, ny = (y - cy) / Rb, r2 = nx * nx + ny * ny; if (r2 < 1) { const f = 1 - B * (1 - r2) * (1 - r2); sx = cx + (xx - cx) * f; sy = cy + (y - cy) * f } }   // magnify the middle
+    if (B) { const nx = (xx - cx) / Rb, ny = (y - cy) / Rb, r2 = nx * nx + ny * ny; if (r2 < 1) { const r = Math.sqrt(r2), f = r > 0 ? ((1 - B) * r + B * Math.pow(r, 2.6)) / r : 1 - B; sx = cx + (xx - cx) * f; sy = cy + (y - cy) * f } }   // magnify the middle
     if (A) sy -= A * Math.sin((sx - T.left) / L * 2 * Math.PI);                                                                                                // vertical wave along the line
     const x0 = Math.floor(sx), y0 = Math.floor(sy), fx = sx - x0, fy = sy - y0;
     const v = (al(x0, y0) * (1 - fx) + al(x0 + 1, y0) * fx) * (1 - fy) + (al(x0, y0 + 1) * (1 - fx) + al(x0 + 1, y0 + 1) * fx) * fy;
@@ -199,77 +213,37 @@ function charBoxes(ctx) {
 }
 
 
+// White core: a soft white glow hugging the letters, laid over the finished effect. Returns the new straight-alpha buffers in place.
+function whiteCore(oR, oG, oB, oA, M, amount, blur) {
+  if (amount <= 0) return;
+  const C = gauss(Float32Array.from(M), Math.max(.6, blur) * (1 + Math.max(0, amount - 100) / 50)), k = amount / 100;   // past 100 the halo widens: blow-out
+  for (let i = 0; i < N; i++) {
+    const w = Math.min(1, C[i] * k); if (w <= .003) continue;
+    const a = oA[i], na = a + w * (1 - a);
+    oR[i] = (oR[i] * a * (1 - w) + 255 * w) / na; oG[i] = (oG[i] * a * (1 - w) + 255 * w) / na; oB[i] = (oB[i] * a * (1 - w) + 255 * w) / na; oA[i] = na;
+  }
+}
+
+// Distance (px) from each pixel to the nearest text pixel; 0 inside the text. Exact Euclidean (Felzenszwalb).
+function distanceField(M) {
+  const INF = 1e20, L = Math.max(W, H), f = new Float64Array(L), d = new Float64Array(L), v = new Int32Array(L), z = new Float64Array(L + 1), g = new Float64Array(N);
+  for (let i = 0; i < N; i++) g[i] = M[i] > .5 ? 0 : INF;
+  const pass = n => { let k = 0; v[0] = 0; z[0] = -INF; z[1] = INF;
+    for (let q = 1; q < n; q++) { let s = ((f[q] + q * q) - (f[v[k]] + v[k] * v[k])) / (2 * q - 2 * v[k]); while (s <= z[k]) { k--; s = ((f[q] + q * q) - (f[v[k]] + v[k] * v[k])) / (2 * q - 2 * v[k]) } k++; v[k] = q; z[k] = s; z[k + 1] = INF }
+    k = 0; for (let q = 0; q < n; q++) { while (z[k + 1] < q) k++; d[q] = (q - v[k]) * (q - v[k]) + f[v[k]] } };
+  for (let x = 0; x < W; x++) { for (let y = 0; y < H; y++) f[y] = g[y * W + x]; pass(H); for (let y = 0; y < H; y++) g[y * W + x] = d[y] }
+  for (let y = 0; y < H; y++) { for (let x = 0; x < W; x++) f[x] = g[y * W + x]; pass(W); for (let x = 0; x < W; x++) g[y * W + x] = d[x] }
+  const out = new Float32Array(N); for (let i = 0; i < N; i++) out[i] = Math.sqrt(g[i]); return out;
+}
+
 // ─── Effects ─────────────────────────────────────────────────────────────────
 // controls: [key, label, min, max, default, isPixels]
 const FX = [
-  { key: 'ghost', group: 'Light', pad: P => { const a = P.angle * Math.PI / 180, e = P.blur * (1 + P.decay / 100 * 5) * 2 + P.glow * 2; return { x: Math.abs(Math.cos(a)) * P.len + e, y: Math.abs(Math.sin(a)) * P.len + e } }, name: 'Ghost', desc: '<b>Ghost.</b> A cream face with a long, soft trail of fading copies behind it, pink near the letters and deep purple at the far end, with a pink glow and grain. Decay makes the tail fall apart: further copies get blurrier, fainter and grainier.',
-    controls: [['len', 'Trail length', 0, 300, 170, 1], ['copies', 'Copies', 2, 60, 16], ['angle', 'Angle', 0, 360, 318], ['blur', 'Trail blur', 0, 30, 3, 1], ['decay', 'Decay', 0, 100, 70], ['hue', 'Trail colour', 0, 360, 300], ['glow', 'Glow', 0, 40, 14, 1], ['grain', 'Grain', 0, 100, 45]],
-    render(ctx, P) {
-      const M = maskArray(), ang = P.angle * Math.PI / 180, dx = Math.cos(ang), dy = -Math.sin(ang);
-      const steps = Math.max(1, Math.round(P.copies)), dec = P.decay / 100, BANDS = 4;
-      // The trail is built in bands along its length; each band further from the letters is fainter and blurrier.
-      const bA = Array.from({ length: BANDS }, () => new Float32Array(N)), bT = Array.from({ length: BANDS }, () => new Float32Array(N));
-      for (let s = steps; s >= 1 && P.len > 0; s--) {
-        const t = s / steps, ox = Math.round(dx * P.len * t), oy = Math.round(dy * P.len * t), b = Math.min(BANDS - 1, Math.floor(t * BANDS));
-        const w = (Math.pow(1 - t, .35) * .8 + .2) * (1 - dec * .7 * t), Ba = bA[b], Bt = bT[b];
-        for (let y = Math.max(0, oy); y < Math.min(H, H + oy); y++) {
-          const row = y * W, srow = (y - oy) * W;
-          for (let x = Math.max(0, ox); x < Math.min(W, W + ox); x++) { const a = M[srow + x - ox] * w; if (a > Ba[row + x]) { Ba[row + x] = a; Bt[row + x] = t } }
-        }
-      }
-      // Blur each band (more blur toward the tail), then stack them far → near so nearer copies sit on top
-      const Ta = new Float32Array(N), TtA = new Float32Array(N);
-      for (let b = BANDS - 1; b >= 0; b--) {
-        const Ba = bA[b], Bt = bT[b], sig = P.blur * (1 + dec * 5 * (b + .5) / BANDS);
-        for (let i = 0; i < N; i++) Bt[i] *= Ba[i];
-        gauss(Ba, sig); gauss(Bt, sig);
-        for (let i = 0; i < N; i++) { const a = Math.min(1, Ba[i]); if (a <= 0) continue; const keep = 1 - a; TtA[i] = Bt[i] + TtA[i] * keep; Ta[i] = a + Ta[i] * keep }
-      }
-      const G = P.glow > 0 ? gauss(Float32Array.from(M), P.glow) : null;
-      const near = hsl(P.hue, 95, 70), far = hsl(P.hue - 35, 85, 34), gc = hsl(P.hue, 100, 78), face = [255, 243, 226], R = rng(11), g = P.grain / 100;
-      const oR = new Float32Array(N), oG = new Float32Array(N), oB = new Float32Array(N), oA = new Float32Array(N);
-      for (let i = 0; i < N; i++) {
-        const ta = Math.min(1, Ta[i]), tt = ta > .001 ? TtA[i] / Ta[i] : 0, ga = G ? Math.min(1, G[i] * .9) : 0, fa = M[i];
-        // trail, then glow over it
-        let r = lerp(near[0], far[0], tt), gr = lerp(near[1], far[1], tt), b = lerp(near[2], far[2], tt), a = ta;
-        if (ga > 0) { const na = ga + a * (1 - ga); r = (gc[0] * ga + r * a * (1 - ga)) / (na || 1); gr = (gc[1] * ga + gr * a * (1 - ga)) / (na || 1); b = (gc[2] * ga + b * a * (1 - ga)) / (na || 1); a = na }
-        const lg = Math.min(1, g + (1 - g) * dec * tt * .9);                    // more dissolve further down the tail
-        if (lg > 0 && a > 0) a = a * (1 - lg) + (a * 1.3 > R() ? 1 : 0) * lg;   // grain in the trail and glow, not the face
-        const oa = fa + a * (1 - fa); if (oa < .004) continue;
-        oA[i] = oa; oR[i] = (face[0] * fa + r * a * (1 - fa)) / oa; oG[i] = (face[1] * fa + gr * a * (1 - fa)) / oa; oB[i] = (face[2] * fa + b * a * (1 - fa)) / oa;
-      }
-      ctx.putImageData(toImage(oR, oG, oB, oA), 0, 0);
-    } },
-  { key: 'spectrum', group: 'Light', pad: P => ({ x: P.glow * 2, y: P.len * 1.15 + P.glow * 2 }), name: 'Spectrum', desc: '<b>Spectrum.</b> Every letter drips into a streak of light that fades away, coloured in a rainbow across the word, with uneven streaks and grain. Turn on Upwards to send the streaks the other way.',
-    controls: [['len', 'Streak length', 0, 500, 260, 1], ['hue', 'Start colour', 0, 360, 0], ['range', 'Rainbow width', 0, 360, 150], ['texture', 'Streakiness', 0, 100, 55], ['glow', 'Glow', 0, 30, 8, 1], ['grain', 'Grain', 0, 100, 35], ['up', 'Upwards', 0, 1, 0]],
-    render(ctx, P) {
-      const M = maskArray(), S = new Float32Array(N), dec = P.len > 0 ? Math.exp(-3 / Math.max(1, P.len)) : 0, up = P.up >= .5;
-      for (let x = 0; x < W; x++) {   // each column carries the letter's light along, fading as it goes
-        let c = 0;
-        if (!up) for (let y = 0; y < H; y++) { const i = y * W + x; c = Math.max(M[i], c * dec); if (c < .04) c = 0; S[i] = c }   // end the streak cleanly
-        else for (let y = H - 1; y >= 0; y--) { const i = y * W + x; c = Math.max(M[i], c * dec); if (c < .04) c = 0; S[i] = c }   // end the streak cleanly
-      }
-      // Uneven streaks: a smooth random brightness per column
-      const R1 = rng(17), step = Math.max(2, Math.round(7 * SC)), lat = Array.from({ length: Math.ceil(W / step) + 2 }, () => R1()), tex = P.texture / 100;
-      const colF = new Float32Array(W); for (let x = 0; x < W; x++) { const u = x / step, k = u | 0, f = u - k, s = f * f * (3 - 2 * f); colF[x] = 1 - tex * .8 * lerp(lat[k], lat[k + 1], s) }
-      const G = P.glow > 0 ? gauss(Float32Array.from(S), P.glow) : null, span = (T.right - T.left) || 1;
-      const base = [], bright = []; for (let x = 0; x < W; x++) { const h = P.hue + P.range * clamp((x - T.left) / span); base.push(hsl(h, 95, 55)); bright.push(hsl(h, 100, 70)) }
-      const R = rng(23), g = P.grain / 100, oR = new Float32Array(N), oG = new Float32Array(N), oB = new Float32Array(N), oA = new Float32Array(N);
-      for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
-        const i = y * W + x, m = M[i];
-        let a = Math.max(S[i] * colF[x] * .9, G ? G[i] * .45 : 0);
-        if (g > 0 && a > 0) a = a * (1 - g) + (a * 1.3 > R() ? 1 : 0) * g;
-        const oa = m + a * (1 - m); if (oa < .004) continue;
-        const c = base[x], f = bright[x];
-        oA[i] = oa; oR[i] = (f[0] * m + c[0] * a * (1 - m)) / oa; oG[i] = (f[1] * m + c[1] * a * (1 - m)) / oa; oB[i] = (f[2] * m + c[2] * a * (1 - m)) / oa;
-      }
-      ctx.putImageData(toImage(oR, oG, oB, oA), 0, 0);
-    } },
   { key: 'prism', group: 'Light', pad: P => ({ x: P.spread + P.blur * 2.5, y: P.spread + P.blur * 2.5 }), name: 'Prism', desc: '<b>Prism.</b> A white core with rainbow fringes split along one direction (90 puts red on top, blue below), broken into grain. Set Grain to 0 for a smooth glow.',
-    controls: [['spread', 'Spread', 0, 70, 33, 1], ['angle', 'Direction', 0, 360, 90], ['blur', 'Blur', 0, 35, 10, 1], ['colour', 'Colour', 0, 150, 110], ['core', 'White core', 0, 150, 100], ['grain', 'Grain', 0, 100, 80], ['size', 'Grain size', 1, 5, 2, 1], ['density', 'Clumping', 0, 100, 45]],
+    controls: [['spread', 'Spread', 0, 70, 33, 1], ['angle', 'Direction', 0, 360, 90], ['blur', 'Blur', 0, 35, 10, 1], ['colour', 'Colour', 0, 150, 110], ['core', 'White core', 0, 250, 100], ['grain', 'Grain', 0, 100, 80], ['size', 'Grain size', 1, 5, 2, 1], ['density', 'Clumping', 0, 100, 45]],
     render(ctx, P) {
       const HUES = [[1, .08, .06], [1, .45, 0], [1, .9, .1], [.35, 1, .45], [0, .85, 1], [.15, .35, 1], [.6, .2, 1]];
-      const M = maskArray(), C = gauss(Float32Array.from(M), Math.max(.6, P.blur * .25)), kc = P.core / 100;
+      const M = maskArray(), C = gauss(Float32Array.from(M), Math.max(.6, P.blur * .25) * (1 + Math.max(0, P.core - 100) / 50)), kc = P.core / 100;
       const ang = P.angle * Math.PI / 180, dx = Math.cos(ang), dy = -Math.sin(ang), cAmt = P.colour / 100 * .42;
       const R = new Float32Array(N), G = new Float32Array(N), B = new Float32Array(N), L = new Float32Array(N);
       HUES.forEach((hue, li) => {   // red leads in the chosen direction, violet trails
@@ -296,38 +270,73 @@ const FX = [
       for (let i = 0; i < N; i++) { const a = A[i]; if (a > 0) { oR[i] = oR[i] / a * 255; oG[i] = oG[i] / a * 255; oB[i] = oB[i] / a * 255 } }
       ctx.putImageData(toImage(oR, oG, oB, A), 0, 0);
     } },
-  { key: 'chrome', group: 'Light', name: 'Liquid chrome', desc: '<b>Liquid chrome.</b> Shiny metal letters: a bevelled edge catching the light, a reflected sky-and-horizon gradient, and a hard highlight. Tint warms or cools the metal.',
-    controls: [['bevel', 'Bevel', 1, 24, 9, 1], ['refl', 'Reflection', 0, 100, 55], ['shine', 'Highlight', 0, 100, 65], ['tint', 'Tint colour', 0, 360, 210], ['tintAmt', 'Tint amount', 0, 100, 15]],
+  { key: 'ghost', group: 'Light', pad: P => { const a = P.angle * Math.PI / 180, e = P.blur * (1 + P.decay / 100 * 5) * 2 + P.glow * 2; return { x: Math.abs(Math.cos(a)) * P.len + e, y: Math.abs(Math.sin(a)) * P.len + e } }, name: 'Ghost', desc: '<b>Ghost.</b> A cream face with a long, soft trail of fading copies behind it, pink near the letters and deep purple at the far end, with a pink glow and grain. White core adds a soft white light around the letters. Decay makes the tail fall apart: further copies get blurrier, fainter and grainier.',
+    controls: [['len', 'Trail length', 0, 300, 170, 1], ['copies', 'Copies', 2, 60, 16], ['angle', 'Angle', 0, 360, 318], ['blur', 'Trail blur', 0, 30, 3, 1], ['decay', 'Decay', 0, 100, 70], ['hue', 'Trail colour', 0, 360, 300], ['glow', 'Glow', 0, 40, 14, 1], ['sat', 'Saturation', 0, 100, 100], ['core', 'White core', 0, 250, 0], ['grain', 'Grain', 0, 100, 45]],
     render(ctx, P) {
-      const M = maskArray(), Hm = gauss(Float32Array.from(M), P.bevel), A = M, oR = new Float32Array(N), oG = new Float32Array(N), oB = new Float32Array(N);
-      const stops = [[0, [210, 236, 255]], [.42, [250, 252, 255]], [.5, [40, 48, 62]], [.6, [96, 84, 70]], [.8, [200, 190, 172]], [1, [250, 246, 238]]];
-      const env = t => { t = clamp(t); for (let s = 1; s < stops.length; s++) if (t <= stops[s][0]) { const [t0, c0] = stops[s - 1], [t1, c1] = stops[s], u = (t - t0) / (t1 - t0); return [lerp(c0[0], c1[0], u), lerp(c0[1], c1[1], u), lerp(c0[2], c1[2], u)] } return stops[stops.length - 1][1] };
-      const tint = hsl(P.tint, 80, 55), ta = P.tintAmt / 100, h = T.bot - T.top || 1, str = 6 / (P.bevel * .15 + .4), L = [-.4, -.6, .7], ll = Math.hypot(...L);
-      for (let y = 1; y < H - 1; y++) for (let x = 1; x < W - 1; x++) {
-        const i = y * W + x; if (A[i] < .004) continue;
-        let nx = -(Hm[i + 1] - Hm[i - 1]) * str, ny = -(Hm[i + W] - Hm[i - W]) * str, nz = 1; const nl = Math.hypot(nx, ny, nz); nx /= nl; ny /= nl; nz /= nl;
-        let c = env((y - T.top) / h + ny * P.refl / 100 * 1.6);
-        const spec = Math.pow(Math.max(0, (nx * L[0] + ny * L[1] + nz * L[2]) / ll), 30) * P.shine / 100 * 255;
-        oR[i] = clamp(lerp(c[0], c[0] * tint[0] / 255, ta) + spec, 0, 255); oG[i] = clamp(lerp(c[1], c[1] * tint[1] / 255, ta) + spec, 0, 255); oB[i] = clamp(lerp(c[2], c[2] * tint[2] / 255, ta) + spec, 0, 255);
+      const M = maskArray(), ang = P.angle * Math.PI / 180, dx = Math.cos(ang), dy = -Math.sin(ang);
+      const steps = Math.max(1, Math.round(P.copies)), dec = P.decay / 100, BANDS = 4;
+      // The trail is built in bands along its length; each band further from the letters is fainter and blurrier.
+      const bA = Array.from({ length: BANDS }, () => new Float32Array(N)), bT = Array.from({ length: BANDS }, () => new Float32Array(N));
+      for (let s = steps; s >= 1 && P.len > 0; s--) {
+        const t = s / steps, ox = Math.round(dx * P.len * t), oy = Math.round(dy * P.len * t), b = Math.min(BANDS - 1, Math.floor(t * BANDS));
+        const w = (Math.pow(1 - t, .35) * .8 + .2) * (1 - dec * .7 * t), Ba = bA[b], Bt = bT[b];
+        for (let y = Math.max(0, oy); y < Math.min(H, H + oy); y++) {
+          const row = y * W, srow = (y - oy) * W;
+          for (let x = Math.max(0, ox); x < Math.min(W, W + ox); x++) { const a = M[srow + x - ox] * w; if (a > Ba[row + x]) { Ba[row + x] = a; Bt[row + x] = t } }
+        }
       }
-      ctx.putImageData(toImage(oR, oG, oB, A), 0, 0);
-    } },
-  { key: 'riso', group: 'Print', pad: P => ({ x: P.mis, y: P.mis }), name: 'Riso misprint', desc: '<b>Riso misprint.</b> Two or three spot inks (pink, blue, yellow) printed slightly out of line, overlapping like real ink, with speckled gaps where the ink didn\'t take.',
-    controls: [['mis', 'Misregister', 0, 40, 16, 1], ['inks', 'Inks', 2, 3, 2], ['grain', 'Ink grain', 0, 100, 45], ['fade', 'Patchiness', 0, 100, 40], ['seed', 'Pattern', 1, 40, 7]],
-    render(ctx, P) {
-      const inks = [[255, 72, 176], [0, 120, 191], [255, 232, 0]].slice(0, P.inks), R = rng(P.seed), vn = valueNoise(60 * SC, P.seed + 3);
-      const layers = inks.map((ink, i) => { const a = P.seed * 1.7 + i * 2.2; return { ink, M: maskArray(Math.cos(a) * P.mis * (i ? 1 : .3), Math.sin(a) * P.mis * (i ? 1 : .3)) } });
-      const oR = new Float32Array(N), oG = new Float32Array(N), oB = new Float32Array(N), oA = new Float32Array(N), g = P.grain / 100 * .6, f = P.fade / 100;
+      // Blur each band (more blur toward the tail), then stack them far → near so nearer copies sit on top
+      const Ta = new Float32Array(N), TtA = new Float32Array(N);
+      for (let b = BANDS - 1; b >= 0; b--) {
+        const Ba = bA[b], Bt = bT[b], sig = P.blur * (1 + dec * 5 * (b + .5) / BANDS);
+        for (let i = 0; i < N; i++) Bt[i] *= Ba[i];
+        gauss(Ba, sig); gauss(Bt, sig);
+        for (let i = 0; i < N; i++) { const a = Math.min(1, Ba[i]); if (a <= 0) continue; const keep = 1 - a; TtA[i] = Bt[i] + TtA[i] * keep; Ta[i] = a + Ta[i] * keep }
+      }
+      const G = P.glow > 0 ? gauss(Float32Array.from(M), P.glow) : null;
+      const sk = P.sat / 100, near = hsl(P.hue, 95 * sk, 70), far = hsl(P.hue - 35, 85 * sk, 34), gc = hsl(P.hue, 100 * sk, 78), face = [255, 243, 226], R = rng(11), g = P.grain / 100;
+      const oR = new Float32Array(N), oG = new Float32Array(N), oB = new Float32Array(N), oA = new Float32Array(N);
       for (let i = 0; i < N; i++) {
-        let pr = 1, pg = 1, pb = 1, inv = 1;
-        for (const L of layers) { let c = L.M[i]; if (!c) continue; if (R() < g) c *= .15; c *= 1 - f * .55 * vn[i]; pr *= 1 - c * (1 - L.ink[0] / 255); pg *= 1 - c * (1 - L.ink[1] / 255); pb *= 1 - c * (1 - L.ink[2] / 255); inv *= 1 - c }
-        const a = 1 - inv; if (a < .004) continue;
-        oA[i] = a; oR[i] = clamp((pr - inv) / a) * 255; oG[i] = clamp((pg - inv) / a) * 255; oB[i] = clamp((pb - inv) / a) * 255;   // remove the paper, keep the ink
+        const ta = Math.min(1, Ta[i]), tt = ta > .001 ? TtA[i] / Ta[i] : 0, ga = G ? Math.min(1, G[i] * .9) : 0, fa = M[i];
+        // trail, then glow over it
+        let r = lerp(near[0], far[0], tt), gr = lerp(near[1], far[1], tt), b = lerp(near[2], far[2], tt), a = ta;
+        if (ga > 0) { const na = ga + a * (1 - ga); r = (gc[0] * ga + r * a * (1 - ga)) / (na || 1); gr = (gc[1] * ga + gr * a * (1 - ga)) / (na || 1); b = (gc[2] * ga + b * a * (1 - ga)) / (na || 1); a = na }
+        const lg = Math.min(1, g + (1 - g) * dec * tt * .9);                    // more dissolve further down the tail
+        if (lg > 0 && a > 0) a = a * (1 - lg) + (a * 1.3 > R() ? 1 : 0) * lg;   // grain in the trail and glow, not the face
+        const oa = fa + a * (1 - fa); if (oa < .004) continue;
+        oA[i] = oa; oR[i] = (face[0] * fa + r * a * (1 - fa)) / oa; oG[i] = (face[1] * fa + gr * a * (1 - fa)) / oa; oB[i] = (face[2] * fa + b * a * (1 - fa)) / oa;
       }
+      whiteCore(oR, oG, oB, oA, M, P.core, 2 + P.glow * .35);
+      ctx.putImageData(toImage(oR, oG, oB, oA), 0, 0);
+    } },
+  { key: 'spectrum', group: 'Light', pad: P => ({ x: P.glow * 2, y: P.len * 1.15 + P.glow * 2 }), name: 'Spectrum', desc: '<b>Spectrum.</b> Every letter drips into a streak of light that fades away, coloured in a rainbow across the word (or one single colour), with uneven streaks and grain. Turn on Single colour to drop the rainbow, and Upwards to send the streaks the other way.',
+    controls: [['len', 'Streak length', 0, 500, 260, 1], ['hue', 'Start colour', 0, 360, 0], ['range', 'Rainbow width', 0, 360, 150], ['sat', 'Saturation', 0, 100, 100], ['texture', 'Streakiness', 0, 100, 55], ['glow', 'Glow', 0, 30, 8, 1], ['core', 'White core', 0, 250, 0], ['grain', 'Grain', 0, 100, 35], ['single', 'Single colour', 0, 1, 0], ['up', 'Upwards', 0, 1, 0]],
+    render(ctx, P) {
+      const M = maskArray(), S = new Float32Array(N), dec = P.len > 0 ? Math.exp(-3 / Math.max(1, P.len)) : 0, up = P.up >= .5;
+      for (let x = 0; x < W; x++) {   // each column carries the letter's light along, fading as it goes
+        let c = 0;
+        if (!up) for (let y = 0; y < H; y++) { const i = y * W + x; c = Math.max(M[i], c * dec); if (c < .04) c = 0; S[i] = c }   // end the streak cleanly
+        else for (let y = H - 1; y >= 0; y--) { const i = y * W + x; c = Math.max(M[i], c * dec); if (c < .04) c = 0; S[i] = c }   // end the streak cleanly
+      }
+      // Uneven streaks: a smooth random brightness per column
+      const R1 = rng(17), step = Math.max(2, Math.round(7 * SC)), lat = Array.from({ length: Math.ceil(W / step) + 2 }, () => R1()), tex = P.texture / 100;
+      const colF = new Float32Array(W); for (let x = 0; x < W; x++) { const u = x / step, k = u | 0, f = u - k, s = f * f * (3 - 2 * f); colF[x] = 1 - tex * .8 * lerp(lat[k], lat[k + 1], s) }
+      const G = P.glow > 0 ? gauss(Float32Array.from(S), P.glow) : null, span = (T.right - T.left) || 1;
+      const base = [], bright = []; for (let x = 0; x < W; x++) { const h = P.hue + (P.single >= .5 ? 0 : P.range) * clamp((x - T.left) / span); base.push(hsl(h, 95 * P.sat / 100, 55)); bright.push(hsl(h, 100 * P.sat / 100, 70)) }
+      const R = rng(23), g = P.grain / 100, oR = new Float32Array(N), oG = new Float32Array(N), oB = new Float32Array(N), oA = new Float32Array(N);
+      for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+        const i = y * W + x, m = M[i];
+        let a = Math.max(S[i] * colF[x] * .9, G ? G[i] * .45 : 0);
+        if (g > 0 && a > 0) a = a * (1 - g) + (a * 1.3 > R() ? 1 : 0) * g;
+        const oa = m + a * (1 - m); if (oa < .004) continue;
+        const c = base[x], f = bright[x];
+        oA[i] = oa; oR[i] = (f[0] * m + c[0] * a * (1 - m)) / oa; oG[i] = (f[1] * m + c[1] * a * (1 - m)) / oa; oB[i] = (f[2] * m + c[2] * a * (1 - m)) / oa;
+      }
+      whiteCore(oR, oG, oB, oA, M, P.core, 2 + P.glow * .35);
       ctx.putImageData(toImage(oR, oG, oB, oA), 0, 0);
     } },
   { key: 'xerox', group: 'Print', name: 'Photocopy', desc: '<b>Photocopy.</b> Rough, bleeding edges, toner specks around the letters and worn-out holes inside, like the tenth copy of a copy.',
-    controls: [['rough', 'Roughness', 0, 100, 45], ['bleed', 'Bleed', 0, 20, 4, 1], ['speck', 'Specks', 0, 100, 40], ['ink', 'Darkness', 0, 100, 0], ['seed', 'Pattern', 1, 40, 5]],
+    controls: [['rough', 'Roughness', 0, 100, 80], ['bleed', 'Bleed', 0, 20, 5.5, 1], ['speck', 'Specks', 0, 100, 37], ['ink', 'Darkness', 0, 100, 0], ['seed', 'Pattern', 1, 40, 5]],
     render(ctx, P) {
       const M = maskArray(), B = gauss(Float32Array.from(M), .6 + P.bleed * .6), near = gauss(Float32Array.from(M), 22 * SC), vn = valueNoise(6 * SC, P.seed), R = rng(P.seed + 9);
       const v = 255 * (1 - P.ink / 100), A = new Float32Array(N), C = new Float32Array(N).fill(v), r = P.rough / 100, sp = P.speck / 100;
@@ -353,7 +362,7 @@ const FX = [
       ctx.putImageData(toImage(C0, C1, C2, A), 0, 0);
     } },
   { key: 'vhs', group: 'Retro', name: 'VHS glitch', desc: '<b>VHS glitch.</b> Horizontal slices of the text slip sideways, the red and blue channels pull apart, and faint tracking lines run across. New pattern reshuffles the slices.',
-    controls: [['shift', 'Slice shift', 0, 90, 26, 1], ['count', 'Glitchiness', 0, 100, 35], ['split', 'Colour split', 0, 24, 6, 1], ['lines', 'Tracking lines', 0, 100, 40], ['seed', 'Pattern', 1, 40, 9]],
+    controls: [['shift', 'Slice shift', 0, 90, 26, 1], ['count', 'Glitchiness', 0, 100, 20], ['split', 'Colour split', 0, 24, 6, 1], ['lines', 'Tracking lines', 0, 100, 40], ['seed', 'Pattern', 1, 40, 9]],
     render(ctx, P) {
       const base = textCanvas();
       const sl = mk(W, H), sx = sl.getContext('2d'), R = rng(P.seed);
@@ -366,6 +375,70 @@ const FX = [
         if (a < .004) continue; oA[i] = a; oR[i] = ar / a * 255; oG[i] = ag / a * 255; oB[i] = ab / a * 255;
       } }
       ctx.putImageData(toImage(oR, oG, oB, oA), 0, 0);
+    } },
+  { key: 'thermal', pad: P => ({ x: P.spread * 1.6 + P.wild * .3, y: P.spread * 1.6 + P.flames * 2.6 }), name: 'Thermal', desc: '<b>Thermal.</b> The text seen through a heat camera: white-hot letters cooling through yellow, orange and red to purple. Flames sends random tongues of heat licking up off the edges, and Blend tops melts the letter tops into them.',
+    controls: [['spread', 'Heat spread', 4, 60, 22, 1], ['heat', 'Heat', 40, 200, 100], ['flames', 'Flames', 0, 100, 45], ['wild', 'Flicker', 0, 100, 50], ['blend', 'Blend tops', 0, 100, 100], ['grain', 'Grain', 0, 100, 25], ['seed', 'Pattern', 1, 40, 6]],
+    render(ctx, P) {
+      const M = maskArray(), G1 = gauss(Float32Array.from(M), Math.max(.6, P.spread * .25)), G2 = gauss(Float32Array.from(M), P.spread);
+      const stops = [[0, [20, 0, 60]], [.22, [90, 0, 140]], [.42, [215, 20, 70]], [.62, [255, 120, 0]], [.82, [255, 230, 60]], [1, [255, 255, 255]]];
+      const ramp = t => { for (let s = 1; s < stops.length; s++) if (t <= stops[s][0]) { const [t0, c0] = stops[s - 1], [t1, c1] = stops[s], u = (t - t0) / (t1 - t0); return [lerp(c0[0], c1[0], u), lerp(c0[1], c1[1], u), lerp(c0[2], c1[2], u)] } return stops[stops.length - 1][1] };
+      // Flames: heat carried upward column by column, dying off at random so tongues of different heights lick up, then wobbled sideways
+      let FL = null;
+      if (P.flames > 0) {
+        const vn = valueNoise(14 * SC, P.seed), vt = valueNoise(70 * SC, P.seed + 7), vw = valueNoise(22 * SC, P.seed + 13), Lmax = P.flames / 100 * 330 * SC, F = new Float32Array(N);
+        for (let x = 0; x < W; x++) { let c = 0; for (let y = H - 1; y >= 0; y--) { const i = y * W + x, len = Lmax * Math.pow(vn[i], 1.25) * (.4 + vt[i] * 1.2); c = Math.max(M[i], len > 1 ? c * Math.exp(-2.6 / len) : 0); F[i] = c } }
+        FL = new Float32Array(N); const amp = P.wild / 100 * 26 * SC;
+        for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) { const i = y * W + x, sx = Math.round(x + (vw[i] - .5) * 2 * amp); FL[i] = sx >= 0 && sx < W ? F[y * W + sx] : 0 }
+        gauss(FL, 1.5 * SC + .6);
+        const bl = P.blend / 100; for (let i = 0; i < N; i++) FL[i] *= 1 - M[i] * (1 - bl);   // Blend lets the flame heat run into the tops of the letters so there is no seam
+      }
+      const k = P.heat / 100, R = rng(41), g = P.grain / 100;
+      const oR = new Float32Array(N), oG = new Float32Array(N), oB = new Float32Array(N), oA = new Float32Array(N);
+      for (let i = 0; i < N; i++) {
+        let h = clamp(Math.max((G1[i] * .55 + G2[i] * .75) * k, FL ? FL[i] * .8 * k : 0));   // flames burn a little cooler than the letters if (h < .015) continue;
+        if (g > 0) h = clamp(h + (R() - .5) * g * .12);
+        const c = ramp(h); let a = clamp(h * 4);
+        if (g > 0 && h < .3) a = a * (1 - g) + (a * 1.3 > R() ? 1 : 0) * g;
+        oA[i] = a; oR[i] = c[0]; oG[i] = c[1]; oB[i] = c[2];
+      }
+      ctx.putImageData(toImage(oR, oG, oB, oA), 0, 0);
+    } },
+  { key: 'melt', pad: P => ({ x: 0, y: P.len * .55 }), name: 'Melt', desc: '<b>Melt.</b> The letters drip like wet paint, with rounded drops of different lengths running off their bottoms. Pattern reshuffles where the drips fall. Keep shape stops drips running out of the gaps inside letters, so long drips stay readable.',
+    controls: [['len', 'Drip length', 0, 300, 140, 1], ['drips', 'Drips', 0, 100, 45], ['thick', 'Drip width', 3, 30, 11, 1], ['goo', 'Gooeyness', 0, 100, 50], ['keep', 'Keep shape', 0, 100, 65], ['hue', 'Colour', 0, 360, 110], ['sat', 'Saturation', 0, 100, 0], ['seed', 'Pattern', 1, 40, 4]],
+    render(ctx, P) {
+      const M = maskArray(), R = rng(P.seed), len = new Float32Array(W), n = Math.round(P.drips / 100 * 40 * (T.right - T.left) / W) + 1;
+      for (let d = 0; d < n; d++) {   // each drip: a rounded column profile under the text
+        const c = lerp(T.left, T.right, R()), r = P.thick * (.5 + R()), L = P.len * (.25 + R() * .75) * (R() < .3 ? .35 : 1);
+        for (let x = Math.max(0, Math.floor(c - r)); x < Math.min(W, Math.ceil(c + r)); x++) { const u = (x - c) / r; len[x] = Math.max(len[x], L * Math.sqrt(Math.max(0, 1 - u * u))) }
+      }
+      const S = new Float32Array(N);
+      // Drips only start from a letter's outer bottom edge (open space below it), never inside counters or between arms, so the letters keep their shape
+      // Keep shape: drips may only start this close to the baseline, so the gaps under M, K, A etc. never fill up
+      const kp = P.keep / 100, gapMin = T.fs * .3 * kp, tol = kp > 0 ? T.fs * (.06 + (1 - kp) * 1.2) : 1e9, start = new Uint8Array(N), nearBase = new Uint8Array(H);
+      for (let y = 0; y < H; y++) { const b = T.ys.reduce((p, v) => Math.abs(v - y) < Math.abs(p - y) ? v : p, T.ys[0]); nearBase[y] = y >= b - tol ? 1 : 0 }
+      for (let x = 0; x < W; x++) { let below = 1e9; for (let y = H - 1; y >= 0; y--) { const i = y * W + x; if (M[i] > .5) { if (nearBase[y] && below - y > gapMin && (y === H - 1 || M[i + W] <= .5)) start[i] = 1; below = y } } }
+      for (let x = 0; x < W; x++) { let last = -1e9; for (let y = 0; y < H; y++) { const i = y * W + x; if (start[i]) last = y; else if (M[i] > .5) last = -1e9; S[i] = Math.max(M[i], y - last < len[x] ? 1 : 0) } }
+      const gs = .6 + P.goo / 100 * 6, Gs = gauss(S, gs), col = hsl(P.hue, P.sat, P.sat ? 55 : 100);
+      const oR = new Float32Array(N).fill(col[0]), oG = new Float32Array(N).fill(col[1]), oB = new Float32Array(N).fill(col[2]), oA = new Float32Array(N);
+      const Dr = new Float32Array(N); for (let i = 0; i < N; i++) Dr[i] = M[i] > .5 ? 0 : S[i];
+      const near = gauss(Dr, gs * 1.5 + 1);   // goo only where the drips are, so notches and gaps inside letters stay open
+      for (let i = 0; i < N; i++) { const v = Gs[i], g = v <= .38 ? 0 : v >= .52 ? 1 : (v - .38) / .14; oA[i] = Math.max(M[i], g * lerp(1, clamp(near[i] * 5), kp)) }
+      ctx.putImageData(toImage(oR, oG, oB, oA), 0, 0);
+    } },
+  { key: 'halftone', pad: P => ({ x: P.spread * 2, y: P.spread * 2 }), name: 'Halftone', desc: '<b>Halftone.</b> The text rebuilt from printed dots on an angled grid. Spread lets the dots shrink away softly around the letters, like a comic or a screen print. Solid core keeps the middle of each letter solid, so the dots only start that far in from the edge.',
+    controls: [['cell', 'Dot size', 4, 28, 10, 1], ['angle', 'Angle', 0, 90, 45], ['core', 'Solid core', 0, 40, 1, 1], ['spread', 'Spread', 0, 40, 10, 1], ['gain', 'Ink', 50, 200, 110], ['hue', 'Colour', 0, 360, 0], ['sat', 'Saturation', 0, 100, 0]],
+    render(ctx, P) {
+      const M = maskArray(), Tn = P.spread > 0 ? gauss(Float32Array.from(M), P.spread) : M, c = Math.max(2, P.cell), a = P.angle * Math.PI / 180, ca = Math.cos(a), sa = Math.sin(a), k = P.gain / 100;
+      const col = hsl(P.hue, P.sat, P.sat ? 55 : 100), oA = new Float32Array(N), Din = P.core > 0 ? distanceField(M.map(v => 1 - v)) : null;   // distance in from the letter edge
+      for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+        const u = x * ca + y * sa, v = -x * sa + y * ca, cu = (Math.floor(u / c) + .5) * c, cv = (Math.floor(v / c) + .5) * c;
+        const sx = Math.round(cu * ca - cv * sa), sy = Math.round(cu * sa + cv * ca);   // tone at the dot centre
+        const solid = Din ? clamp(Din[y * W + x] - P.core + .5) * M[y * W + x] : 0; if (solid >= 1) { oA[y * W + x] = 1; continue }
+        const t = (sx >= 0 && sy >= 0 && sx < W && sy < H) ? clamp(Tn[sy * W + sx] * k) : 0; if (t < .02) { if (solid > 0) oA[y * W + x] = solid; continue }
+        const rad = c * .5 * Math.sqrt(t) * 1.25, d = Math.hypot(u - cu, v - cv);
+        oA[y * W + x] = Math.max(solid, clamp(rad - d + .5));
+      }
+      ctx.putImageData(toImage(new Float32Array(N).fill(col[0]), new Float32Array(N).fill(col[1]), new Float32Array(N).fill(col[2]), oA), 0, 0);
     } }
 ];
 
@@ -373,8 +446,7 @@ const FX = [
 const VALS = Object.fromEntries(FX.map(f => [f.key, Object.fromEntries(f.controls.map(c => [c[0], c[4]]))]));
 let cur = FX[0];
 function buildFxBar() {
-  let g = '';
-  document.getElementById('fx').innerHTML = FX.map(f => { const head = f.group !== g ? `<span class="grp">${(g = f.group)}</span>` : ''; return `${head}<button data-k="${f.key}" class="${f === cur ? 'on' : ''}" role="tab" aria-selected="${f === cur}" title="${f.desc.replace(/<[^>]+>/g, '').replace(/"/g, '&quot;')}">${f.name}</button>` }).join('');
+  document.getElementById('fx').innerHTML = FX.map(f => { return `<button data-k="${f.key}" class="${f === cur ? 'on' : ''}" role="tab" aria-selected="${f === cur}" title="${f.desc.replace(/<[^>]+>/g, '').replace(/"/g, '&quot;')}">${f.name}</button>` }).join('');
   document.querySelectorAll('#fx button').forEach(b => b.onclick = () => { cur = FX.find(f => f.key === b.dataset.k); buildFxBar(); buildControls(); schedule() });
   document.querySelector('#fx button.on')?.scrollIntoView({ inline: 'nearest', block: 'nearest' });
 }
@@ -388,6 +460,12 @@ document.getElementById('reset').onclick = () => { cur.controls.forEach(c => VAL
 document.querySelectorAll('#bg button').forEach(b => b.onclick = () => { document.getElementById('stage').className = 'stage' + (b.dataset.bg === 'black' ? '' : ' ' + b.dataset.bg); document.querySelectorAll('#bg button').forEach(x => x.classList.toggle('on', x === b)) });
 let ALIGN = 'center';
 const txt = document.getElementById('txt'), grow = () => { txt.rows = Math.max(1, txt.value.split('\n').length) };
+// Text is edited on the preview: the pencil (or a tap on the image) opens the field under it, Done closes it.
+const tedit = document.getElementById('tedit'), editBtn = document.getElementById('editBtn');
+function setEditing(on) { tedit.hidden = !on; editBtn.setAttribute('aria-expanded', on); if (on) { grow(); txt.focus(); txt.setSelectionRange(txt.value.length, txt.value.length) } }
+editBtn.onclick = () => setEditing(tedit.hidden);
+document.getElementById('out').addEventListener('click', () => setEditing(true));
+document.getElementById('tdone').onclick = () => setEditing(false);
 txt.addEventListener('input', () => { grow(); schedule() }); grow();
 document.querySelectorAll('#align button').forEach(b => b.onclick = () => { ALIGN = b.dataset.a; document.querySelectorAll('#align button').forEach(x => x.classList.toggle('on', x === b)); schedule() });
 document.getElementById('lh').addEventListener('input', () => schedule(true));
@@ -406,7 +484,7 @@ async function draw(draft = false) {
   // Height grows with the number of lines (room around the block for glows and shadows)
   const pad = cur.pad ? cur.pad(VALS[cur.key]) : { x: 0, y: 0 }; T.padX = pad.x;
   const blockH = measureBlock(document.createElement('canvas').getContext('2d'), FW).contentH;
-  const fullH = Math.max(FH, Math.ceil(blockH + FH * .5 + WARP.wave * 2 + WARP.bulge / 100 * blockH * 1.1 + pad.y * 2));
+  const fullH = Math.max(FH, Math.ceil(blockH + FH * .5 + WARP.wave * 2 + WARP.bulge / 100 * blockH * 1.8 + pad.y * 2));
   W = Math.round(FW * d); H = Math.round(fullH * d); N = W * H; SC = d; if (TMP.length !== N) TMP = new Float32Array(N);
   const cv = document.getElementById('out'); if (cv.width !== W || cv.height !== H) { cv.width = W; cv.height = H }
   const ctx = cv.getContext('2d'); ctx.clearRect(0, 0, W, H); ctx.save(); layout(ctx);
@@ -431,6 +509,24 @@ document.getElementById('share').onclick = async () => {
 document.getElementById('copy').onclick = async () => {
   try { await navigator.clipboard.write([new ClipboardItem({ 'image/png': pngBlob() })]); note('Copied. In your Story, tap and choose Paste.') }
   catch (e) { note("Copy isn't supported here. Use Share instead.") }
+};
+
+// Randomise: a random effect, font and alignment, every effect slider anywhere in its range, plus gentle spacing and shape.
+const rnd = (a, b) => a + Math.random() * (b - a);
+// Narrower random ranges where the full slider range gets too wild
+const RAND_RANGE = { vhs: { shift: [4, 34], count: [8, 38], split: [1, 9], lines: [0, 45] } };
+function setRange(id, v) { const el = document.getElementById(id); el.value = v; const lab = document.querySelector(`[data-for="${id}"]`); if (lab) lab.textContent = el.value; return +el.value }
+document.getElementById('rand').onclick = () => {
+  cur = FX[Math.floor(Math.random() * FX.length)];
+  const V = VALS[cur.key];
+  cur.controls.forEach(([k, , mn, mx]) => { [mn, mx] = RAND_RANGE[cur.key]?.[k] || [mn, mx]; const step = mx - mn <= 3 ? 1 : (mx - mn > 20 ? 1 : .5); V[k] = Math.round(rnd(mn, mx) / step) * step });
+  const f = document.getElementById('font'); f.selectedIndex = Math.floor(Math.random() * f.options.length);
+  const al = ['left', 'center', 'right'][Math.floor(Math.random() * 3)]; document.querySelector(`#align button[data-a="${al}"]`).click();
+  setRange('lh', rnd(.9, 1.3).toFixed(2)); setRange('ls', rnd(-.06, .15).toFixed(2));
+  WARP.wave = setRange('wave', Math.random() < .5 ? 0 : Math.round(rnd(5, 45)));
+  WARP.waveLen = setRange('waveLen', Math.round(rnd(160, 700) / 10) * 10);
+  WARP.bulge = setRange('bulge', Math.random() < .5 ? 0 : Math.round(rnd(15, 80)));
+  buildFxBar(); buildControls(); schedule();
 };
 
 buildFxBar(); buildControls();
