@@ -2847,16 +2847,24 @@
       $('#exportStage').querySelectorAll('.grain-img').forEach(e => e.remove());
       grainHide($('#overlay'), false);
     }
+    let lastInteract = 0;
+    ['pointerdown', 'pointermove', 'touchstart', 'touchmove', 'wheel', 'keydown', 'input'].forEach(t => addEventListener(t, e => { if (t !== 'pointermove' || e.buttons) lastInteract = performance.now() }, { passive: true, capture: true }));
+    addEventListener('scroll', () => { lastInteract = performance.now() }, { passive: true, capture: true });   // includes the Effects dial, which is a scroller
+    const idleFor = ms => performance.now() - lastInteract > ms;
     function scheduleGrainPreview() {
       clearTimeout(grainTimer);
       if (!state.effects.grain) { clearGrainPreview(); return }
-      grainTimer = setTimeout(updateGrainPreview, 90);
+      const run = () => { if (!idleFor(200)) { grainTimer = setTimeout(run, 120); return } updateGrainPreview() };   // wait until the dial has settled
+      grainTimer = setTimeout(run, 200);
     }
+    let grainCap = {};   // last text capture for the grain preview
     async function updateGrainPreview() {
       const ov = $('#overlay'), stage = $('#exportStage'), token = ++grainToken, S = 2;
       if (!state.effects.grain || !ov.querySelector('.k-gr')) { clearGrainPreview(); return }
       try {
-        const big = await html2canvas(ov, { backgroundColor: null, scale: S, useCORS: true, logging: false, onclone: grainCloneSetup(ov, 'grain-capture') });
+        const key = [renderCount, ov.offsetWidth, ov.offsetHeight, S].join('|');
+        let big = grainCap.key === key ? grainCap.canvas : null;
+        if (!big) { big = await html2canvas(ov, { backgroundColor: null, scale: S, useCORS: true, logging: false, onclone: grainCloneSetup(ov, 'grain-capture') }); grainCap = { key, canvas: big } }
         if (token !== grainToken) return;
         const g = grainCanvas(big, grainSigma() * S, S);
         g.className = 'grain-img';
@@ -3039,7 +3047,7 @@
     // One-tap share: the PNG is rendered in the background after every change, so the tap can open the share sheet at once.
     let renderCount = 0, shareCache = null, shareTimer = null, shareBusy = null;
     const shareSig = () => renderCount + JSON.stringify([state.effects, state.tone, state.bg, state.bgOpacity, state.style]);
-    function queueSharePrep() { renderCount++; shareCache = null; clearTimeout(shareTimer); shareTimer = setTimeout(() => { buildExportBlob().catch(() => {}) }, 900) }
+    function queueSharePrep() { renderCount++; shareCache = null; clearTimeout(shareTimer); const go = () => { if (!idleFor(2500)) { shareTimer = setTimeout(go, 800); return } buildExportBlob().catch(() => {}) }; shareTimer = setTimeout(go, 2500) }   // only once the user has stopped fiddling
     async function buildExportBlob() {
       if (shareCache && shareCache.sig === shareSig()) return shareCache;
       if (shareBusy) { try { await shareBusy } catch (e) {} if (shareCache && shareCache.sig === shareSig()) return shareCache }
@@ -3070,7 +3078,7 @@
     }
     // Effects sliders do not call render(), so also pre-render once the card has been still for a moment.
     let lastTick = '';
-    setInterval(() => { const sg = shareSig(); if (sg === lastTick && !shareBusy && !(shareCache && shareCache.sig === sg)) buildExportBlob().catch(() => {}); lastTick = sg }, 1000);
+    setInterval(() => { const sg = shareSig(); if (sg === lastTick && idleFor(2500) && !shareBusy && !(shareCache && shareCache.sig === sg)) buildExportBlob().catch(() => {}); lastTick = sg }, 1000);
     async function exportImage() {
       const btn = $('#exportBtn'); btn.disabled = true;
       try {
