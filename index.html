@@ -8,7 +8,7 @@
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo+Black&family=Big+Shoulders+Display:wght@900&family=Bowlby+One&family=Bricolage+Grotesque:opsz,wght@12..96,800&family=Dela+Gothic+One&family=Hanken+Grotesk:wght@500&family=Instrument+Sans:wght@400&family=Inter+Tight:wght@100;300;800&family=JetBrains+Mono:wght@500;800&family=Oswald:wght@200;300;700&family=Outfit:wght@100..900&family=Rubik:wght@800;900&family=Saira+Extra+Condensed:wght@200;900&family=Unbounded:wght@200;900&family=Bungee&family=DM+Sans:wght@700&family=Manrope:wght@700&family=Mrs+Saint+Delafield&family=Rubik+Mono+One&family=Space+Grotesk:wght@500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo+Black&family=Big+Shoulders+Display:wght@900&family=Bowlby+One&family=Bricolage+Grotesque:opsz,wght@12..96,800&family=Dela+Gothic+One&family=Hanken+Grotesk:wght@500&family=Instrument+Sans:wght@400&family=Inter+Tight:wght@100;300;800&family=JetBrains+Mono:wght@500;800&family=Oswald:wght@200;300;700&family=Outfit:wght@100..900&family=Rubik:wght@800;900&family=Saira+Extra+Condensed:wght@200;900&family=Unbounded:wght@200;900&family=Bungee&family=DM+Sans:wght@700&family=Manrope:wght@700&family=Mrs+Saint+Delafield&family=Rubik+Mono+One&family=Rammetto+One&family=Space+Grotesk:wght@500&display=swap" rel="stylesheet">
   <style>
     :root {
       --bg: #08090c;
@@ -1573,7 +1573,7 @@
     .k-ministack .k-mcap { font-family: "DM Sans", sans-serif; font-weight: 700; font-size: 6.6cqw; letter-spacing: .01em; margin-bottom: 1.5cqw; }
     .k-ministack .k-ml { gap: .09em; font-family: "Anybody Wide", sans-serif; font-weight: 900; font-size: 17cqw; line-height: .9; }
     .k-ministack .k-ml small { font-size: .41em; }
-    .k-minireadout .k-fill { font-family: "Archivo Black", sans-serif; letter-spacing: -.02em; line-height: .9; }
+    .k-minireadout .k-fill { font-family: "Rammetto One", sans-serif; letter-spacing: -.02em; line-height: .9; }
     .k-minireadout .k-mr { display: flex; justify-content: space-between; gap: 3cqw; margin-top: 3cqw; font-family: "DM Sans", sans-serif; font-weight: 700; font-size: 5.4cqw; letter-spacing: .06em; text-transform: uppercase; white-space: nowrap; }
     .k-miniglow { text-align: center; --glow: rgba(255,255,255,.7); }
     .overlay.tone-black .k-miniglow { --glow: rgba(0,0,0,.35); }
@@ -1582,11 +1582,12 @@
     .k-miniglow .k-mgn { font-size: 24cqw; line-height: .85; text-shadow: 0 0 3cqw var(--glow), 0 0 9cqw var(--glow); }
     .k-miniglow .k-mrow + .k-mrow { margin-top: 2.5cqw; }
     .k-miniglow .k-mgn small { font-size: .3em; margin-left: .12em; }
-    .k-miniroute svg { display: block; width: 100%; height: auto; max-height: 60cqw; overflow: visible; margin-bottom: 5cqw; }
+    .k-miniroute .k-mrw { display: inline-flex; flex-direction: column; max-width: 100%; vertical-align: top; }   /* the group is as wide as the distance */
+    .k-miniroute svg { display: block; width: 0; min-width: 100%; height: auto; max-height: 60cqw; overflow: visible; margin-bottom: 5cqw; }   /* centred over the distance, never widens the group */
     .k-miniroute .k-route { stroke-width: 2.4; }
     .k-miniroute .k-ml { gap: .07em; font-family: Bungee, sans-serif; font-size: 21cqw; line-height: 1; }
-    .k-miniroute .k-ml small { font-size: .38em; color: var(--acc); margin-left: .12em; }
-    .k-miniroute .k-mp { display: flex; justify-content: space-between; gap: 3cqw; margin-top: 2.5cqw; font-family: "Space Grotesk", sans-serif; font-weight: 500; font-size: 6.6cqw; opacity: .85; }
+    .k-miniroute .k-ml small { font-size: .667em; margin-left: .1em; }
+    .k-miniroute .k-mp { width: 0; min-width: 100%; display: flex; justify-content: space-between; white-space: nowrap; gap: 3cqw; margin-top: 2.5cqw; font-family: "Space Grotesk", sans-serif; font-weight: 500; font-size: 6.6cqw; opacity: .85; }
     .k-minimono .k-fill { font-family: "Rubik Mono One", sans-serif; letter-spacing: -.07em; line-height: .85; }   /* k-fill grows each line to the full width, so the two lines justify into a stack */
     .k-minimono .k-fill + .k-fill { color: var(--acc); margin-top: 2cqw; }
     .k-minimono .k-fill small { font-size: .38em; margin-left: .12em; }
@@ -1884,11 +1885,11 @@
     const profiles = { swim: { title: 1, actType: 0, distance: 1, time: 1, pace: 1, elevation: 0, heart: 1, power: 0, route: 0, elevProfile: 0, splits: 1, date: 1 }, run: { title: 1, actType: 0, distance: 1, time: 1, pace: 1, elevation: 0, heart: 1, power: 0, route: 0, elevProfile: 0, splits: 1, date: 1 }, ride: { title: 1, actType: 0, distance: 1, time: 1, pace: 1, elevation: 1, heart: 1, power: 1, route: 1, elevProfile: 0, splits: 0, date: 1 }, minimal: { title: 1, actType: 0, distance: 1, time: 1, pace: 1, elevation: 0, heart: 0, power: 0, route: 0, elevProfile: 0, splits: 0, date: 0 }, all: { title: 1, actType: 0, distance: 1, time: 1, pace: 1, elevation: 1, heart: 1, power: 1, route: 1, elevProfile: 1, splits: 1, date: 1 } }; 
     const styleDefs = [{ key: 'monolith', name: 'Monolith' }, { key: 'stack', name: 'Stack' }, { key: 'ticket', name: 'Ticket' }, { key: 'echo', name: 'Echo' }, { key: 'knockout', name: 'Knockout' }, { key: 'sticker', name: 'Sticker' }, { key: 'routehero', name: 'Route Hero' }, { key: 'splits', name: 'Splits Wall' }, { key: 'hairline', name: 'Hairline' }, { key: 'weightshift', name: 'Weight Shift' }, { key: 'column', name: 'Column' }, { key: 'onefamily', name: 'One Family' }, { key: 'fadestack', name: 'Fade Stack' }, { key: 'bigunit', name: 'Big Unit' }, { key: 'pills', name: 'Pills' }, { key: 'splitflag', name: 'Fastest Split' }, { key: 'splitbars', name: 'Split Bars' }, { key: 'ladder', name: 'Ladder' }, { key: 'splitline', name: 'Split Line' }, { key: 'fasthero', name: 'Fastest Hero' }, { key: 'halves', name: 'Halves' }, { key: 'caption', name: 'Caption' }, { key: 'sentence', name: 'Sentence' }, { key: 'label', name: 'Label' }, { key: 'log', name: 'Log' }, { key: 'ministack', name: 'Wide Stack' }, { key: 'minireadout', name: 'Readout' }, { key: 'miniglow', name: 'Glow Day' }, { key: 'miniroute', name: 'Route' }, { key: 'minimono', name: 'Mono Stack' }, { key: 'miniscript', name: 'Script' }];
     const STYLE_CATEGORIES = [
-      ['Bold', ['monolith', 'stack', 'ticket', 'echo', 'knockout', 'sticker', 'bigunit', 'pills']],
-      ['Type', ['hairline', 'weightshift', 'column', 'onefamily', 'fadestack']],
-      ['Splits', ['splitflag', 'splitbars', 'ladder', 'splitline', 'fasthero', 'halves', 'splits', 'routehero']],
+      ['Mini', ['ministack', 'minireadout', 'miniglow', 'miniroute', 'minimono', 'miniscript']],
       ['Quiet', ['caption', 'sentence', 'label', 'log']],
-      ['Mini', ['ministack', 'minireadout', 'miniglow', 'miniroute', 'minimono', 'miniscript']]
+      ['Bold', ['monolith', 'stack', 'ticket', 'echo', 'knockout', 'sticker', 'bigunit', 'pills', 'routehero']],
+      ['Type', ['hairline', 'weightshift', 'column', 'onefamily', 'fadestack']],
+      ['Splits', ['splitflag', 'splitbars', 'ladder', 'splitline', 'fasthero', 'halves', 'splits']]
     ];
     { const order = STYLE_CATEGORIES.flatMap(c => c[1]); styleDefs.sort((a, b) => order.indexOf(a.key) - order.indexOf(b.key)) }   // swiping walks category by category
     const QUIET_STYLES = new Set(['caption', 'sentence', 'label', 'log']);   // understated: no graphics appended
@@ -1903,7 +1904,7 @@
     const state = { 
       effects: { ...defaultEffects }, 
       style: 'monolith', 
-      styleIndex: 0, 
+      styleIndex: styleDefs.findIndex(d => d.key === 'monolith'), 
       tone: 'white', 
       bg: false, 
       bgOpacity: 0.75, 
@@ -2340,6 +2341,12 @@
       const sd = splitData(); if (sd.items.length < 2) return '';
       return `<div class="k-bars${mini ? ' mini' : ''}">${sd.items.map((x, i) => `<i class="${i === sd.best ? 'best' : ''}" style="height:${splitH(sd, x)}"></i>`).join('')}</div>`;
     }
+    function splitVerdict() {
+      const h = halvesData(); if (!h) return '';
+      const even = Math.abs(h.first - h.second) / h.first < .005;
+      return even ? 'Even split' : h.second < h.first ? 'Negative split' : 'Positive split';
+    }
+    const verdictTag = () => { const v = splitVerdict(); return v ? `<span class="k-tiny">${v}</span>` : '' };
     function negSplit() { const h = halvesData(); return !!h && h.second < h.first }
 
     function cardData() {
@@ -2468,7 +2475,7 @@
       miniglow: c => { const d = miniDist(c);
         return `<div class="k-mrow"><span class="k-mgd k-shrink kg">${c.day.toUpperCase()}</span></div><div class="k-mrow"><span class="k-mgn k-shrink kg">${d.n}<small>${d.u}</small></span></div>`; },
       miniroute: c => { const d = miniDist(c), p = miniPace(c);
-        return `${routeSvgK(true)}${miniLine(d.n, d.u)}<div class="k-mp"><span>${c.day.slice(0, 3)}</span>${p ? `<span>${p}</span>` : ''}</div>`; },
+        return `<div class="k-mrw">${routeSvgK(true)}${miniLine(d.n, d.u)}<div class="k-mp"><span>${c.day.slice(0, 3)}</span>${p ? `<span>${p}</span>` : ''}</div></div>`; },
       minimono: c => { const d = miniDist(c);
         return `<div class="k-fill"><span class="k-t">${c.day.slice(0, 3).toUpperCase()}</span></div><div class="k-fill"><span class="k-t">${d.n.replace('.', '<span class="k-dp">.</span>')}<small>${d.u}</small></span></div>`; },
       miniscript: c => { const d = miniDist(c);
@@ -2479,25 +2486,22 @@
         const sd = splitData(), it = sd.items, n = it.length;
         if (n < 2) return noSplits(c);
         const edge = i => i > n * .66 ? ' r' : i < n * .33 ? ' l' : '';
-        return `<div class="k-between k-head"><span class="k-tiny">${c.left}</span><span class="k-tiny">${sd.label} splits</span></div>
+        return `<div class="k-between k-head">${verdictTag()}</div>
           <div class="k-bars2">${it.map((x, i) => `<i class="${i === sd.best ? 'best' : ''}" style="height:${splitH(sd, x)}">${i === sd.best ? `<span class="k-flag${edge(i)}"><span class="k-tiny">Fastest split</span><b>${sd.fmt(x)}</b></span>` : ''}</i>`).join('')}</div>
-          <div class="k-axis">${it.map(x => `<span>${sd.at(x.end)}</span>`).join('')}</div>
-          <div class="k-between k-sf-foot"><b>${c.distText}</b><b>${c.time}</b></div>`;
+          <div class="k-axis">${it.map(x => `<span>${sd.at(x.end)}</span>`).join('')}</div>`;
       },
       splitbars: c => {
         const sd = splitData(), it = sd.items, n = it.length;
         if (n < 2) return noSplits(c);
         const fs = Math.min(6, 66 / n).toFixed(2);
-        return `<div class="k-between k-sb-head"><b>${c.distText.toUpperCase()}</b><span class="k-tiny">${c.left}</span></div>
+        return `<div class="k-between k-sb-head">${verdictTag()}</div>
           <div class="k-bars2">${it.map((x, i) => `<i class="${i === sd.best ? 'best' : ''}" style="height:${splitH(sd, x, .5)}"><span style="font-size:${fs}cqw">${sd.fmt(x)}</span></i>`).join('')}</div>
           <div class="k-axis">${it.map(x => `<span>${sd.at(x.end)}</span>`).join('')}</div>`;
       },
       ladder: c => {
         const sd = splitData(), it = sd.items;
         if (it.length < 2) return noSplits(c);
-        const [num, u] = c.distText.split(' ');
-        return `<span class="k-tiny">${[c.left, sd.label + ' splits'].filter(Boolean).join(' · ')}</span>
-          <div class="k-big">${num}<small>${u.toUpperCase()}</small></div>
+        return `${verdictTag()}
           ${it.map((x, i) => `<div class="k-lr${i === sd.best ? ' best' : ''}"><span class="n">${sd.at(x.end)}</span><span class="bar" style="width:${splitH(sd, x, .3)}"></span><span class="v">${sd.fmt(x)}</span></div>`).join('')}`;
       },
       splitline: c => {
@@ -2506,9 +2510,8 @@
         const Hh = 46, VB = Hh + 4, pts = it.map((x, i) => [4 + i * 92 / (n - 1), 6 + (1 - (x.speed - sd.min) / (sd.max - sd.min || 1)) * (Hh - 12)]);
         const p = pts.map((q, i) => (i ? 'L' : 'M') + q[0].toFixed(1) + ' ' + q[1].toFixed(1)).join('');
         const lab = (i, best) => { const [x, y] = pts[i], side = x > 85 ? ' r' : x < 15 ? ' l' : ''; return `<span class="lab${best ? ' best' : ' lo'}${side}" style="left:${x}%;top:${(y / VB * 100).toFixed(1)}%">${sd.fmt(it[i])}</span>` };
-        return `<span class="k-tiny">${[c.left, sd.label + ' splits'].filter(Boolean).join(' · ')}</span>
-          <div class="k-sl"><svg viewBox="0 0 100 ${VB}"><path class="ar" d="${p} L${pts[n - 1][0].toFixed(1)} ${Hh} L${pts[0][0]} ${Hh} Z"/><path class="ln" d="${p}"/>${pts.map((q, i) => `<circle class="dot${i === sd.best ? ' best' : ''}" cx="${q[0].toFixed(1)}" cy="${q[1].toFixed(1)}" r="${i === sd.best ? 1.6 : 1}"/>`).join('')}</svg>${lab(sd.best, true)}${sd.worst !== sd.best ? lab(sd.worst, false) : ''}</div>
-          <div class="k-between"><div class="k-big">${c.distText.toUpperCase()}</div><span class="k-tiny">${c.time}</span></div>`;
+        return `${verdictTag()}
+          <div class="k-sl"><svg viewBox="0 0 100 ${VB}"><path class="ar" d="${p} L${pts[n - 1][0].toFixed(1)} ${Hh} L${pts[0][0]} ${Hh} Z"/><path class="ln" d="${p}"/>${pts.map((q, i) => `<circle class="dot${i === sd.best ? ' best' : ''}" cx="${q[0].toFixed(1)}" cy="${q[1].toFixed(1)}" r="${i === sd.best ? 1.6 : 1}"/>`).join('')}</svg>${lab(sd.best, true)}${sd.worst !== sd.best ? lab(sd.worst, false) : ''}</div>`;
       },
       fasthero: c => {
         const sd = splitData(), it = sd.items;
@@ -2518,7 +2521,7 @@
           <div class="k-fill"><span class="k-t">${sd.fmt(b)}</span></div>
           <span class="k-tiny">${unit}</span>
           <div class="k-spark">${it.map((x, i) => `<i class="${i === sd.best ? 'best' : ''}" style="height:${splitH(sd, x, .3)}"></i>`).join('')}</div>
-          <div class="k-row"><div class="k-stat"><span class="k-tiny">Distance</span><span class="k-mono">${c.distText}</span></div><div class="k-stat"><span class="k-tiny">Time</span><span class="k-mono">${c.time}</span></div><div class="k-stat"><span class="k-tiny">${sd.ride ? 'Avg speed' : 'Avg pace'}</span><span class="k-mono">${c.paceVal}</span></div></div>`;
+          ${verdictTag()}`;
       },
       halves: c => {
         const h = halvesData();
@@ -2581,10 +2584,8 @@
       knockout: c => `${kHead(c)}
         <div class="k-ko"><canvas data-text="${esc(c.hero.n)}" data-unit="${c.hero.u}"></canvas></div>
         ${c.stats.length ? `<div class="k-row">${c.stats.slice(0, 4).map(kStat).join('')}</div>` : ''}`,
-      splits: c => `<span class="k-tiny">${splitData().label} splits · fastest highlighted</span>
-        ${barsHtml(false)}
-        <div class="k-big"><span>${c.paceVal}</span><span class="k-tiny">avg ${c.ride ? 'speed' : 'pace'}<br>${c.paceUnit}</span></div>
-        <div class="k-between k-foot"><span class="k-tiny">${c.distText}</span><span class="k-tiny">${c.time}</span>${c.hr ? `<span class="k-tiny">${c.hr} bpm</span>` : ''}${negSplit() ? '<span class="k-tiny">Neg split</span>' : ''}</div>`
+      splits: c => splitData().items.length < 2 ? noSplits(c) : `${verdictTag()}
+        ${barsHtml(false)}`
     };
 
     // Grow .k-fill text to the full width (minus any sibling labels); shrink .k-shrink only if it overflows.
@@ -2607,7 +2608,8 @@
       root.querySelectorAll('.k-fill:not(.k-e) > .k-t, .k-e.solid > .k-t, .k-e canvas, .k-ko canvas, .k-bigunit .k-num, .k-p1, .k-p2, .k-ticket .k-u, .k-s1, .k-s2, .k-splits .k-big > span:first-child, .k-flag b, .k-sb-head b, .k-ladder .k-big, .k-splitline .k-big, .k-sum, .kg').forEach(e => e.classList.add('k-gr'));
       root.querySelectorAll('.k-shrink, .k-sum').forEach(el => {
         el.style.fontSize = '';
-        const max = el.parentElement.clientWidth * .96 - (parseFloat(getComputedStyle(el).marginLeft) || 0);
+        const grp = el.closest('.k-mrw'), box = grp ? grp.parentElement : el.parentElement, bcs = grp ? getComputedStyle(box) : null;
+        const max = (box.clientWidth - (bcs ? parseFloat(bcs.paddingLeft) + parseFloat(bcs.paddingRight) : 0)) * .96 - (parseFloat(getComputedStyle(el).marginLeft) || 0);
         for (let i = 0; i < 3 && el.offsetWidth > max; i++) el.style.fontSize = (parseFloat(getComputedStyle(el).fontSize) * max / el.offsetWidth * .98).toFixed(2) + 'px';
       });
     }
@@ -2871,7 +2873,7 @@
 
     function render() {
       const m = state.mods, def = styleDefs.find(s => s.key === state.style) || styleDefs[0];
-      const extras = (!QUIET_STYLES.has(def.key) && m.elevProfile && (!state.activity || state.detail?.streams?.altitude?.data?.length > 1) ? elevationSvg() : '') + (m.splits && !SPLIT_STYLES.has(def.key) && !QUIET_STYLES.has(def.key) ? barsHtml(true) : '');
+      const extras = (!QUIET_STYLES.has(def.key) && !SPLIT_STYLES.has(def.key) && m.elevProfile && (!state.activity || state.detail?.streams?.altitude?.data?.length > 1) ? elevationSvg() : '') + (m.splits && !SPLIT_STYLES.has(def.key) && !QUIET_STYLES.has(def.key) ? barsHtml(true) : '');
       $('#overlay').className = `overlay tone-${state.tone} layout-${state.layout} ${state.bg ? 'with-bg' : ''}`;
       $('#exportStage').querySelectorAll('.grain-img').forEach(e => e.remove());
       $('#overlay').innerHTML = `<div class='template k-card k-${def.key} ${state.bg ? '' : 'nobg'}'>${cardRenderers[def.key](cardData())}${extras}</div>`;
@@ -3087,7 +3089,7 @@
     }
 
     // ─── Studio UI (Style / Data / Colour / Grain tools) ─────────────────────
-    const STYLE_FONTS = { monolith: 'Anton', stack: '"Archivo Black"', ticket: '"Big Shoulders Display"', echo: '"Bricolage Grotesque"', knockout: '"Bowlby One"', sticker: '"Dela Gothic One"', routehero: 'Anton', splits: '"Archivo Black"', hairline: '"Inter Tight"', weightshift: 'Outfit', column: '"Saira Extra Condensed"', onefamily: 'Unbounded', fadestack: 'Oswald', bigunit: 'Rubik', pills: 'Rubik', splitflag: '"Archivo Black"', splitbars: '"Archivo Black"', ladder: '"Inter Tight"', splitline: '"Inter Tight"', fasthero: 'Anton', halves: 'Rubik', caption: '"Hanken Grotesk"', sentence: '"Inter Tight"', label: '"Instrument Sans"', log: '"JetBrains Mono"', ministack: '"Anybody Wide"', minireadout: '"Archivo Black"', miniglow: '"Anybody Wide"', miniroute: 'Bungee', minimono: '"Rubik Mono One"', miniscript: '"Rubik Mono One"' };
+    const STYLE_FONTS = { monolith: 'Anton', stack: '"Archivo Black"', ticket: '"Big Shoulders Display"', echo: '"Bricolage Grotesque"', knockout: '"Bowlby One"', sticker: '"Dela Gothic One"', routehero: 'Anton', splits: '"Archivo Black"', hairline: '"Inter Tight"', weightshift: 'Outfit', column: '"Saira Extra Condensed"', onefamily: 'Unbounded', fadestack: 'Oswald', bigunit: 'Rubik', pills: 'Rubik', splitflag: '"Archivo Black"', splitbars: '"Archivo Black"', ladder: '"Inter Tight"', splitline: '"Inter Tight"', fasthero: 'Anton', halves: 'Rubik', caption: '"Hanken Grotesk"', sentence: '"Inter Tight"', label: '"Instrument Sans"', log: '"JetBrains Mono"', ministack: '"Anybody Wide"', minireadout: '"Rammetto One"', miniglow: '"Anybody Wide"', miniroute: 'Bungee', minimono: '"Rubik Mono One"', miniscript: '"Rubik Mono One"' };
     const STYLE_WEIGHTS = { hairline: 100, weightshift: 900, column: 900, onefamily: 900, fadestack: 700, bigunit: 900, pills: 800, ladder: 100, splitline: 800, halves: 900, caption: 500, sentence: 300, label: 400, log: 500 };
     const STAT_MAX = { monolith: 4, ticket: 3, echo: 3, knockout: 4, routehero: 4, caption: 2, sentence: 3, label: 2, log: 2, hairline: 4, weightshift: 3, column: 2, onefamily: 3, fadestack: 2, bigunit: 3, pills: 4 };   // how many stats each card's stat row can show
     const icon = id => `<svg class="ic"><use href="#i-${id}"/></svg>`;
@@ -3161,7 +3163,7 @@
     // Presets adapt to the style: Bold and Type cards default to no splits strip. A hand-picked chip (profile 'custom') is left alone.
     function styleDefaults() {
       if (!profiles[state.profile]) return;
-      const noSplits = [...STYLE_CATEGORIES[0][1], ...STYLE_CATEGORIES[1][1]];   // Bold + Type
+      const cat = n => (STYLE_CATEGORIES.find(c => c[0] === n) || [, []])[1], noSplits = [...cat('Bold'), ...cat('Type')];   // Bold + Type
       state.mods.splits = noSplits.includes(state.style) ? 0 : profiles[state.profile].splits;
     }
     function setStyleByIndex(i) {
