@@ -441,8 +441,8 @@ const FX = [
       }
       ctx.putImageData(toImage(oR, oG, oB, oA), 0, 0);
     } },
-  { key: 'melt', pad: P => ({ x: 0, y: P.len * .55 }), name: 'Melt', desc: '<b>Melt.</b> The letters drip like wet paint, with rounded drops of different lengths running off their bottoms. Pattern reshuffles where the drips fall. Keep shape stops drips running out of the gaps inside letters, so long drips stay readable.',
-    controls: [['len', 'Drip length', 0, 300, 140, 1], ['drips', 'Drips', 0, 100, 45], ['thick', 'Drip width', 3, 30, 11, 1], ['goo', 'Gooeyness', 0, 100, 50], ['keep', 'Keep shape', 0, 100, 65], ['hue', 'Colour', 0, 360, 110], ['sat', 'Saturation', 0, 100, 0], ['seed', 'Pattern', 1, 40, 4]],
+  { key: 'melt', pad: P => ({ x: 0, y: P.len * .55 }), name: 'Melt', desc: '<b>Melt.</b> The letters drip like wet paint, with rounded drops of different lengths running off their bottoms. Pattern reshuffles where the drips fall.',
+    controls: [['len', 'Drip length', 0, 300, 140, 1], ['drips', 'Drips', 0, 100, 45], ['thick', 'Drip width', 3, 30, 11, 1], ['goo', 'Gooeyness', 0, 100, 50], ['hue', 'Colour', 0, 360, 110], ['sat', 'Saturation', 0, 100, 0], ['seed', 'Pattern', 1, 40, 4]],
     render(ctx, P) {
       const M = maskArray(), R = rng(P.seed), len = new Float32Array(W), n = Math.round(P.drips / 100 * 40 * (T.right - T.left) / W) + 1;
       for (let d = 0; d < n; d++) {   // each drip: a rounded column profile under the text
@@ -450,17 +450,10 @@ const FX = [
         for (let x = Math.max(0, Math.floor(c - r)); x < Math.min(W, Math.ceil(c + r)); x++) { const u = (x - c) / r; len[x] = Math.max(len[x], L * Math.sqrt(Math.max(0, 1 - u * u))) }
       }
       const S = new Float32Array(N);
-      // Drips only start from a letter's outer bottom edge (open space below it), never inside counters or between arms, so the letters keep their shape
-      // Keep shape: drips may only start this close to the baseline, so the gaps under M, K, A etc. never fill up
-      const kp = P.keep / 100, gapMin = T.fs * .3 * kp, tol = kp > 0 ? T.fs * (.06 + (1 - kp) * 1.2) : 1e9, start = new Uint8Array(N), nearBase = new Uint8Array(H);
-      for (let y = 0; y < H; y++) { const b = T.ys.reduce((p, v) => Math.abs(v - y) < Math.abs(p - y) ? v : p, T.ys[0]); nearBase[y] = y >= b - tol ? 1 : 0 }
-      for (let x = 0; x < W; x++) { let below = 1e9; for (let y = H - 1; y >= 0; y--) { const i = y * W + x; if (M[i] > .5) { if (nearBase[y] && below - y > gapMin && (y === H - 1 || M[i + W] <= .5)) start[i] = 1; below = y } } }
-      for (let x = 0; x < W; x++) { let last = -1e9; for (let y = 0; y < H; y++) { const i = y * W + x; if (start[i]) last = y; else if (M[i] > .5) last = -1e9; S[i] = Math.max(M[i], y - last < len[x] ? 1 : 0) } }
+      for (let x = 0; x < W; x++) { let last = -1e9; for (let y = 0; y < H; y++) { const i = y * W + x; if (M[i] > .5) last = y; S[i] = Math.max(M[i], y - last < len[x] ? 1 : 0) } }
       const gs = .6 + P.goo / 100 * 6, Gs = gauss(S, gs), col = hsl(P.hue, P.sat, P.sat ? 55 : 100);
       const oR = new Float32Array(N).fill(col[0]), oG = new Float32Array(N).fill(col[1]), oB = new Float32Array(N).fill(col[2]), oA = new Float32Array(N);
-      const Dr = new Float32Array(N); for (let i = 0; i < N; i++) Dr[i] = M[i] > .5 ? 0 : S[i];
-      const near = gauss(Dr, gs * 1.5 + 1);   // goo only where the drips are, so notches and gaps inside letters stay open
-      for (let i = 0; i < N; i++) { const v = Gs[i], g = v <= .38 ? 0 : v >= .52 ? 1 : (v - .38) / .14; oA[i] = Math.max(M[i], g * lerp(1, clamp(near[i] * 5), kp)) }
+      for (let i = 0; i < N; i++) { const v = Gs[i]; oA[i] = v <= .38 ? 0 : v >= .52 ? 1 : (v - .38) / .14 }   // threshold the blur: gooey rounded joins
       ctx.putImageData(toImage(oR, oG, oB, oA), 0, 0);
     } },
   { key: 'halftone', pad: P => ({ x: P.spread * 2, y: P.spread * 2 }), name: 'Halftone', desc: '<b>Halftone.</b> The text rebuilt from printed dots on an angled grid. Spread lets the dots shrink away softly around the letters, like a comic or a screen print. Solid core keeps the middle of each letter solid, so the dots only start that far in from the edge.',
@@ -498,6 +491,102 @@ const FX = [
         if (on) oA[i] = 1;
       }
       ctx.putImageData(toImage(new Float32Array(N).fill(col[0]), new Float32Array(N).fill(col[1]), new Float32Array(N).fill(col[2]), oA), 0, 0);
+    } },
+  { key: 'afterglow', pad: P => ({ x: P.blur * 2.6 + 8, y: P.len * 1.05 + P.blur * 2.6 }), name: 'Afterglow', desc: '<b>Afterglow.</b> Dark letters with a glowing coloured rim, dripping streaks of light that shift from one colour through a white-hot band into a second colour. Unevenness gives the streaks different lengths.',
+    controls: [['len', 'Streak length', 0, 500, 380, 1], ['blur', 'Softness', 0, 40, 12, 1], ['vary', 'Unevenness', 0, 100, 65], ['hueA', 'Near colour', 0, 360, 145], ['hueB', 'Far colour', 0, 360, 262], ['white', 'White glow', 0, 100, 70], ['above', 'Glow above', 0, 100, 45], ['rim', 'Edge glow', 0, 100, 75], ['shade', 'Letter shade', 0, 60, 6], ['grain', 'Grain', 0, 100, 15], ['seed', 'Pattern', 1, 40, 3], ['up', 'Upwards', 0, 1, 0]],
+    render(ctx, P) {
+      const M = maskArray(), L = Math.max(1, P.len * SC), up = P.up >= .5, R0 = rng(P.seed);
+      // uneven streaks: a smooth random length per column
+      const step = Math.max(3, Math.round(9 * SC)), lat = Array.from({ length: Math.ceil(W / step) + 2 }, () => R0()), vary = P.vary / 100;
+      const S = new Float32Array(N), ST = new Float32Array(N), U = new Float32Array(N), ab = P.above / 100 * .9;   // U: a shorter far-colour glow going the other way
+      for (let x = 0; x < W; x++) {
+        const u = x / step, k = u | 0, f = u - k, sm = f * f * (3 - 2 * f), lx = L * (1 - vary * .85 * lerp(lat[k], lat[k + 1], sm));
+        let d = 1e9;
+        for (let j = 0; j < H; j++) {
+          const y = up ? H - 1 - j : j, i = y * W + x;
+          if (M[i] > .5) d = 0; else d++;
+          const t = d / lx, s = M[i] > .5 ? 1 : t < 1 ? Math.pow(1 - t, .55) : 0;
+          S[i] = s; ST[i] = s * Math.min(1, t);
+        }
+        if (ab > 0) { let e = 1e9; const lu = lx * ab; for (let j = H - 1; j >= 0; j--) { const y = up ? H - 1 - j : j, i = y * W + x; if (M[i] > .5) e = 0; else e++; U[i] = M[i] > .5 ? 1 : e < lu ? Math.pow(1 - e / lu, .9) : 0 } }
+      }
+      const sg = Math.max(.6, P.blur * SC); gauss(S, sg); gauss(ST, sg);
+      const halo = gauss(Float32Array.from(S), sg * 2.4); if (ab > 0) gauss(U, sg * 1.6);
+      const A = hsl(P.hueA, 95, 55), B = hsl(P.hueB, 90, 55), Wt = [255, 255, 255], wg = P.white / 100;
+      const ramp = t => {   // near colour -> white-hot band -> far colour
+        const mid = [lerp(A[0], Wt[0], wg), lerp(A[1], Wt[1], wg), lerp(A[2], Wt[2], wg)];
+        if (t < .14) { const u = t / .14; return [lerp(A[0], mid[0], u), lerp(A[1], mid[1], u), lerp(A[2], mid[2], u)] }
+        if (t < .3) return mid;   // the white-hot band
+        const u = Math.min(1, (t - .3) / .3); return [lerp(mid[0], B[0], u), lerp(mid[1], B[1], u), lerp(mid[2], B[2], u)];
+      };
+      // letters: a dark face with a lit inner edge and a thin bright outline
+      const rim = P.rim / 100, Gin = gauss(Float32Array.from(M), Math.max(.6, (2 + rim * 4) * SC)), Gout = gauss(Float32Array.from(M), Math.max(.6, 1.6 * SC));
+      const shade = P.shade / 100 * 255, rimCol = [lerp(A[0], 255, .35), lerp(A[1], 255, .35), lerp(A[2], 255, .35)], R = rng(61), g = P.grain / 100;
+      const oR = new Float32Array(N), oG = new Float32Array(N), oB = new Float32Array(N), oA = new Float32Array(N);
+      for (let i = 0; i < N; i++) {
+        // streak light behind
+        const s = S[i], t = s > .001 ? ST[i] / s : 0, h = halo[i];
+        let a = clamp(s * 1.5 + h * .7), c = ramp(t);
+        if (g > 0 && a > 0 && M[i] < .5) a = a * (1 - g) + (a * 1.2 > R() ? 1 : 0) * g;
+        // the letter on top
+        const m = M[i], inner = m * clamp((1 - Gin[i]) * 2.6) * rim, outl = (1 - m) * clamp(1 - Math.abs(Gout[i] - .35) * 4) * rim;
+        const fr = lerp(shade, rimCol[0], inner), fg = lerp(shade, rimCol[1], inner), fb = lerp(shade, rimCol[2], inner);
+        let r = c[0], gg = c[1], b = c[2], al = a;
+        if (ab > 0 && U[i] > .004) { const ua = clamp(U[i] * 1.7) * (1 - m), na = al + ua * (1 - al); if (na > 0) { r = (r * al + B[0] * ua * (1 - al)) / na; gg = (gg * al + B[1] * ua * (1 - al)) / na; b = (b * al + B[2] * ua * (1 - al)) / na; al = na } }   // far-colour glow above, behind everything
+        if (m > 0) { const na = m + al * (1 - m); r = (fr * m + r * al * (1 - m)) / na; gg = (fg * m + gg * al * (1 - m)) / na; b = (fb * m + b * al * (1 - m)) / na; al = na }
+        if (outl > 0) { const ow = Math.min(1, outl), na = ow + al * (1 - ow); const oc = [lerp(rimCol[0], 255, .5), lerp(rimCol[1], 255, .5), lerp(rimCol[2], 255, .5)]; r = (oc[0] * ow + r * al * (1 - ow)) / na; gg = (oc[1] * ow + gg * al * (1 - ow)) / na; b = (oc[2] * ow + b * al * (1 - ow)) / na; al = na }
+        if (al < .004) continue;
+        oA[i] = al; oR[i] = r; oG[i] = gg; oB[i] = b;
+      }
+      ctx.putImageData(toImage(oR, oG, oB, oA), 0, 0);
+    } },
+  { key: 'melt2', pad: P => ({ x: 4, y: P.len * .6 + 12 }), name: 'Melt 2', desc: '<b>Melt.</b> Wet, glossy paint running off the letters: a few long drips and lots of short ones, mostly from the feet of the letters, with the odd run from an arm. Drips never fill the gaps inside letters.',
+    controls: [['len', 'Drip length', 0, 320, 170, 1], ['drips', 'Drips', 0, 100, 55], ['long', 'Long drips', 0, 100, 25], ['thick', 'Drip width', 3, 30, 10, 1], ['high', 'Drips from arms', 0, 100, 20], ['goo', 'Gooeyness', 0, 100, 45], ['gloss', 'Gloss', 0, 100, 70], ['hue', 'Colour', 0, 360, 110], ['sat', 'Saturation', 0, 100, 0], ['seed', 'Pattern', 1, 40, 4]],
+    render(ctx, P) {
+      const M = maskArray(), R = rng(P.seed), fs = T.fs, S = Float32Array.from(M);
+      // Where paint can run from: the underside of a letter with open space below it. 'gap' is how much room there is before the next bit of letter.
+      const starts = Array.from({ length: W }, () => []);
+      for (let x = 0; x < W; x++) { let below = 1e9; for (let y = H - 1; y >= 0; y--) { const i = y * W + x; if (M[i] > .5) { if (y < H - 1 && M[i + W] <= .5) starts[x].push({ y, gap: below - y }); below = y } } }
+      const span = Math.max(1, T.right - T.left), n = Math.round(P.drips / 100 * span / (fs * .09)) + 1, longP = P.long / 100, highP = P.high / 100;
+      const placed = [];
+      for (let d = 0; d < n * 3 && placed.length < n; d++) {
+        const c = lerp(T.left, T.right, R()), xc = Math.round(c), list = starts[xc] || [];
+        if (!list.length) continue;
+        const feet = list.filter(s => s.gap > fs * .9), arms = list.filter(s => s.gap <= fs * .9 && s.gap > fs * .32);
+        let st = feet.length && (R() > highP || !arms.length) ? feet[0] : arms.length && R() < highP * 1.5 ? arms[Math.floor(R() * arms.length)] : null;   // feet first, the odd arm
+        if (!st) continue;
+        let run = 0; while (run < fs * .3 && xc - run > 0 && xc + run < W - 1 && M[st.y * W + xc - run] > .5 && M[st.y * W + xc + run] > .5) run++;   // the drip can't be wider than the stroke it hangs from
+        const r = Math.min(P.thick * SC * (.55 + R() * .7), run * .9);
+        if (r < 1.5 * SC || placed.some(p => Math.abs(p.c - c) < (p.r + r) * 1.6 && Math.abs(p.y - st.y) < fs * .2)) continue;   // spaced out, so drips don't merge into a curtain
+        let L = P.len * SC * (R() < longP ? .6 + R() * .4 : .07 + R() * .22);   // a few long runs, many short stubs
+        if (st.gap < 1e8) L = Math.min(L, st.gap - fs * .12);   // never reaches the next part of a letter, so gaps stay open
+        if (L < 2 * SC) continue;
+        placed.push({ c, r, y: st.y, L });
+      }
+      const Dr = new Float32Array(N);
+      for (const p of placed) {
+        const br = p.r * 1.18, ye = p.y + p.L;
+        for (let y = Math.max(0, Math.floor(p.y - 1)); y < Math.min(H, Math.ceil(ye + br)); y++) {
+          const t = (y - p.y) / p.L, w = p.r * (1 - .3 * clamp(t)) + p.r * .7 * Math.exp(-(y - p.y) / (p.r * .9));   // neck flares where it leaves the letter, slims as it runs
+          for (let x = Math.max(0, Math.floor(p.c - br * 1.8)); x < Math.min(W, Math.ceil(p.c + br * 1.8)); x++) {
+            const inCol = y <= ye && Math.abs(x - p.c) <= w, inTip = (x - p.c) ** 2 + (y - ye) ** 2 <= br * br;
+            if (inCol || inTip) { const i = y * W + x; Dr[i] = 1; S[i] = 1 }
+          }
+        }
+      }
+      // goo only around the drips, so the letters keep their corners
+      const gs = .6 + P.goo / 100 * 5 * SC, Gs = gauss(Float32Array.from(S), gs), near = gauss(Float32Array.from(Dr), gs * 1.5 + 1), A = new Float32Array(N);
+      for (let i = 0; i < N; i++) { const v = Gs[i], g = v <= .38 ? 0 : v >= .52 ? 1 : (v - .38) / .14; A[i] = Math.max(M[i], g * clamp(near[i] * 5)) }
+      // wet look: soft shading and a hard highlight, lit from the top left
+      const G = gauss(Float32Array.from(A), 2.6 * SC + .6), col = hsl(P.hue, P.sat, P.sat ? 52 : 100), gl = P.gloss / 100;
+      const oR = new Float32Array(N), oG = new Float32Array(N), oB = new Float32Array(N);
+      for (let y = 1; y < H - 1; y++) for (let x = 1; x < W - 1; x++) {
+        const i = y * W + x; if (A[i] < .004) continue;
+        const gx = G[i + 1] - G[i - 1], gy = G[i + W] - G[i - W], lit = clamp((gx * .7 + gy * .9) * 4.2), dark = clamp((-gx * .7 - gy * .9) * 3);
+        const k = 1 - dark * .42 * gl, spec = Math.pow(lit, 2.6) * gl * 255;
+        oR[i] = clamp(col[0] * k + spec, 0, 255); oG[i] = clamp(col[1] * k + spec, 0, 255); oB[i] = clamp(col[2] * k + spec, 0, 255);
+      }
+      ctx.putImageData(toImage(oR, oG, oB, A), 0, 0);
     } }
 ];
 
