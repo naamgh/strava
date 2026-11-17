@@ -138,11 +138,10 @@
 
     <section class="card">
       <div class="card-h"><span>Shape</span></div>
-      <div class="shapes" id="shapes" role="radiogroup" aria-label="Text shape"><button data-s="none" class="on" role="radio" aria-checked="true">None</button><button data-s="arch" role="radio" aria-checked="false">Arch</button><button data-s="rise" role="radio" aria-checked="false">Rise</button><button data-s="persp" role="radio" aria-checked="false">Perspective</button><button data-s="barrel" role="radio" aria-checked="false">Barrel</button></div>
+      <div class="shapes" id="shapes" role="radiogroup" aria-label="Text shape"><button data-s="none" class="on" role="radio" aria-checked="true">None</button><button data-s="arch" role="radio" aria-checked="false">Arch</button><button data-s="rise" role="radio" aria-checked="false">Rise</button><button data-s="persp" role="radio" aria-checked="false">Perspective</button><button data-s="barrel" role="radio" aria-checked="false">Barrel</button><button data-s="wave" role="radio" aria-checked="false">Wave</button></div>
       <div class="sliders one">
         <label class="r" id="amtRow" hidden><span>Shape amount</span><input type="range" id="amt" min="-100" max="100" step="1" value="50"><span data-for="amt">50</span></label>
-        <label class="r"><span>Wave</span><input type="range" id="wave" min="0" max="80" step="1" value="0"><span data-for="wave">0</span></label>
-        <label class="r"><span>Wave size</span><input type="range" id="waveLen" min="80" max="800" step="10" value="320"><span data-for="waveLen">320</span></label>
+        <label class="r" id="waveLenRow" hidden><span>Wave size</span><input type="range" id="waveLen" min="80" max="800" step="10" value="320"><span data-for="waveLen">320</span></label>
         <label class="r"><span>Fisheye</span><input type="range" id="bulge" min="0" max="100" step="1" value="0"><span data-for="bulge">0</span></label>
       </div>
     </section>
@@ -218,12 +217,14 @@ const SHAPES = {
   arch:   { grow: .25, tall: 1.1, map: (u, v, a, hh, bh) => { const c = 1 - Math.min(1, u * u), s = 1 + a * .25 * c; return [u, (v * hh + a * bh * .32 * c) / s / hh] } },          // lines bow up, middle a little bigger
   rise:   { grow: .3,  tall: 1.3, map: (u, v, a, hh, bh) => { const t = clamp((u + 1) / 2), s = 1 + a * .3 * (2 * t - 1); return [u, (v * hh + a * bh * .55 * (1 - (1 - t) * (1 - t)) - a * bh * .27) / s / hh] } },   // climbs and grows to the right
   persp:  { grow: .45, tall: .2,  map: (u, v, a) => [u / (1 + a * .45 * v), v] },                                                                                                  // narrow top, wide bottom
+  wave:   { grow: 0,   tall: 0,   map: (u, v) => [u, v] },   // the wave itself is applied further down, from WARP.amt
   barrel: { grow: .35, tall: .5,  map: (u, v, a, hh, bh) => { const s = 1 + a * .35 * (1 - Math.min(1, v * v)); return [u / s, v + a * .36 * u * u * v * (bh / 2) / hh / 2] } }  // middle lines widest, edges curl like a ball
 };
 const shapeOn = () => WARP.shape !== 'none' && WARP.amt !== 0;
+const waveAmp = () => WARP.shape === 'wave' ? WARP.amt * .8 : 0;   // Shape amount 100 = the old Wave 80
 function warpCanvas(c) {
   const x = c.getContext('2d'), s = x.getImageData(0, 0, W, H).data, out = x.createImageData(W, H), o = out.data;
-  const A = WARP.wave * SC, L = Math.max(20, WARP.waveLen * SC), B = WARP.bulge / 100 * .62;
+  const A = waveAmp() * SC, L = Math.max(20, WARP.waveLen * SC), B = WARP.bulge / 100 * .62;
   const cx = (T.left + T.right) / 2, cy = (T.top + T.bot) / 2, Rb = Math.max(1, (T.right - T.left) / 2 * 1.05);
   const al = (X, Y) => (X < 0 || Y < 0 || X >= W || Y >= H) ? 0 : s[(Y * W + X) * 4 + 3];
   const SH = shapeOn() ? SHAPES[WARP.shape] : null, sa = WARP.amt / 100, hw = Math.max(1, (T.right - T.left) / 2), hh = Math.max(1, (T.bot - T.top) / 2), bh = T.bot - T.top;
@@ -238,7 +239,7 @@ function warpCanvas(c) {
   }
   x.putImageData(out, 0, 0);
 }
-function textCanvas(dx = 0, dy = 0) { const c = mk(W, H), x = c.getContext('2d'); setText(x); x.fillStyle = '#fff'; drawLines(x, 'fillText', dx, dy); if (WARP.wave || WARP.bulge || shapeOn()) warpCanvas(c); return c }
+function textCanvas(dx = 0, dy = 0) { const c = mk(W, H), x = c.getContext('2d'); setText(x); x.fillStyle = '#fff'; drawLines(x, 'fillText', dx, dy); if (WARP.bulge || shapeOn()) warpCanvas(c); return c }
 function maskArray(dx = 0, dy = 0) { const p = textCanvas(dx, dy).getContext('2d').getImageData(0, 0, W, H).data, M = new Float32Array(N); for (let i = 0; i < N; i++) M[i] = p[i * 4 + 3] / 255; return M }
 // Left edges of each character so effects can treat letters separately
 function charBoxes(ctx) {
@@ -399,63 +400,6 @@ const FX = [
       }
       ctx.putImageData(toImage(C0, C1, C2, A), 0, 0);
     } },
-  { key: 'vhs', group: 'Retro', name: 'VHS glitch', desc: '<b>VHS glitch.</b> Horizontal slices of the text slip sideways, the red and blue channels pull apart, and faint tracking lines run across. New pattern reshuffles the slices.',
-    controls: [['shift', 'Slice shift', 0, 90, 26, 1], ['count', 'Glitchiness', 0, 100, 20], ['split', 'Colour split', 0, 24, 6, 1], ['lines', 'Tracking lines', 0, 100, 40], ['seed', 'Pattern', 1, 40, 9]],
-    render(ctx, P) {
-      const base = textCanvas();
-      const sl = mk(W, H), sx = sl.getContext('2d'), R = rng(P.seed);
-      for (let y = 0; y < H;) { const h = Math.max(2, Math.round((3 + R() * 34) * SC)), off = R() < P.count / 100 ? (R() - .5) * 2 * P.shift : (R() - .5) * P.shift * .08; sx.drawImage(base, 0, y, W, h, off, y, W, h); y += h }
-      const px = sx.getImageData(0, 0, W, H).data, s = Math.round(P.split), oR = new Float32Array(N), oG = new Float32Array(N), oB = new Float32Array(N), oA = new Float32Array(N);
-      const lineRows = new Set(); const Rl = rng(P.seed + 5); for (let n = 0; n < P.lines / 100 * 14; n++) { const y = Math.floor(Rl() * H), t = Math.max(1, Math.round((1 + Rl() * 3) * SC)); for (let k = 0; k < t; k++) lineRows.add(y + k) }
-      for (let y = 0; y < H; y++) { const tl = lineRows.has(y); for (let x = 0; x < W; x++) {
-        const i = y * W + x, ar = x - s >= 0 ? px[(i - s) * 4 + 3] / 255 : 0, ag = px[i * 4 + 3] / 255, ab = x + s < W ? px[(i + s) * 4 + 3] / 255 : 0;
-        let a = Math.max(ar, ag, ab); if (tl && a > 0) { const n = .55 + R() * .45; oA[i] = a; oR[i] = 255 * n; oG[i] = 255 * n; oB[i] = 255 * n; continue }
-        if (a < .004) continue; oA[i] = a; oR[i] = ar / a * 255; oG[i] = ag / a * 255; oB[i] = ab / a * 255;
-      } }
-      ctx.putImageData(toImage(oR, oG, oB, oA), 0, 0);
-    } },
-  { key: 'thermal', pad: P => ({ x: P.spread * 1.6 + P.wild * .3, y: P.spread * 1.6 + P.flames * 2.6 }), name: 'Thermal', desc: '<b>Thermal.</b> The text seen through a heat camera: white-hot letters cooling through yellow, orange and red to purple. Flames sends random tongues of heat licking up off the edges, and Blend tops melts the letter tops into them.',
-    controls: [['spread', 'Heat spread', 4, 60, 22, 1], ['heat', 'Heat', 40, 200, 100], ['flames', 'Flames', 0, 100, 45], ['wild', 'Flicker', 0, 100, 50], ['blend', 'Blend tops', 0, 100, 100], ['grain', 'Grain', 0, 100, 25], ['seed', 'Pattern', 1, 40, 6]],
-    render(ctx, P) {
-      const M = maskArray(), G1 = gauss(Float32Array.from(M), Math.max(.6, P.spread * .25)), G2 = gauss(Float32Array.from(M), P.spread);
-      const stops = [[0, [20, 0, 60]], [.22, [90, 0, 140]], [.42, [215, 20, 70]], [.62, [255, 120, 0]], [.82, [255, 230, 60]], [1, [255, 255, 255]]];
-      const ramp = t => { for (let s = 1; s < stops.length; s++) if (t <= stops[s][0]) { const [t0, c0] = stops[s - 1], [t1, c1] = stops[s], u = (t - t0) / (t1 - t0); return [lerp(c0[0], c1[0], u), lerp(c0[1], c1[1], u), lerp(c0[2], c1[2], u)] } return stops[stops.length - 1][1] };
-      // Flames: heat carried upward column by column, dying off at random so tongues of different heights lick up, then wobbled sideways
-      let FL = null;
-      if (P.flames > 0) {
-        const vn = valueNoise(14 * SC, P.seed), vt = valueNoise(70 * SC, P.seed + 7), vw = valueNoise(22 * SC, P.seed + 13), Lmax = P.flames / 100 * 330 * SC, F = new Float32Array(N);
-        for (let x = 0; x < W; x++) { let c = 0; for (let y = H - 1; y >= 0; y--) { const i = y * W + x, len = Lmax * Math.pow(vn[i], 1.25) * (.4 + vt[i] * 1.2); c = Math.max(M[i], len > 1 ? c * Math.exp(-2.6 / len) : 0); F[i] = c } }
-        FL = new Float32Array(N); const amp = P.wild / 100 * 26 * SC;
-        for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) { const i = y * W + x, sx = Math.round(x + (vw[i] - .5) * 2 * amp); FL[i] = sx >= 0 && sx < W ? F[y * W + sx] : 0 }
-        gauss(FL, 1.5 * SC + .6);
-        const bl = P.blend / 100; for (let i = 0; i < N; i++) FL[i] *= 1 - M[i] * (1 - bl);   // Blend lets the flame heat run into the tops of the letters so there is no seam
-      }
-      const k = P.heat / 100, R = rng(41), g = P.grain / 100;
-      const oR = new Float32Array(N), oG = new Float32Array(N), oB = new Float32Array(N), oA = new Float32Array(N);
-      for (let i = 0; i < N; i++) {
-        let h = clamp(Math.max((G1[i] * .55 + G2[i] * .75) * k, FL ? FL[i] * .8 * k : 0)); if (h < .04) continue;   // flames burn a little cooler than the letters
-        if (g > 0) h = clamp(h + (R() - .5) * g * .12);
-        const c = ramp(h); let a = clamp(h * 4);
-        if (g > 0 && h < .3) a = (a * (1 - g) + (a * 1.3 > R() ? 1 : 0) * g) * clamp((h - .04) / .1);   // grain fades out with the heat, so it stays around the letters
-        oA[i] = a; oR[i] = c[0]; oG[i] = c[1]; oB[i] = c[2];
-      }
-      ctx.putImageData(toImage(oR, oG, oB, oA), 0, 0);
-    } },
-  { key: 'melt', pad: P => ({ x: 0, y: P.len * .55 }), name: 'Melt', desc: '<b>Melt.</b> The letters drip like wet paint, with rounded drops of different lengths running off their bottoms. Pattern reshuffles where the drips fall.',
-    controls: [['len', 'Drip length', 0, 300, 140, 1], ['drips', 'Drips', 0, 100, 45], ['thick', 'Drip width', 3, 30, 11, 1], ['goo', 'Gooeyness', 0, 100, 50], ['hue', 'Colour', 0, 360, 110], ['sat', 'Saturation', 0, 100, 0], ['seed', 'Pattern', 1, 40, 4]],
-    render(ctx, P) {
-      const M = maskArray(), R = rng(P.seed), len = new Float32Array(W), n = Math.round(P.drips / 100 * 40 * (T.right - T.left) / W) + 1;
-      for (let d = 0; d < n; d++) {   // each drip: a rounded column profile under the text
-        const c = lerp(T.left, T.right, R()), r = P.thick * (.5 + R()), L = P.len * (.25 + R() * .75) * (R() < .3 ? .35 : 1);
-        for (let x = Math.max(0, Math.floor(c - r)); x < Math.min(W, Math.ceil(c + r)); x++) { const u = (x - c) / r; len[x] = Math.max(len[x], L * Math.sqrt(Math.max(0, 1 - u * u))) }
-      }
-      const S = new Float32Array(N);
-      for (let x = 0; x < W; x++) { let last = -1e9; for (let y = 0; y < H; y++) { const i = y * W + x; if (M[i] > .5) last = y; S[i] = Math.max(M[i], y - last < len[x] ? 1 : 0) } }
-      const gs = .6 + P.goo / 100 * 6, Gs = gauss(S, gs), col = hsl(P.hue, P.sat, P.sat ? 55 : 100);
-      const oR = new Float32Array(N).fill(col[0]), oG = new Float32Array(N).fill(col[1]), oB = new Float32Array(N).fill(col[2]), oA = new Float32Array(N);
-      for (let i = 0; i < N; i++) { const v = Gs[i]; oA[i] = v <= .38 ? 0 : v >= .52 ? 1 : (v - .38) / .14 }   // threshold the blur: gooey rounded joins
-      ctx.putImageData(toImage(oR, oG, oB, oA), 0, 0);
-    } },
   { key: 'halftone', pad: P => ({ x: P.spread * 2, y: P.spread * 2 }), name: 'Halftone', desc: '<b>Halftone.</b> The text rebuilt from printed dots on an angled grid. Spread lets the dots shrink away softly around the letters, like a comic or a screen print. Solid core keeps the middle of each letter solid, so the dots only start that far in from the edge.',
     controls: [['cell', 'Dot size', 4, 28, 10, 1], ['angle', 'Angle', 0, 90, 45], ['core', 'Solid core', 0, 40, 1, 1], ['spread', 'Spread', 0, 40, 10, 1], ['gain', 'Ink', 50, 200, 110], ['hue', 'Colour', 0, 360, 0], ['sat', 'Saturation', 0, 100, 0]],
     render(ctx, P) {
@@ -540,53 +484,48 @@ const FX = [
       }
       ctx.putImageData(toImage(oR, oG, oB, oA), 0, 0);
     } },
-  { key: 'melt2', pad: P => ({ x: 4, y: P.len * .6 + 12 }), name: 'Melt 2', desc: '<b>Melt.</b> Wet, glossy paint running off the letters: a few long drips and lots of short ones, mostly from the feet of the letters, with the odd run from an arm. Drips never fill the gaps inside letters.',
-    controls: [['len', 'Drip length', 0, 320, 170, 1], ['drips', 'Drips', 0, 100, 55], ['long', 'Long drips', 0, 100, 25], ['thick', 'Drip width', 3, 30, 10, 1], ['high', 'Drips from arms', 0, 100, 20], ['goo', 'Gooeyness', 0, 100, 45], ['gloss', 'Gloss', 0, 100, 70], ['hue', 'Colour', 0, 360, 110], ['sat', 'Saturation', 0, 100, 0], ['seed', 'Pattern', 1, 40, 4]],
+  { key: 'glow', pad: P => ({ x: P.size * 2.6, y: P.size * 2.6 }), name: 'Soft glow', desc: '<b>Soft glow.</b> Clean white text with an even halo around it. Tint warms or colours the glow; the letters stay white.',
+    controls: [['size', 'Glow size', 2, 60, 18, 1], ['strength', 'Strength', 0, 150, 70], ['hug', 'Tightness', 0, 100, 50], ['hue', 'Tint', 0, 360, 30], ['sat', 'Tint amount', 0, 100, 0]],
     render(ctx, P) {
-      const M = maskArray(), R = rng(P.seed), fs = T.fs, S = Float32Array.from(M);
-      // Where paint can run from: the underside of a letter with open space below it. 'gap' is how much room there is before the next bit of letter.
-      const starts = Array.from({ length: W }, () => []);
-      for (let x = 0; x < W; x++) { let below = 1e9; for (let y = H - 1; y >= 0; y--) { const i = y * W + x; if (M[i] > .5) { if (y < H - 1 && M[i + W] <= .5) starts[x].push({ y, gap: below - y }); below = y } } }
-      const span = Math.max(1, T.right - T.left), n = Math.round(P.drips / 100 * span / (fs * .09)) + 1, longP = P.long / 100, highP = P.high / 100;
-      const placed = [];
-      for (let d = 0; d < n * 3 && placed.length < n; d++) {
-        const c = lerp(T.left, T.right, R()), xc = Math.round(c), list = starts[xc] || [];
-        if (!list.length) continue;
-        const feet = list.filter(s => s.gap > fs * .9), arms = list.filter(s => s.gap <= fs * .9 && s.gap > fs * .32);
-        let st = feet.length && (R() > highP || !arms.length) ? feet[0] : arms.length && R() < highP * 1.5 ? arms[Math.floor(R() * arms.length)] : null;   // feet first, the odd arm
-        if (!st) continue;
-        let run = 0; while (run < fs * .3 && xc - run > 0 && xc + run < W - 1 && M[st.y * W + xc - run] > .5 && M[st.y * W + xc + run] > .5) run++;   // the drip can't be wider than the stroke it hangs from
-        const r = Math.min(P.thick * SC * (.55 + R() * .7), run * .9);
-        if (r < 1.5 * SC || placed.some(p => Math.abs(p.c - c) < (p.r + r) * 1.6 && Math.abs(p.y - st.y) < fs * .2)) continue;   // spaced out, so drips don't merge into a curtain
-        let L = P.len * SC * (R() < longP ? .6 + R() * .4 : .07 + R() * .22);   // a few long runs, many short stubs
-        if (st.gap < 1e8) L = Math.min(L, st.gap - fs * .12);   // never reaches the next part of a letter, so gaps stay open
-        if (L < 2 * SC) continue;
-        placed.push({ c, r, y: st.y, L });
+      const M = maskArray(), G = gauss(Float32Array.from(M), P.size), G2 = gauss(Float32Array.from(M), Math.max(.6, P.size * .3));
+      const k = P.strength / 100, hug = P.hug / 100, tint = hsl(P.hue, P.sat, P.sat ? 75 : 100);
+      const oR = new Float32Array(N), oG = new Float32Array(N), oB = new Float32Array(N), oA = new Float32Array(N);
+      for (let i = 0; i < N; i++) {
+        const m = M[i], g = clamp((G[i] * (1 - hug * .5) + G2[i] * hug * .8) * k * 1.3);
+        const a = m + g * (1 - m); if (a < .004) continue;
+        oA[i] = a; oR[i] = (255 * m + tint[0] * g * (1 - m)) / a; oG[i] = (255 * m + tint[1] * g * (1 - m)) / a; oB[i] = (255 * m + tint[2] * g * (1 - m)) / a;
       }
-      const Dr = new Float32Array(N);
-      for (const p of placed) {
-        const br = p.r * 1.18, ye = p.y + p.L;
-        for (let y = Math.max(0, Math.floor(p.y - 1)); y < Math.min(H, Math.ceil(ye + br)); y++) {
-          const t = (y - p.y) / p.L, w = p.r * (1 - .3 * clamp(t)) + p.r * .7 * Math.exp(-(y - p.y) / (p.r * .9));   // neck flares where it leaves the letter, slims as it runs
-          for (let x = Math.max(0, Math.floor(p.c - br * 1.8)); x < Math.min(W, Math.ceil(p.c + br * 1.8)); x++) {
-            const inCol = y <= ye && Math.abs(x - p.c) <= w, inTip = (x - p.c) ** 2 + (y - ye) ** 2 <= br * br;
-            if (inCol || inTip) { const i = y * W + x; Dr[i] = 1; S[i] = 1 }
-          }
-        }
+      ctx.putImageData(toImage(oR, oG, oB, oA), 0, 0);
+    } },
+  { key: 'bloom', pad: P => ({ x: P.size * 2.6, y: P.size * 2.6 }), name: 'Bloom', desc: '<b>Bloom.</b> Dreamy, slightly out-of-focus text with soft light spilling around it, like an old film lens. Sharpness brings back a crisp core.',
+    controls: [['soft', 'Softness', 0, 14, 3, 1], ['sharp', 'Sharpness', 0, 100, 55], ['size', 'Bloom size', 4, 60, 22, 1], ['strength', 'Bloom', 0, 150, 65], ['hue', 'Warmth', 0, 360, 20], ['sat', 'Warmth amount', 0, 100, 25]],
+    render(ctx, P) {
+      const M = maskArray(), B1 = P.soft > 0 ? gauss(Float32Array.from(M), P.soft) : M, B2 = gauss(Float32Array.from(M), P.size);
+      const sh = P.sharp / 100, k = P.strength / 100, tint = hsl(P.hue, P.sat, P.sat ? 82 : 100);
+      const oR = new Float32Array(N), oG = new Float32Array(N), oB = new Float32Array(N), oA = new Float32Array(N);
+      for (let i = 0; i < N; i++) {
+        const f = clamp(M[i] * sh + B1[i] * (1 - sh * .6)), l = clamp(B2[i] * k * 1.2);   // f: the text, l: the light around it
+        const a = f + l * (1 - f); if (a < .004) continue;
+        const wf = f / a, wl = l * (1 - f) / a;
+        oA[i] = a; oR[i] = 255 * wf + tint[0] * wl; oG[i] = 255 * wf + tint[1] * wl; oB[i] = 255 * wf + tint[2] * wl;
       }
-      // goo only around the drips, so the letters keep their corners
-      const gs = .6 + P.goo / 100 * 5 * SC, Gs = gauss(Float32Array.from(S), gs), near = gauss(Float32Array.from(Dr), gs * 1.5 + 1), A = new Float32Array(N);
-      for (let i = 0; i < N; i++) { const v = Gs[i], g = v <= .38 ? 0 : v >= .52 ? 1 : (v - .38) / .14; A[i] = Math.max(M[i], g * clamp(near[i] * 5)) }
-      // wet look: soft shading and a hard highlight, lit from the top left
-      const G = gauss(Float32Array.from(A), 2.6 * SC + .6), col = hsl(P.hue, P.sat, P.sat ? 52 : 100), gl = P.gloss / 100;
-      const oR = new Float32Array(N), oG = new Float32Array(N), oB = new Float32Array(N);
-      for (let y = 1; y < H - 1; y++) for (let x = 1; x < W - 1; x++) {
-        const i = y * W + x; if (A[i] < .004) continue;
-        const gx = G[i + 1] - G[i - 1], gy = G[i + W] - G[i - W], lit = clamp((gx * .7 + gy * .9) * 4.2), dark = clamp((-gx * .7 - gy * .9) * 3);
-        const k = 1 - dark * .42 * gl, spec = Math.pow(lit, 2.6) * gl * 255;
-        oR[i] = clamp(col[0] * k + spec, 0, 255); oG[i] = clamp(col[1] * k + spec, 0, 255); oB[i] = clamp(col[2] * k + spec, 0, 255);
+      ctx.putImageData(toImage(oR, oG, oB, oA), 0, 0);
+    } },
+  { key: 'finegrain', name: 'Fine grain', desc: '<b>Fine grain.</b> Plain text with a light film grain through it, so it looks printed rather than digital. Edge wear roughens the outline a touch.',
+    controls: [['amount', 'Grain', 0, 100, 45], ['size', 'Grain size', 1, 4, 1, 1], ['wear', 'Edge wear', 0, 100, 25], ['hue', 'Ink colour', 0, 360, 0], ['sat', 'Saturation', 0, 100, 0], ['light', 'Lightness', 0, 100, 100], ['seed', 'Pattern', 1, 40, 3]],
+    render(ctx, P) {
+      const M = maskArray(), E = P.wear > 0 ? gauss(Float32Array.from(M), 1.4 * SC + .6) : null, gs = Math.max(1, Math.round(P.size * SC)), gw = Math.ceil(W / gs);
+      const R = rng(P.seed), cells = new Float32Array(gw * Math.ceil(H / gs)).map(() => R()), g = P.amount / 100, wear = P.wear / 100, col = hsl(P.hue, P.sat, P.light);
+      const oR = new Float32Array(N), oG = new Float32Array(N), oB = new Float32Array(N), oA = new Float32Array(N);
+      for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+        const i = y * W + x; let m = M[i];
+        const n = cells[((y / gs) | 0) * gw + ((x / gs) | 0)];
+        if (E) { const e = E[i]; if (e > .05 && e < .95) m = clamp((e + (n - .5) * wear * .9 - .5) * 6 + .5) * (m > 0 || e > .5 ? 1 : 0) }   // only the outline is roughened
+        if (m < .004) continue;
+        const a = m * (1 - g * .5 * n * n) * (n < g * .08 ? .25 : 1), lum = 1 - g * .22 * n;   // soft tonal grain plus the odd dropout
+        oA[i] = a; oR[i] = col[0] * lum; oG[i] = col[1] * lum; oB[i] = col[2] * lum;
       }
-      ctx.putImageData(toImage(oR, oG, oB, A), 0, 0);
+      ctx.putImageData(toImage(oR, oG, oB, oA), 0, 0);
     } }
 ];
 
@@ -651,12 +590,13 @@ document.getElementById('ls').addEventListener('change', () => schedule(false));
 function setShape(k) {
   WARP.shape = k; document.querySelectorAll('#shapes button').forEach(b => { const on = b.dataset.s === k; b.classList.toggle('on', on); b.setAttribute('aria-checked', on) });
   document.getElementById('amtRow').hidden = k === 'none';
+  document.getElementById('waveLenRow').hidden = k !== 'wave';
   // Perspective and Barrel get messy past these, so their slider stops there
   const L = { persp: 40, barrel: 50 }[k] || 100, el = document.getElementById('amt');
   el.min = -L; el.max = L; WARP.amt = setRange('amt', clamp(WARP.amt, -L, L));
 }
 document.querySelectorAll('#shapes button').forEach(b => b.onclick = () => { setShape(b.dataset.s); schedule() });
-['wave', 'waveLen', 'bulge', 'amt'].forEach(k => { const el = document.getElementById(k); el.addEventListener('input', () => { WARP[k] = +el.value; schedule(true) }); el.addEventListener('change', () => schedule(false)) });
+['waveLen', 'bulge', 'amt'].forEach(k => { const el = document.getElementById(k); el.addEventListener('input', () => { WARP[k] = +el.value; schedule(true) }); el.addEventListener('change', () => schedule(false)) });
 document.getElementById('font').addEventListener('change', () => schedule());
 
 async function draw(draft = false) {
@@ -669,7 +609,7 @@ async function draw(draft = false) {
   const pad = cur.pad ? cur.pad(VALS[cur.key]) : { x: 0, y: 0 }, shp = shapeOn() ? SHAPES[WARP.shape] : null, sk = shp ? Math.abs(WARP.amt) / 100 : 0;
   T.padX = pad.x + (shp ? FW * Math.max(0, 1 - .8 / (.92 * (1 + shp.grow * sk))) / 2 : 0);
   const blockH = measureBlock(document.createElement('canvas').getContext('2d'), FW).contentH;
-  const fullH = Math.max(FH, Math.ceil(blockH + FH * .5 + WARP.wave * 2 + WARP.bulge / 100 * blockH * 1.8 + (shp ? shp.tall * sk * blockH : 0) + pad.y * 2));
+  const fullH = Math.max(FH, Math.ceil(blockH + FH * .5 + Math.abs(waveAmp()) * 2 + WARP.bulge / 100 * blockH * 1.8 + (shp ? shp.tall * sk * blockH : 0) + pad.y * 2));
   W = Math.round(FW * d); H = Math.round(fullH * d); N = W * H; SC = d; if (TMP.length !== N) TMP = new Float32Array(N);
   const cv = document.getElementById('out'); if (cv.width !== W || cv.height !== H) { cv.width = W; cv.height = H }
   const ctx = cv.getContext('2d'); ctx.clearRect(0, 0, W, H); ctx.save(); layout(ctx);
@@ -715,10 +655,9 @@ document.getElementById('rand').onclick = () => {
   const f = document.getElementById('font'); f.selectedIndex = Math.floor(Math.random() * f.options.length);
   const al = ['left', 'center', 'right'][Math.floor(Math.random() * 3)]; document.querySelector(`#align button[data-a="${al}"]`).click();
   setRange('lh', rnd(.9, 1.3).toFixed(2)); setRange('ls', rnd(-.06, .15).toFixed(2));
-  WARP.wave = setRange('wave', Math.random() < .5 ? 0 : Math.round(rnd(5, 45)));
   WARP.waveLen = setRange('waveLen', Math.round(rnd(160, 700) / 10) * 10);
   WARP.bulge = setRange('bulge', Math.random() < .5 ? 0 : Math.round(rnd(15, 80)));
-  setShape(Math.random() < .55 ? 'none' : ['arch', 'rise', 'persp', 'barrel'][Math.floor(Math.random() * 4)]);
+  setShape(Math.random() < .55 ? 'none' : ['arch', 'rise', 'persp', 'barrel', 'wave'][Math.floor(Math.random() * 5)]);
   WARP.amt = setRange('amt', Math.round(rnd(30, 80)) * (Math.random() < .25 ? -1 : 1));
   buildFxBar(); buildControls(); schedule();
   pop(document.getElementById('rand')); document.getElementById('out').style.opacity = '.35';
