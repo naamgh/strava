@@ -74,7 +74,7 @@
   .actions { position:fixed; left:0; right:0; bottom:0; z-index:6; display:flex; justify-content:flex-end; align-items:center; gap:10px; padding:12px max(16px, calc((100vw - 1100px) / 2 + 16px)) calc(12px + env(safe-area-inset-bottom)); background:rgba(0,0,0,.82); -webkit-backdrop-filter:blur(18px); backdrop-filter:blur(18px); border-top:.5px solid rgba(84,84,88,.6); }
   .actions .btn { min-width:110px; }
   .actions #note { margin-right:auto; }
-  @media (max-width:420px) { .actions .btn { min-width:0; flex:1; padding:10px 8px; } .actions #note { display:none; } }   /* three buttons fit on small phones */
+  @media (max-width:420px) { .actions { gap:8px; } .actions .btn { min-width:0; flex:1; padding:10px 4px; font-size:14px; } .actions #note { display:none; } }   /* three buttons fit on small phones */
   .seg { display:inline-grid; grid-auto-flow:column; background:var(--fill); border-radius:9px; padding:2px; }
   .seg button { font:inherit; font-size:13px; font-weight:600; color:#fff; background:transparent; border:0; border-radius:7px; padding:7px 11px; cursor:pointer; }
   .seg button.on { background:#636366; }
@@ -151,6 +151,7 @@
     <span id="note" role="status"></span>
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
     <button class="btn grey" id="rand" type="button">Randomise</button>
+    <button class="btn grey" id="tquote" type="button" aria-label="Random quote">Quote</button>
     <button class="btn grey" id="copy" type="button">Copy</button>
     <button class="btn" id="share" type="button">Share</button>
   </div>
@@ -510,22 +511,6 @@ const FX = [
         oA[i] = a; oR[i] = 255 * wf + tint[0] * wl; oG[i] = 255 * wf + tint[1] * wl; oB[i] = 255 * wf + tint[2] * wl;
       }
       ctx.putImageData(toImage(oR, oG, oB, oA), 0, 0);
-    } },
-  { key: 'finegrain', name: 'Fine grain', desc: '<b>Fine grain.</b> Plain text with a light film grain through it, so it looks printed rather than digital. Edge wear roughens the outline a touch.',
-    controls: [['amount', 'Grain', 0, 100, 45], ['size', 'Grain size', 1, 4, 1, 1], ['wear', 'Edge wear', 0, 100, 25], ['hue', 'Ink colour', 0, 360, 0], ['sat', 'Saturation', 0, 100, 0], ['light', 'Lightness', 0, 100, 100], ['seed', 'Pattern', 1, 40, 3]],
-    render(ctx, P) {
-      const M = maskArray(), E = P.wear > 0 ? gauss(Float32Array.from(M), 1.4 * SC + .6) : null, gs = Math.max(1, Math.round(P.size * SC)), gw = Math.ceil(W / gs);
-      const R = rng(P.seed), cells = new Float32Array(gw * Math.ceil(H / gs)).map(() => R()), g = P.amount / 100, wear = P.wear / 100, col = hsl(P.hue, P.sat, P.light);
-      const oR = new Float32Array(N), oG = new Float32Array(N), oB = new Float32Array(N), oA = new Float32Array(N);
-      for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
-        const i = y * W + x; let m = M[i];
-        const n = cells[((y / gs) | 0) * gw + ((x / gs) | 0)];
-        if (E) { const e = E[i]; if (e > .05 && e < .95) m = clamp((e + (n - .5) * wear * .9 - .5) * 6 + .5) * (m > 0 || e > .5 ? 1 : 0) }   // only the outline is roughened
-        if (m < .004) continue;
-        const a = m * (1 - g * .5 * n * n) * (n < g * .08 ? .25 : 1), lum = 1 - g * .22 * n;   // soft tonal grain plus the odd dropout
-        oA[i] = a; oR[i] = col[0] * lum; oG[i] = col[1] * lum; oB[i] = col[2] * lum;
-      }
-      ctx.putImageData(toImage(oR, oG, oB, oA), 0, 0);
     } }
 ];
 
@@ -581,6 +566,14 @@ outEl.addEventListener('pointerdown', e => {
 });
 applyZoom();
 document.getElementById('tdone').onclick = () => setEditing(false);
+// Quote: drops a random line from the bank into the text; each one is used once before any repeats
+const QUOTES = ["easy pace,\nhard truths", "the hills\ndon't care\nhow you feel", "slow miles\nare still miles", "you don't have to\nbe fast\nto be out here", "nobody remembers\nthe splits.\neveryone remembers\nthe sunrise", "legs heavy,\nheart light", "the run\nwas the therapy", "i came for the fitness.\ni stayed for\nthe coffee stop", "zone 2\nand chill", "some days\nyou chase the pace.\nsome days\nyou chase the light", "one more\nlap", "it never\ngets easier.\nyou just\nget out there", "the best views\ncome after\nthe hardest climbs", "early alarms,\nempty roads", "sweat now,\nbrunch later", "it's not a race.\nunless it is", "the wind\nis always\na headwind", "you'll never\nregret\nthe run", "no one\nis watching.\ngo anyway", "the long way\nhome", "quiet roads,\nloud thoughts", "pain is temporary.\nstrava is forever", "i don't run fast.\ni run far\nand complain", "the only bad ride\nis the one\nyou skipped", "find your people,\nthen find\nyour pace", "we ride\nat the speed\nof conversation", "done is better\nthan fast", "the start line\nis the hardest\nstep", "same road,\ndifferent legs", "chasing nothing\nbut the horizon", "out of breath,\nnot out of reasons", "miles before\nmeetings", "the city\nis still asleep\nand we're already\nhome", "cadence\nover chaos", "sore today,\nstronger\ntomorrow", "the hills\nmade me", "just one\nmore climb", "you vs.\nyesterday", "your only\ncompetition\nis the snooze button", "the coffee\ntastes better\nafter 60 k", "legs gone,\nsoul full", "we don't stop\nwhen we're tired.\nwe stop\nfor snacks", "further\nthan yesterday", "progress,\nnot perfection", "running late.\nliterally", "every k\ncounts", "not every run\nneeds a reason", "get lost\non purpose", "smooth legs,\nquiet mind", "it's called\na long run\nfor a reason", "let the road\ndecide", "bad weather\nmakes good stories", "the finish\nis just\nthe start\nof the next one", "show up.\nthat's the\nwhole secret", "kilometres\nare cheaper\nthan therapy", "breathe in,\nride on", "the best\nsplit\nis the negative one", "born to\nsuffer\nuphill", "sunrise\nsession", "i run\nto clear\nmy head\nand fill\nmy feed", "less scrolling,\nmore strolling", "hard days\nmake easy days\nfeel earned", "the bike\nis just\nan excuse\nto hang out", "go the distance,\nthen go\nfor pastries", "consistency\nbeats intensity", "all gas,\nsome brakes", "no shortcuts,\njust long ways", "run the mile\nyou're in", "we earned\nthis view", "fast friends,\nslow miles", "the climb\nis the\nconversation", "there are no\nbad routes,\njust\nlong ones", "legs say no,\nheart says go", "headphones out,\nworld in", "the hardest part\nwas putting\non my shoes", "i wasn't fast.\ni was there", "heat, hills,\nand happiness", "you can't\nbuy this feeling", "we'll call it\nrecovery pace", "it's only\ncrazy\nuntil you\nfinish", "out here,\nnothing else\nmatters", "spin to win", "the road\nalways\nsays yes", "make the\nkilometres\ncount", "dawn patrol", "short on time,\nlong on effort", "proof that\ni was awake\nbefore 6", "the only way\nhome\nis pedalling", "see you\nat the\ncafe stop", "my favourite\npace\nis together", "racing the\nsunset", "easy?\nno.\nworth it?\nalways", "wind in my face,\nsmile on it anyway", "i'd rather\nbe tired\nthan bored", "sweaty selfie\nincoming", "less talk,\nmore k's", "heart rate\nhigh,\nworries\nlow", "keep the\nwheels\nturning", "the long run\nalways\nwins", "just keep\npedalling", "somewhere between\nthe first k\nand the last,\ni found myself", "nothing to prove,\neverything\nto enjoy", "the best friendships\nstart at\nthe back\nof the bunch", "we don't talk\nevery day.\nwe ride\nevery sunday", "friends who\nwait at the top\nof the climb", "some of my\nbest conversations\nhappened\nat 25 km/h", "the group chat\nsaid 6am.\nnobody\nbailed", "side by side\nbeats\nfaster alone", "you find out\nwho your friends are\nat km 30", "shared suffering,\nshared stories", "we were strangers\nat the start line", "my running club\nknows me\nbetter than\nmy group chat", "come for the miles,\nstay for\nthe people", "nobody gets\ndropped today", "friends who sweat together,\nstay together", "the slowest one\nsets the pace", "same struggle,\nsame smile", "i'll pull\non the flats.\nyou pull\non the hills", "good legs\nare optional.\ngood company\nisn't", "one more lap\nif you're\nin", "the real\nfinish line\nis the cafe\nwith your crew", "it's a long way\nalone.\nit's a short way\ntogether", "every sunday\nwith the same\nfaces", "fresh air\nis free", "the sky\ndoesn't have\na screen", "go outside.\nyour problems\nwill wait", "sunlight\nis a\nsupplement", "the outside\nnever gets old", "inside is\nfor sleeping", "the weather app\nis not\nthe boss of me", "better views\nthan any\nfeed", "get out\nbefore\nthe world\nwakes up", "salt air,\nclear head", "leave the phone,\nbring the legs", "there's a sunrise\nevery morning.\nmost people\nmiss it", "mud washes off.\nmemories don't", "four walls\nare overrated", "go where\nthe wifi\nis weak", "the trail\ndoesn't check\nyour pace", "wild places,\nquiet minds", "blue sky\nis the\nbest gym", "nature\nnever sends\nnotifications", "stay fit\nfor the\nlong game", "strong now,\nstrong at 70", "train for\nthe life\nyou want\nto keep living", "you move it\nor you lose it", "fitness is\na gift\nto future you", "fit enough\nto say yes\nto anything", "healthy is\nthe new\nflex", "your body\nkeeps the score.\nkeep it\nmoving", "the best\nanti-ageing\nroutine\nis a long run", "energy is earned", "fit to\nkeep up\nwith the kids", "strong legs,\nlong life", "consistency\nis the\nreal flex", "the work\nyou put in now\nis the life\nyou get later", "stay ready\nso you\nnever have to\nget ready", "move every day,\neven a little", "fitness isn't\na phase.\nit's a promise", "your future self\nsays thanks"];
+let quoteBag = [];
+document.getElementById('tquote').onclick = () => {
+  if (!quoteBag.length) quoteBag = QUOTES.map((_, i) => i).sort(() => Math.random() - .5);
+  txt.value = QUOTES[quoteBag.pop()]; grow(); schedule(); pop(document.getElementById('tquote')); document.getElementById('out').style.opacity = '.35';
+  note('New quote', 1200);
+};
 txt.addEventListener('input', () => { grow(); schedule() }); grow();
 document.querySelectorAll('#align button').forEach(b => b.onclick = () => { ALIGN = b.dataset.a; document.querySelectorAll('#align button').forEach(x => x.classList.toggle('on', x === b)); schedule() });
 document.getElementById('lh').addEventListener('input', () => schedule(true));
@@ -592,7 +585,7 @@ function setShape(k) {
   document.getElementById('amtRow').hidden = k === 'none';
   document.getElementById('waveLenRow').hidden = k !== 'wave';
   // Perspective and Barrel get messy past these, so their slider stops there
-  const L = { persp: 40, barrel: 50 }[k] || 100, el = document.getElementById('amt');
+  const L = { persp: 40, barrel: 50, rise: 200 }[k] || 100, el = document.getElementById('amt');
   el.min = -L; el.max = L; WARP.amt = setRange('amt', clamp(WARP.amt, -L, L));
 }
 document.querySelectorAll('#shapes button').forEach(b => b.onclick = () => { setShape(b.dataset.s); schedule() });
