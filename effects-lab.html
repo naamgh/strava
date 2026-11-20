@@ -542,6 +542,28 @@ const FX = [
         oA[i] = a; oR[i] = 255 * wf + tint[0] * wl; oG[i] = 255 * wf + tint[1] * wl; oB[i] = 255 * wf + tint[2] * wl;
       }
       ctx.putImageData(toImage(oR, oG, oB, oA), 0, 0);
+    } },
+  { key: 'scan', pad: P => ({ x: P.size * 2.6 + P.smear, y: P.size * 2.6 }), name: 'Scanlines', desc: '<b>Scanlines.</b> A clean, modern take on a VHS screen: soft white text with a gentle glow, a bright white core, fine horizontal scanlines and a slight sideways smear.',
+    controls: [['gap', 'Line spacing', 2, 12, 5, 1], ['dark', 'Line darkness', 0, 100, 55], ['soft', 'Softness', 0, 8, 1.5, 1], ['smear', 'Smear', 0, 30, 6, 1], ['size', 'Glow size', 2, 40, 14, 1], ['glow', 'Glow', 0, 150, 70], ['core', 'White core', 0, 200, 70], ['grain', 'Grain', 0, 100, 12]],
+    render(ctx, P) {
+      const M = maskArray(), B = P.soft > 0 ? gauss(Float32Array.from(M), P.soft) : Float32Array.from(M);
+      // sideways smear: blur along each row only, then keep the brighter of sharp and smeared
+      const r = Math.round(P.smear), S = new Float32Array(N);
+      if (r > 0) for (let y = 0; y < H; y++) { const row = y * W; let acc = 0; for (let x = -r; x < W; x++) { if (x + r < W) acc += B[row + x + r]; if (x - r - 1 >= 0) acc -= B[row + x - r - 1]; if (x >= 0) S[row + x] = acc / (2 * r + 1) } }
+      const G = gauss(Float32Array.from(M), P.size), gap = Math.max(2, P.gap), dk = P.dark / 100, k = P.glow / 100, R = rng(71), g = P.grain / 100;
+      const oR = new Float32Array(N), oG = new Float32Array(N), oB = new Float32Array(N), oA = new Float32Array(N);
+      for (let y = 0; y < H; y++) {
+        const ph = (y % gap) / gap, line = 1 - dk * Math.pow(.5 - .5 * Math.cos(ph * 2 * Math.PI), 1.5);   // soft dark band every few pixels
+        for (let x = 0; x < W; x++) {
+          const i = y * W + x, f = clamp(Math.max(B[i], S[i] * .85)) * line, gl = clamp(G[i] * k * 1.2) * (1 - dk * .35 + dk * .35 * line);
+          let a = f + gl * (1 - f); if (a < .004) continue;
+          if (g > 0) a = clamp(a * (1 + (R() - .5) * g * .5));
+          oA[i] = a; oR[i] = oG[i] = oB[i] = 255;
+        }
+      }
+      whiteCore(oR, oG, oB, oA, M, P.core * .6, 2 + P.soft);
+      for (let y = 0; y < H; y++) { const ph = (y % gap) / gap, line = 1 - dk * .6 * Math.pow(.5 - .5 * Math.cos(ph * 2 * Math.PI), 1.5); for (let x = 0; x < W; x++) oA[y * W + x] *= line }   // scanlines also run through the core
+      ctx.putImageData(toImage(oR, oG, oB, oA), 0, 0);
     } }
 ];
 
