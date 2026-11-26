@@ -2404,13 +2404,20 @@
       const step = Math.max(1, Math.floor(sm.length / 240)), pts = sm.filter((_, i) => i % step === 0);
       const line = state.mods.powerLine && pts.length > 2, top = Math.max(...bl.map(b => b.val), ...(line ? pts.map(p => p[1]) : []), 1) * 1.04, y = v => H - v / top * H;
       const ref = wd.ftp || Math.max(...bl.map(b => b.val));   // zones are relative to FTP, or to the hardest lap
-      let x = 0;
-      const rects = bl.map(b => {
-        const w = Math.max(.4, b.dur / total * 100 - gap), h = Math.max(1.2, b.val / top * H), r = Math.min(w / 2, 2.4), z = b.val >= ref * (wd.ftp ? 1.05 : .9) ? 3 : b.val >= ref * (wd.ftp ? .76 : .62) ? 2 : 1;
+      // Gaps come out of the total first, then the rest is shared by time, with a minimum width so short laps stay visible
+      const avail = 100 - gap * (bl.length - 1), minW = Math.min(1.6, avail / bl.length);
+      let ws = bl.map(b => b.dur / total * avail);
+      for (let k = 0; k < 4; k++) { const small = ws.map(w => w < minW), fixed = small.filter(Boolean).length * minW, rest = bl.reduce((a, b, i) => a + (small[i] ? 0 : b.dur), 0); ws = bl.map((b, i) => small[i] ? minW : b.dur / (rest || 1) * (avail - fixed)) }
+      const segs = []; let x = 0, t0 = 0;
+      const rects = bl.map((b, i) => {
+        const w = ws[i];
+        segs.push([t0, b.dur, x, w]); t0 += b.dur;
+        const h = Math.max(1.2, b.val / top * H), r = Math.min(w / 2, 2.4), z = b.val >= ref * (wd.ftp ? 1.05 : .9) ? 3 : b.val >= ref * (wd.ftp ? .76 : .62) ? 2 : 1;
         const out = `<rect class="wb z${z}" x="${x.toFixed(2)}" y="${(H - h).toFixed(2)}" width="${w.toFixed(2)}" height="${h.toFixed(2)}" rx="${r.toFixed(2)}"/>`;
-        x += b.dur / total * 100; return out;
+        x += w + gap; return out;
       }).join('');
-      const pl = line ? `<path class="wl" d="${pts.map((p, i) => `${i ? 'L' : 'M'}${(p[0] / pts[pts.length - 1][0] * 100).toFixed(2)} ${y(p[1]).toFixed(2)}`).join(' ')}"/>` : '';
+      const cl = v => v < 0 ? 0 : v > 1 ? 1 : v, tEnd = pts.length ? pts[pts.length - 1][0] : 1, tx = t => { const tt = t / tEnd * total, sg = segs.find(q => tt < q[0] + q[1]) || segs[segs.length - 1]; return sg[2] + cl((tt - sg[0]) / sg[1]) * sg[3] };   // the line follows the blocks it sits over
+      const pl = line ? `<path class="wl" d="${pts.map((p, i) => `${i ? 'L' : 'M'}${tx(p[0]).toFixed(2)} ${y(p[1]).toFixed(2)}`).join(' ')}"/>` : '';
       return { svg: `<svg viewBox="0 0 100 ${H}">${rects}${pl}</svg>`, wd, total };
     }
     const noSplits = c => `${kHead(c)}<div class="k-nosplits">No split data for this activity yet.</div>`;
