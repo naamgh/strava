@@ -1464,7 +1464,7 @@
     /* Workout: interval blocks redrawn from laps, power trace behind, FTP line */
     .k-wo svg { display: block; width: 100%; height: auto; overflow: visible; margin: 3cqw 0 2cqw; }
     .k-wo .wb { fill: currentColor; }
-    .k-wo .wb.z1 { opacity: .38; } .k-wo .wb.z2 { opacity: .72; } .k-wo .wb.z3 { fill: var(--acc); }
+    .k-wo .wb.z3 { fill: var(--acc); }   /* all blocks fully solid so they hold up over photos; hard efforts in the accent */
     .k-wo .wl { fill: none; stroke: #fff; stroke-width: .5; stroke-linejoin: round; stroke-linecap: round; }
     .k-wo .k-between { align-items: baseline; }
     .k-hv { display: grid; grid-template-columns: 1fr 1fr; gap: 3cqw; margin-top: 5cqw; }
@@ -1895,7 +1895,7 @@
       ['Quiet', ['caption', 'sentence', 'label', 'log']],
       ['Bold', ['monolith', 'stack', 'ticket', 'echo', 'knockout', 'sticker', 'bigunit', 'pills', 'routehero']],
       ['Type', ['hairline', 'weightshift', 'column', 'onefamily', 'fadestack']],
-      ['Splits', ['splitflag', 'splitbars', 'ladder', 'splitline', 'fasthero', 'halves', 'splits', 'workout']]
+      ['Splits', ['workout', 'splitflag', 'splitbars', 'ladder', 'splitline', 'fasthero', 'halves', 'splits']]
     ];
     { const order = STYLE_CATEGORIES.flatMap(c => c[1]); styleDefs.sort((a, b) => order.indexOf(a.key) - order.indexOf(b.key)) }   // swiping walks category by category
     const QUIET_STYLES = new Set(['caption', 'sentence', 'label', 'log']);   // understated: no graphics appended
