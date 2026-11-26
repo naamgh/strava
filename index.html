@@ -1463,8 +1463,8 @@
     .k-halves .k-fill .k-t { font-family: Rubik, sans-serif; font-weight: 900; line-height: .85; letter-spacing: -.05em; }
     /* Workout: interval blocks redrawn from laps, power trace behind, FTP line */
     .k-wo svg { display: block; width: 100%; height: auto; overflow: visible; margin: 3cqw 0 2cqw; }
-    .k-wo .wb { fill: currentColor; }
-    .k-wo .wb.z3 { fill: var(--acc); }   /* all blocks fully solid so they hold up over photos; hard efforts in the accent */
+    .k-wo .wb, .k-mwo .wb { fill: currentColor; }
+    .k-wo .wb.z3, .k-mwo .wb.z3 { fill: var(--acc); }   /* all blocks fully solid so they hold up over photos; hard efforts in the accent */
     .k-wo .wl { fill: none; stroke: #fff; stroke-width: .5; stroke-linejoin: round; stroke-linecap: round; }
     .k-wo .k-between { align-items: baseline; }
     .k-hv { display: grid; grid-template-columns: 1fr 1fr; gap: 3cqw; margin-top: 5cqw; }
@@ -1588,6 +1588,11 @@
     .k-miniglow .k-mgn { font-size: 24cqw; line-height: .85; text-shadow: 0 0 3cqw var(--glow), 0 0 9cqw var(--glow); }
     .k-miniglow .k-mrow + .k-mrow { margin-top: 2.5cqw; }
     .k-miniglow .k-mgn small { font-size: .3em; margin-left: .12em; }
+    .k-mwo { text-align: center; }
+    .k-mwo .k-mwt { font-family: "DM Sans", sans-serif; font-weight: 700; font-size: 5.4cqw; letter-spacing: .08em; text-transform: uppercase; margin-bottom: 3cqw; }
+    .k-mwo svg { display: block; width: 100%; height: auto; }
+    .k-mwo .k-mwh { display: inline-block; margin-top: 3.5cqw; font-family: Bungee, sans-serif; font-size: 15cqw; line-height: 1; white-space: nowrap; }
+    .k-mwo .k-mwh span { color: var(--acc); }
     .k-miniroute .k-mrw { display: inline-flex; flex-direction: column; max-width: 100%; vertical-align: top; }   /* the group is as wide as the distance */
     .k-miniroute svg { display: block; width: 0; min-width: 100%; height: auto; max-height: 60cqw; overflow: visible; margin-bottom: 5cqw; }   /* centred over the distance, never widens the group */
     .k-miniroute .k-route { stroke-width: 2.4; }
@@ -1889,9 +1894,9 @@
   <script>
     const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)]; 
     const profiles = { swim: { title: 1, actType: 0, distance: 1, time: 1, pace: 1, elevation: 0, heart: 1, power: 0, route: 0, elevProfile: 0, splits: 1, date: 1, powerLine: 1 }, run: { title: 1, actType: 0, distance: 1, time: 1, pace: 1, elevation: 0, heart: 1, power: 0, route: 0, elevProfile: 0, splits: 1, date: 1, powerLine: 1 }, ride: { title: 1, actType: 0, distance: 1, time: 1, pace: 1, elevation: 1, heart: 1, power: 1, route: 1, elevProfile: 0, splits: 0, date: 1, powerLine: 1 }, minimal: { title: 1, actType: 0, distance: 1, time: 1, pace: 1, elevation: 0, heart: 0, power: 0, route: 0, elevProfile: 0, splits: 0, date: 0, powerLine: 1 }, all: { title: 1, actType: 0, distance: 1, time: 1, pace: 1, elevation: 1, heart: 1, power: 1, route: 1, elevProfile: 1, splits: 1, date: 1, powerLine: 1 } }; 
-    const styleDefs = [{ key: 'monolith', name: 'Monolith' }, { key: 'stack', name: 'Stack' }, { key: 'ticket', name: 'Ticket' }, { key: 'echo', name: 'Echo' }, { key: 'knockout', name: 'Knockout' }, { key: 'sticker', name: 'Sticker' }, { key: 'routehero', name: 'Route Hero' }, { key: 'splits', name: 'Splits Wall' }, { key: 'hairline', name: 'Hairline' }, { key: 'weightshift', name: 'Weight Shift' }, { key: 'column', name: 'Column' }, { key: 'onefamily', name: 'One Family' }, { key: 'fadestack', name: 'Fade Stack' }, { key: 'bigunit', name: 'Big Unit' }, { key: 'pills', name: 'Pills' }, { key: 'splitflag', name: 'Fastest Split' }, { key: 'splitbars', name: 'Split Bars' }, { key: 'ladder', name: 'Ladder' }, { key: 'splitline', name: 'Split Line' }, { key: 'fasthero', name: 'Fastest Hero' }, { key: 'halves', name: 'Halves' }, { key: 'workout', name: 'Workout' }, { key: 'caption', name: 'Caption' }, { key: 'sentence', name: 'Sentence' }, { key: 'label', name: 'Label' }, { key: 'log', name: 'Log' }, { key: 'ministack', name: 'Wide Stack' }, { key: 'minireadout', name: 'Readout' }, { key: 'miniglow', name: 'Glow Day' }, { key: 'miniroute', name: 'Route' }, { key: 'minimono', name: 'Mono Stack' }, { key: 'miniscript', name: 'Script' }];
+    const styleDefs = [{ key: 'monolith', name: 'Monolith' }, { key: 'stack', name: 'Stack' }, { key: 'ticket', name: 'Ticket' }, { key: 'echo', name: 'Echo' }, { key: 'knockout', name: 'Knockout' }, { key: 'sticker', name: 'Sticker' }, { key: 'routehero', name: 'Route Hero' }, { key: 'splits', name: 'Splits Wall' }, { key: 'hairline', name: 'Hairline' }, { key: 'weightshift', name: 'Weight Shift' }, { key: 'column', name: 'Column' }, { key: 'onefamily', name: 'One Family' }, { key: 'fadestack', name: 'Fade Stack' }, { key: 'bigunit', name: 'Big Unit' }, { key: 'pills', name: 'Pills' }, { key: 'splitflag', name: 'Fastest Split' }, { key: 'splitbars', name: 'Split Bars' }, { key: 'ladder', name: 'Ladder' }, { key: 'splitline', name: 'Split Line' }, { key: 'fasthero', name: 'Fastest Hero' }, { key: 'halves', name: 'Halves' }, { key: 'workout', name: 'Workout' }, { key: 'caption', name: 'Caption' }, { key: 'sentence', name: 'Sentence' }, { key: 'label', name: 'Label' }, { key: 'log', name: 'Log' }, { key: 'ministack', name: 'Wide Stack' }, { key: 'minireadout', name: 'Readout' }, { key: 'miniglow', name: 'Glow Day' }, { key: 'miniroute', name: 'Route' }, { key: 'minimono', name: 'Mono Stack' }, { key: 'miniscript', name: 'Script' }, { key: 'miniworkout', name: 'Workout' }];
     const STYLE_CATEGORIES = [
-      ['Mini', ['ministack', 'minireadout', 'miniglow', 'miniroute', 'minimono', 'miniscript']],
+      ['Mini', ['ministack', 'minireadout', 'miniglow', 'miniroute', 'minimono', 'miniscript', 'miniworkout']],
       ['Quiet', ['caption', 'sentence', 'label', 'log']],
       ['Bold', ['monolith', 'stack', 'ticket', 'echo', 'knockout', 'sticker', 'bigunit', 'pills', 'routehero']],
       ['Type', ['hairline', 'weightshift', 'column', 'onefamily', 'fadestack']],
@@ -1899,7 +1904,7 @@
     ];
     { const order = STYLE_CATEGORIES.flatMap(c => c[1]); styleDefs.sort((a, b) => order.indexOf(a.key) - order.indexOf(b.key)) }   // swiping walks category by category
     const QUIET_STYLES = new Set(['caption', 'sentence', 'label', 'log']);   // understated: no graphics appended
-    const MINI_STYLES = new Set(['ministack', 'minireadout', 'miniglow', 'miniroute', 'minimono', 'miniscript']);   // fixed 2 to 3 element cards: the Data chips don't apply
+    const MINI_STYLES = new Set(['ministack', 'minireadout', 'miniglow', 'miniroute', 'minimono', 'miniscript', 'miniworkout']);   // fixed 2 to 3 element cards: the Data chips don't apply
     MINI_STYLES.forEach(k => QUIET_STYLES.add(k));   // and, like the quiet cards, no graphics appended
     const SPLIT_STYLES = new Set(['workout', 'splits', 'splitflag', 'splitbars', 'ladder', 'splitline', 'fasthero', 'halves']);   // cards that are already all about splits
     const profileLabels = { run: 'Running Default', ride: 'Cycling Default', minimal: 'Minimal Core', all: 'All Data' }; 
@@ -2396,29 +2401,37 @@
       const trace = power && wS && tS ? wS.map((w, i) => [tS[i], w || 0]) : [];
       return { blocks, trace, ftp: power ? state.ftp || 0 : 0, unit: power ? 'W' : 'km/h' };
     }
-    function workoutSvg() {
+    function workoutSvg(o = {}) {
       const wd = workoutData(), bl = wd.blocks; if (bl.length < 2) return '';
-      const total = bl.reduce((a, b) => a + b.dur, 0), H = 56, gap = Math.min(1.6, 48 / bl.length);
+      const total = bl.reduce((a, b) => a + b.dur, 0), H = o.H || 56, gap = Math.min(o.gap || 1.6, 48 / bl.length);
       const sm = [], tr = wd.trace;   // 20 s rolling average of the trace, thinned to about 240 points
       for (let i = 0, acc = 0, j = 0; i < tr.length; i++) { acc += tr[i][1]; while (tr[i][0] - tr[j][0] > 20) acc -= tr[j++][1]; sm.push([tr[i][0], acc / (i - j + 1)]) }
       const step = Math.max(1, Math.floor(sm.length / 240)), pts = sm.filter((_, i) => i % step === 0);
-      const line = state.mods.powerLine && pts.length > 2, top = Math.max(...bl.map(b => b.val), ...(line ? pts.map(p => p[1]) : []), 1) * 1.04, y = v => H - v / top * H;
-      const ref = wd.ftp || Math.max(...bl.map(b => b.val));   // zones are relative to FTP, or to the hardest lap
+      const line = !o.noLine && state.mods.powerLine && pts.length > 2, top = Math.max(...bl.map(b => b.val), ...(line ? pts.map(p => p[1]) : []), 1) * 1.04, y = v => H - v / top * H;
+      const hiVal = Math.max(...bl.map(b => b.val)), ref = wd.ftp || hiVal;   // zones are relative to FTP, or to the hardest lap
       // Gaps come out of the total first, then the rest is shared by time, with a minimum width so short laps stay visible
-      const avail = 100 - gap * (bl.length - 1), minW = Math.min(1.6, avail / bl.length);
+      const avail = 100 - gap * (bl.length - 1), minW = Math.min(o.minW || 1.6, avail / bl.length);
       let ws = bl.map(b => b.dur / total * avail);
       for (let k = 0; k < 4; k++) { const small = ws.map(w => w < minW), fixed = small.filter(Boolean).length * minW, rest = bl.reduce((a, b, i) => a + (small[i] ? 0 : b.dur), 0); ws = bl.map((b, i) => small[i] ? minW : b.dur / (rest || 1) * (avail - fixed)) }
       const segs = []; let x = 0, t0 = 0;
       const rects = bl.map((b, i) => {
         const w = ws[i];
         segs.push([t0, b.dur, x, w]); t0 += b.dur;
-        const h = Math.max(1.2, b.val / top * H), r = Math.min(w / 2, 2.4), z = b.val >= ref * (wd.ftp ? 1.05 : .9) ? 3 : b.val >= ref * (wd.ftp ? .76 : .62) ? 2 : 1;
+        const h = Math.max(1.2, b.val / top * H), r = Math.min(w / 2, 2.4), z = b.val >= hiVal * .9 || (wd.ftp && b.val >= wd.ftp * 1.05) ? 3 : b.val >= ref * (wd.ftp ? .76 : .62) ? 2 : 1;
         const out = `<rect class="wb z${z}" x="${x.toFixed(2)}" y="${(H - h).toFixed(2)}" width="${w.toFixed(2)}" height="${h.toFixed(2)}" rx="${r.toFixed(2)}"/>`;
         x += w + gap; return out;
       }).join('');
       const cl = v => v < 0 ? 0 : v > 1 ? 1 : v, tEnd = pts.length ? pts[pts.length - 1][0] : 1, tx = t => { const tt = t / tEnd * total, sg = segs.find(q => tt < q[0] + q[1]) || segs[segs.length - 1]; return sg[2] + cl((tt - sg[0]) / sg[1]) * sg[3] };   // the line follows the blocks it sits over
       const pl = line ? `<path class="wl" d="${pts.map((p, i) => `${i ? 'L' : 'M'}${tx(p[0]).toFixed(2)} ${y(p[1]).toFixed(2)}`).join(' ')}"/>` : '';
       return { svg: `<svg viewBox="0 0 100 ${H}">${rects}${pl}</svg>`, wd, total };
+    }
+    // Mini workout hero: the main set as reps x duration ("7×3'"), from the laps above threshold
+    function repLabel() {
+      const wd = workoutData(), bl = wd.blocks; if (bl.length < 2) return '';
+      const ref = wd.ftp || Math.max(...bl.map(b => b.val)), top = Math.max(...bl.map(b => b.val)), hard = bl.filter(b => b.val >= top * .9 || (wd.ftp && b.val >= wd.ftp * 1.05));   // the main set: laps close to the hardest one
+      if (hard.length < 2) return '';
+      const d = hard.map(b => b.dur).sort((a, b) => a - b)[Math.floor(hard.length / 2)];
+      return `${hard.length}×${d >= 60 ? Math.round(d / 60) + "'" : Math.round(d) + '"'}`;
     }
     const noSplits = c => `${kHead(c)}<div class="k-nosplits">No split data for this activity yet.</div>`;
     const kHead = c => (c.left || c.right) ? `<div class="k-between k-head"><span class="k-tiny">${c.left}</span><span class="k-tiny">${c.right}</span></div>` : '';
@@ -2523,6 +2536,13 @@
         return `<div class="k-fill"><span class="k-t">${d.n} ${d.u}</span></div><div class="k-mr"><span>${c.day}</span>${p ? `<span>${p}</span>` : ''}</div>`; },
       miniglow: c => { const d = miniDist(c);
         return `<div class="k-mrow"><span class="k-mgd k-shrink kg">${c.day.toUpperCase()}</span></div><div class="k-mrow"><span class="k-mgn k-shrink kg">${d.n}<small>${d.u}</small></span></div>`; },
+      miniworkout: c => {
+        const w = workoutSvg({ H: 26, gap: 1.8, minW: 2.2, noLine: true }); if (!w) return noSplits(c);
+        const a = state.detail?.activity || state.activity, first = a ? (a.name || '').trim().split(/\s+/)[0] : 'VO2';
+        const name = first && first.length <= 6 && !/^(morning|afternoon|evening|lunch|night)$/i.test(first) ? esc(first.toUpperCase()) : '';
+        const reps = repLabel(), hero = [name, reps ? `<span>${reps}</span>` : ''].filter(Boolean).join(' ') || `<span>${c.time}</span>`;
+        return `<div class="k-mwo"><div class="k-mwt">${c.day.slice(0, 3)} · ${c.time}</div>${w.svg}<div class="k-mrow"><span class="k-mwh k-shrink kg">${hero}</span></div></div>`;
+      },
       miniroute: c => { const d = miniDist(c), p = miniPace(c);
         return `<div class="k-mrw">${routeSvgK(true)}${miniLine(d.n, d.u)}<div class="k-mp"><span>${c.day.slice(0, 3)}</span>${p ? `<span>${p}</span>` : ''}</div></div>`; },
       minimono: c => { const d = miniDist(c);
@@ -3151,7 +3171,7 @@
     }
 
     // ─── Studio UI (Style / Data / Colour / Grain tools) ─────────────────────
-    const STYLE_FONTS = { monolith: 'Anton', stack: '"Archivo Black"', ticket: '"Big Shoulders Display"', echo: '"Bricolage Grotesque"', knockout: '"Bowlby One"', sticker: '"Dela Gothic One"', routehero: 'Anton', splits: '"Archivo Black"', hairline: '"Inter Tight"', weightshift: 'Outfit', column: '"Saira Extra Condensed"', onefamily: 'Unbounded', fadestack: 'Oswald', bigunit: 'Rubik', pills: 'Rubik', splitflag: '"Archivo Black"', splitbars: '"Archivo Black"', ladder: '"Inter Tight"', splitline: '"Inter Tight"', fasthero: 'Anton', halves: 'Rubik', caption: '"Hanken Grotesk"', sentence: '"Inter Tight"', label: '"Instrument Sans"', log: '"JetBrains Mono"', ministack: '"Anybody Wide"', minireadout: '"Rammetto One"', miniglow: '"Anybody Wide"', miniroute: 'Bungee', minimono: '"Rubik Mono One"', miniscript: '"Rubik Mono One"' };
+    const STYLE_FONTS = { monolith: 'Anton', stack: '"Archivo Black"', ticket: '"Big Shoulders Display"', echo: '"Bricolage Grotesque"', knockout: '"Bowlby One"', sticker: '"Dela Gothic One"', routehero: 'Anton', splits: '"Archivo Black"', hairline: '"Inter Tight"', weightshift: 'Outfit', column: '"Saira Extra Condensed"', onefamily: 'Unbounded', fadestack: 'Oswald', bigunit: 'Rubik', pills: 'Rubik', splitflag: '"Archivo Black"', splitbars: '"Archivo Black"', ladder: '"Inter Tight"', splitline: '"Inter Tight"', fasthero: 'Anton', halves: 'Rubik', caption: '"Hanken Grotesk"', sentence: '"Inter Tight"', label: '"Instrument Sans"', log: '"JetBrains Mono"', ministack: '"Anybody Wide"', minireadout: '"Rammetto One"', miniglow: '"Anybody Wide"', miniroute: 'Bungee', minimono: '"Rubik Mono One"', miniscript: '"Rubik Mono One"', miniworkout: 'Bungee' };
     const STYLE_WEIGHTS = { hairline: 100, weightshift: 900, column: 900, onefamily: 900, fadestack: 700, bigunit: 900, pills: 800, ladder: 100, splitline: 800, halves: 900, caption: 500, sentence: 300, label: 400, log: 500 };
     const STAT_MAX = { monolith: 4, ticket: 3, echo: 3, knockout: 4, routehero: 4, caption: 2, sentence: 3, label: 2, log: 2, hairline: 4, weightshift: 3, column: 2, onefamily: 3, fadestack: 2, bigunit: 3, pills: 4 };   // how many stats each card's stat row can show
     const icon = id => `<svg class="ic"><use href="#i-${id}"/></svg>`;
