@@ -1461,6 +1461,13 @@
     .k-badge { display: inline-block; padding: 1.6cqw 3.4cqw 2cqw; border-radius: 999px; background: var(--acc); color: #111; font-family: Rubik, sans-serif; font-weight: 900; font-size: 4.4cqw; }
     .k-halves .k-fill { margin-top: 4cqw; }
     .k-halves .k-fill .k-t { font-family: Rubik, sans-serif; font-weight: 900; line-height: .85; letter-spacing: -.05em; }
+    /* Workout: interval blocks redrawn from laps, power trace behind, FTP line */
+    .k-wo svg { display: block; width: 100%; height: auto; overflow: visible; margin: 3cqw 0 2cqw; }
+    .k-wo .wb { fill: currentColor; }
+    .k-wo .wb.z1 { opacity: .38; } .k-wo .wb.z2 { opacity: .72; } .k-wo .wb.z3 { fill: var(--acc); }
+    .k-wo .wp { fill: currentColor; opacity: .2; }
+    .k-wo .wf { stroke: currentColor; stroke-width: .45; stroke-dasharray: 1.6 1.2; opacity: .85; }
+    .k-wo .k-between { align-items: baseline; }
     .k-hv { display: grid; grid-template-columns: 1fr 1fr; gap: 3cqw; margin-top: 5cqw; }
     .k-hv .bar { height: 3cqw; margin: 2cqw 0; background: currentColor; opacity: .45; }
     .k-hv .fast .bar { background: var(--acc); opacity: 1; }
@@ -1883,19 +1890,19 @@
   <script>
     const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)]; 
     const profiles = { swim: { title: 1, actType: 0, distance: 1, time: 1, pace: 1, elevation: 0, heart: 1, power: 0, route: 0, elevProfile: 0, splits: 1, date: 1 }, run: { title: 1, actType: 0, distance: 1, time: 1, pace: 1, elevation: 0, heart: 1, power: 0, route: 0, elevProfile: 0, splits: 1, date: 1 }, ride: { title: 1, actType: 0, distance: 1, time: 1, pace: 1, elevation: 1, heart: 1, power: 1, route: 1, elevProfile: 0, splits: 0, date: 1 }, minimal: { title: 1, actType: 0, distance: 1, time: 1, pace: 1, elevation: 0, heart: 0, power: 0, route: 0, elevProfile: 0, splits: 0, date: 0 }, all: { title: 1, actType: 0, distance: 1, time: 1, pace: 1, elevation: 1, heart: 1, power: 1, route: 1, elevProfile: 1, splits: 1, date: 1 } }; 
-    const styleDefs = [{ key: 'monolith', name: 'Monolith' }, { key: 'stack', name: 'Stack' }, { key: 'ticket', name: 'Ticket' }, { key: 'echo', name: 'Echo' }, { key: 'knockout', name: 'Knockout' }, { key: 'sticker', name: 'Sticker' }, { key: 'routehero', name: 'Route Hero' }, { key: 'splits', name: 'Splits Wall' }, { key: 'hairline', name: 'Hairline' }, { key: 'weightshift', name: 'Weight Shift' }, { key: 'column', name: 'Column' }, { key: 'onefamily', name: 'One Family' }, { key: 'fadestack', name: 'Fade Stack' }, { key: 'bigunit', name: 'Big Unit' }, { key: 'pills', name: 'Pills' }, { key: 'splitflag', name: 'Fastest Split' }, { key: 'splitbars', name: 'Split Bars' }, { key: 'ladder', name: 'Ladder' }, { key: 'splitline', name: 'Split Line' }, { key: 'fasthero', name: 'Fastest Hero' }, { key: 'halves', name: 'Halves' }, { key: 'caption', name: 'Caption' }, { key: 'sentence', name: 'Sentence' }, { key: 'label', name: 'Label' }, { key: 'log', name: 'Log' }, { key: 'ministack', name: 'Wide Stack' }, { key: 'minireadout', name: 'Readout' }, { key: 'miniglow', name: 'Glow Day' }, { key: 'miniroute', name: 'Route' }, { key: 'minimono', name: 'Mono Stack' }, { key: 'miniscript', name: 'Script' }];
+    const styleDefs = [{ key: 'monolith', name: 'Monolith' }, { key: 'stack', name: 'Stack' }, { key: 'ticket', name: 'Ticket' }, { key: 'echo', name: 'Echo' }, { key: 'knockout', name: 'Knockout' }, { key: 'sticker', name: 'Sticker' }, { key: 'routehero', name: 'Route Hero' }, { key: 'splits', name: 'Splits Wall' }, { key: 'hairline', name: 'Hairline' }, { key: 'weightshift', name: 'Weight Shift' }, { key: 'column', name: 'Column' }, { key: 'onefamily', name: 'One Family' }, { key: 'fadestack', name: 'Fade Stack' }, { key: 'bigunit', name: 'Big Unit' }, { key: 'pills', name: 'Pills' }, { key: 'splitflag', name: 'Fastest Split' }, { key: 'splitbars', name: 'Split Bars' }, { key: 'ladder', name: 'Ladder' }, { key: 'splitline', name: 'Split Line' }, { key: 'fasthero', name: 'Fastest Hero' }, { key: 'halves', name: 'Halves' }, { key: 'workout', name: 'Workout' }, { key: 'caption', name: 'Caption' }, { key: 'sentence', name: 'Sentence' }, { key: 'label', name: 'Label' }, { key: 'log', name: 'Log' }, { key: 'ministack', name: 'Wide Stack' }, { key: 'minireadout', name: 'Readout' }, { key: 'miniglow', name: 'Glow Day' }, { key: 'miniroute', name: 'Route' }, { key: 'minimono', name: 'Mono Stack' }, { key: 'miniscript', name: 'Script' }];
     const STYLE_CATEGORIES = [
       ['Mini', ['ministack', 'minireadout', 'miniglow', 'miniroute', 'minimono', 'miniscript']],
       ['Quiet', ['caption', 'sentence', 'label', 'log']],
       ['Bold', ['monolith', 'stack', 'ticket', 'echo', 'knockout', 'sticker', 'bigunit', 'pills', 'routehero']],
       ['Type', ['hairline', 'weightshift', 'column', 'onefamily', 'fadestack']],
-      ['Splits', ['splitflag', 'splitbars', 'ladder', 'splitline', 'fasthero', 'halves', 'splits']]
+      ['Splits', ['splitflag', 'splitbars', 'ladder', 'splitline', 'fasthero', 'halves', 'splits', 'workout']]
     ];
     { const order = STYLE_CATEGORIES.flatMap(c => c[1]); styleDefs.sort((a, b) => order.indexOf(a.key) - order.indexOf(b.key)) }   // swiping walks category by category
     const QUIET_STYLES = new Set(['caption', 'sentence', 'label', 'log']);   // understated: no graphics appended
     const MINI_STYLES = new Set(['ministack', 'minireadout', 'miniglow', 'miniroute', 'minimono', 'miniscript']);   // fixed 2 to 3 element cards: the Data chips don't apply
     MINI_STYLES.forEach(k => QUIET_STYLES.add(k));   // and, like the quiet cards, no graphics appended
-    const SPLIT_STYLES = new Set(['splits', 'splitflag', 'splitbars', 'ladder', 'splitline', 'fasthero', 'halves']);   // cards that are already all about splits
+    const SPLIT_STYLES = new Set(['workout', 'splits', 'splitflag', 'splitbars', 'ladder', 'splitline', 'fasthero', 'halves']);   // cards that are already all about splits
     const profileLabels = { run: 'Running Default', ride: 'Cycling Default', minimal: 'Minimal Core', all: 'All Data' }; 
     const moduleLabels = { title: 'Title', distance: 'Distance', time: 'Time', pace: 'Pace / Speed', elevation: 'Elevation', heart: 'Heart Rate', power: 'Power', route: 'Route Map', elevProfile: 'Elevation Profile', splits: 'Splits', date: 'Date' }; 
     
@@ -2371,6 +2378,43 @@
       return { ...d, ride, swim, distText, paceVal, paceUnit, hr, hero, stats, left: m.title ? d.title : m.actType ? d.type.toUpperCase() : '', right: m.date ? date : '', date, day };
     }
     const kStat = s => `<div class="k-stat"><span class="k-tiny">${s.k}</span><span class="k-mono">${s.v}</span></div>`;
+    // Workout blocks: one block per lap (structured workouts record a lap per interval). Width = lap time, height = lap power (or speed).
+    function workoutData() {
+      const d = state.detail, laps = d?.laps || [], wS = d?.streams?.watts?.data, tS = d?.streams?.time?.data;
+      if (!state.activity) {   // sample: warm-up, openers, 7 x (3 min hard, 3 min easy), cool-down
+        const b = [[600, 125], [60, 200], [60, 135], [60, 200], [60, 135], [60, 200], [60, 135]];
+        for (let i = 0; i < 7; i++) b.push([180, 302], i < 6 ? [180, 178] : [300, 160]);
+        let t = 0; const trace = [];
+        b.forEach(([dur, w]) => { for (let s = 0; s < dur; s += 10) trace.push([t + s, w * (.88 + .24 * Math.sin((t + s) / 37) * Math.cos((t + s) / 11))]); t += dur });
+        return { blocks: b.map(([dur, val]) => ({ dur, val })), trace, ftp: 220, unit: 'W' };
+      }
+      const power = laps.some(l => l.average_watts) || (wS && wS.length);
+      const blocks = laps.map(l => {
+        let val = power ? l.average_watts : l.average_speed * 3.6;
+        if (power && !val && wS && l.end_index > l.start_index) { const a = wS.slice(l.start_index, l.end_index + 1); val = a.reduce((x, y) => x + (y || 0), 0) / a.length }
+        return { dur: l.elapsed_time || l.moving_time || 0, val: val || 0 };
+      }).filter(b => b.dur > 0);
+      const trace = power && wS && tS ? wS.map((w, i) => [tS[i], w || 0]) : [];
+      return { blocks, trace, ftp: power ? state.ftp || 0 : 0, unit: power ? 'W' : 'km/h' };
+    }
+    function workoutSvg() {
+      const wd = workoutData(), bl = wd.blocks; if (bl.length < 2) return '';
+      const total = bl.reduce((a, b) => a + b.dur, 0), H = 56, gap = Math.min(.7, 30 / bl.length);
+      const sm = [], tr = wd.trace;   // 20 s rolling average of the trace, thinned to about 240 points
+      for (let i = 0, acc = 0, j = 0; i < tr.length; i++) { acc += tr[i][1]; while (tr[i][0] - tr[j][0] > 20) acc -= tr[j++][1]; sm.push([tr[i][0], acc / (i - j + 1)]) }
+      const step = Math.max(1, Math.floor(sm.length / 240)), pts = sm.filter((_, i) => i % step === 0);
+      const top = Math.max(...bl.map(b => b.val), wd.ftp * 1.1, ...pts.map(p => p[1]), 1) * 1.04, y = v => H - v / top * H;
+      const ref = wd.ftp || Math.max(...bl.map(b => b.val));   // zones are relative to FTP, or to the hardest lap
+      let x = 0;
+      const rects = bl.map(b => {
+        const w = Math.max(.4, b.dur / total * 100 - gap), h = Math.max(1.2, b.val / top * H), r = Math.min(w / 2, 2.4), z = b.val >= ref * (wd.ftp ? 1.05 : .9) ? 3 : b.val >= ref * (wd.ftp ? .76 : .62) ? 2 : 1;
+        const out = `<rect class="wb z${z}" x="${x.toFixed(2)}" y="${(H - h).toFixed(2)}" width="${w.toFixed(2)}" height="${h.toFixed(2)}" rx="${r.toFixed(2)}"/>`;
+        x += b.dur / total * 100; return out;
+      }).join('');
+      const area = pts.length > 2 ? `<path class="wp" d="M0 ${H} ${pts.map(p => `L${(p[0] / pts[pts.length - 1][0] * 100).toFixed(2)} ${y(p[1]).toFixed(2)}`).join(' ')} L100 ${H} Z"/>` : '';
+      const ftp = wd.ftp ? `<line class="wf" x1="0" x2="100" y1="${y(wd.ftp).toFixed(2)}" y2="${y(wd.ftp).toFixed(2)}"/>` : '';
+      return { svg: `<svg viewBox="0 0 100 ${H}" preserveAspectRatio="none">${area}${rects}${ftp}</svg>`, wd, total };
+    }
     const noSplits = c => `${kHead(c)}<div class="k-nosplits">No split data for this activity yet.</div>`;
     const kHead = c => (c.left || c.right) ? `<div class="k-between k-head"><span class="k-tiny">${c.left}</span><span class="k-tiny">${c.right}</span></div>` : '';
     const kTag = (c, sep) => [c.left, c.right].filter(Boolean).join(sep);   // title/type and date, with no stray separator when one is off
@@ -2522,6 +2566,10 @@
           <span class="k-tiny">${unit}</span>
           <div class="k-spark">${it.map((x, i) => `<i class="${i === sd.best ? 'best' : ''}" style="height:${splitH(sd, x, .3)}"></i>`).join('')}</div>
           ${verdictTag()}`;
+      },
+      workout: c => {
+        const w = workoutSvg(); if (!w) return noSplits(c);
+        return `<div class="k-wo">${kHead(c)}${w.svg}<div class="k-between"><span class="k-tiny">${fmtTime(w.total)}</span><span class="k-tiny">${w.wd.ftp ? 'FTP ' + Math.round(w.wd.ftp) + ' W' : w.wd.blocks.length + ' laps'}</span></div></div>`;
       },
       halves: c => {
         const h = halvesData();
@@ -3002,6 +3050,7 @@
         try { streams = await stravaGet(`/activities/${a.id}/streams?keys=latlng,altitude,distance,time,moving,heartrate,watts,velocity_smooth&key_by_type=true`) } catch (e) {}
         const laps = (activity.laps || []).map((lap, i) => ({ ...lap, index: i + 1, pace_sec_per_km: lap.distance ? lap.moving_time / (lap.distance / 1000) : null }));
         state.detail = { activity, streams, laps };
+        if (state.ftp === undefined) { try { state.ftp = (await stravaGet('/athlete')).ftp || 0 } catch (e) { state.ftp = 0 } }
         toast('Activity imported');
         closeSheets();
         render();
