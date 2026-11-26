@@ -1465,8 +1465,7 @@
     .k-wo svg { display: block; width: 100%; height: auto; overflow: visible; margin: 3cqw 0 2cqw; }
     .k-wo .wb { fill: currentColor; }
     .k-wo .wb.z1 { opacity: .38; } .k-wo .wb.z2 { opacity: .72; } .k-wo .wb.z3 { fill: var(--acc); }
-    .k-wo .wp { fill: currentColor; opacity: .2; }
-    .k-wo .wf { stroke: currentColor; stroke-width: .45; stroke-dasharray: 1.6 1.2; opacity: .85; }
+    .k-wo .wl { fill: none; stroke: #fff; stroke-width: .5; stroke-linejoin: round; stroke-linecap: round; }
     .k-wo .k-between { align-items: baseline; }
     .k-hv { display: grid; grid-template-columns: 1fr 1fr; gap: 3cqw; margin-top: 5cqw; }
     .k-hv .bar { height: 3cqw; margin: 2cqw 0; background: currentColor; opacity: .45; }
@@ -1889,7 +1888,7 @@
   <div class="toast" id="toast"></div>
   <script>
     const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)]; 
-    const profiles = { swim: { title: 1, actType: 0, distance: 1, time: 1, pace: 1, elevation: 0, heart: 1, power: 0, route: 0, elevProfile: 0, splits: 1, date: 1 }, run: { title: 1, actType: 0, distance: 1, time: 1, pace: 1, elevation: 0, heart: 1, power: 0, route: 0, elevProfile: 0, splits: 1, date: 1 }, ride: { title: 1, actType: 0, distance: 1, time: 1, pace: 1, elevation: 1, heart: 1, power: 1, route: 1, elevProfile: 0, splits: 0, date: 1 }, minimal: { title: 1, actType: 0, distance: 1, time: 1, pace: 1, elevation: 0, heart: 0, power: 0, route: 0, elevProfile: 0, splits: 0, date: 0 }, all: { title: 1, actType: 0, distance: 1, time: 1, pace: 1, elevation: 1, heart: 1, power: 1, route: 1, elevProfile: 1, splits: 1, date: 1 } }; 
+    const profiles = { swim: { title: 1, actType: 0, distance: 1, time: 1, pace: 1, elevation: 0, heart: 1, power: 0, route: 0, elevProfile: 0, splits: 1, date: 1, powerLine: 1 }, run: { title: 1, actType: 0, distance: 1, time: 1, pace: 1, elevation: 0, heart: 1, power: 0, route: 0, elevProfile: 0, splits: 1, date: 1, powerLine: 1 }, ride: { title: 1, actType: 0, distance: 1, time: 1, pace: 1, elevation: 1, heart: 1, power: 1, route: 1, elevProfile: 0, splits: 0, date: 1, powerLine: 1 }, minimal: { title: 1, actType: 0, distance: 1, time: 1, pace: 1, elevation: 0, heart: 0, power: 0, route: 0, elevProfile: 0, splits: 0, date: 0, powerLine: 1 }, all: { title: 1, actType: 0, distance: 1, time: 1, pace: 1, elevation: 1, heart: 1, power: 1, route: 1, elevProfile: 1, splits: 1, date: 1, powerLine: 1 } }; 
     const styleDefs = [{ key: 'monolith', name: 'Monolith' }, { key: 'stack', name: 'Stack' }, { key: 'ticket', name: 'Ticket' }, { key: 'echo', name: 'Echo' }, { key: 'knockout', name: 'Knockout' }, { key: 'sticker', name: 'Sticker' }, { key: 'routehero', name: 'Route Hero' }, { key: 'splits', name: 'Splits Wall' }, { key: 'hairline', name: 'Hairline' }, { key: 'weightshift', name: 'Weight Shift' }, { key: 'column', name: 'Column' }, { key: 'onefamily', name: 'One Family' }, { key: 'fadestack', name: 'Fade Stack' }, { key: 'bigunit', name: 'Big Unit' }, { key: 'pills', name: 'Pills' }, { key: 'splitflag', name: 'Fastest Split' }, { key: 'splitbars', name: 'Split Bars' }, { key: 'ladder', name: 'Ladder' }, { key: 'splitline', name: 'Split Line' }, { key: 'fasthero', name: 'Fastest Hero' }, { key: 'halves', name: 'Halves' }, { key: 'workout', name: 'Workout' }, { key: 'caption', name: 'Caption' }, { key: 'sentence', name: 'Sentence' }, { key: 'label', name: 'Label' }, { key: 'log', name: 'Log' }, { key: 'ministack', name: 'Wide Stack' }, { key: 'minireadout', name: 'Readout' }, { key: 'miniglow', name: 'Glow Day' }, { key: 'miniroute', name: 'Route' }, { key: 'minimono', name: 'Mono Stack' }, { key: 'miniscript', name: 'Script' }];
     const STYLE_CATEGORIES = [
       ['Mini', ['ministack', 'minireadout', 'miniglow', 'miniroute', 'minimono', 'miniscript']],
@@ -2399,11 +2398,11 @@
     }
     function workoutSvg() {
       const wd = workoutData(), bl = wd.blocks; if (bl.length < 2) return '';
-      const total = bl.reduce((a, b) => a + b.dur, 0), H = 56, gap = Math.min(.7, 30 / bl.length);
+      const total = bl.reduce((a, b) => a + b.dur, 0), H = 56, gap = Math.min(1.6, 48 / bl.length);
       const sm = [], tr = wd.trace;   // 20 s rolling average of the trace, thinned to about 240 points
       for (let i = 0, acc = 0, j = 0; i < tr.length; i++) { acc += tr[i][1]; while (tr[i][0] - tr[j][0] > 20) acc -= tr[j++][1]; sm.push([tr[i][0], acc / (i - j + 1)]) }
       const step = Math.max(1, Math.floor(sm.length / 240)), pts = sm.filter((_, i) => i % step === 0);
-      const top = Math.max(...bl.map(b => b.val), wd.ftp * 1.1, ...pts.map(p => p[1]), 1) * 1.04, y = v => H - v / top * H;
+      const line = state.mods.powerLine && pts.length > 2, top = Math.max(...bl.map(b => b.val), ...(line ? pts.map(p => p[1]) : []), 1) * 1.04, y = v => H - v / top * H;
       const ref = wd.ftp || Math.max(...bl.map(b => b.val));   // zones are relative to FTP, or to the hardest lap
       let x = 0;
       const rects = bl.map(b => {
@@ -2411,9 +2410,8 @@
         const out = `<rect class="wb z${z}" x="${x.toFixed(2)}" y="${(H - h).toFixed(2)}" width="${w.toFixed(2)}" height="${h.toFixed(2)}" rx="${r.toFixed(2)}"/>`;
         x += b.dur / total * 100; return out;
       }).join('');
-      const area = pts.length > 2 ? `<path class="wp" d="M0 ${H} ${pts.map(p => `L${(p[0] / pts[pts.length - 1][0] * 100).toFixed(2)} ${y(p[1]).toFixed(2)}`).join(' ')} L100 ${H} Z"/>` : '';
-      const ftp = wd.ftp ? `<line class="wf" x1="0" x2="100" y1="${y(wd.ftp).toFixed(2)}" y2="${y(wd.ftp).toFixed(2)}"/>` : '';
-      return { svg: `<svg viewBox="0 0 100 ${H}" preserveAspectRatio="none">${area}${rects}${ftp}</svg>`, wd, total };
+      const pl = line ? `<path class="wl" d="${pts.map((p, i) => `${i ? 'L' : 'M'}${(p[0] / pts[pts.length - 1][0] * 100).toFixed(2)} ${y(p[1]).toFixed(2)}`).join(' ')}"/>` : '';
+      return { svg: `<svg viewBox="0 0 100 ${H}">${rects}${pl}</svg>`, wd, total };
     }
     const noSplits = c => `${kHead(c)}<div class="k-nosplits">No split data for this activity yet.</div>`;
     const kHead = c => (c.left || c.right) ? `<div class="k-between k-head"><span class="k-tiny">${c.left}</span><span class="k-tiny">${c.right}</span></div>` : '';
@@ -2569,7 +2567,7 @@
       },
       workout: c => {
         const w = workoutSvg(); if (!w) return noSplits(c);
-        return `<div class="k-wo">${kHead(c)}${w.svg}<div class="k-between"><span class="k-tiny">${fmtTime(w.total)}</span><span class="k-tiny">${w.wd.ftp ? 'FTP ' + Math.round(w.wd.ftp) + ' W' : w.wd.blocks.length + ' laps'}</span></div></div>`;
+        return `<div class="k-wo">${kHead(c)}${w.svg}${state.mods.time ? `<span class="k-tiny">${c.time}</span>` : ''}</div>`;
       },
       halves: c => {
         const h = halvesData();
@@ -3251,7 +3249,8 @@
           { k: 'elevProfile', label: 'Elevation', icon: 'mount', ok: !state.activity || alt?.length > 1 },
           { k: 'title', label: 'Title', ok: true },
           { k: 'actType', label: 'Type', ok: true },
-          { k: 'date', label: 'Date', ok: true }
+          { k: 'date', label: 'Date', ok: true },
+          { k: 'powerLine', label: 'Power line', icon: 'bars', ok: state.style === 'workout' && !!(state.detail?.streams?.watts?.data?.length || !state.activity) }
         ]
       };
     }
